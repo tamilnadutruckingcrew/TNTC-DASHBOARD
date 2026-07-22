@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAMILNADU TRUCKING CREW- Live Telemetry</title>
+    <title>TAMILNADU TRUCKING CREW - Live Telemetry</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Live Data -->
@@ -35,13 +35,13 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         
-        /* Modal Animation */
+        /* Modal Animation Fix */
         #eventModal { transition: opacity 0.3s ease-out; }
         #eventModalContent { transition: transform 0.3s ease-out; }
-        .modal-open #eventModal { opacity: 1; pointer-events: auto; }
-        .modal-open #eventModalContent { transform: scale(1) translateY(0); }
-        .modal-closed #eventModal { opacity: 0; pointer-events: none; }
-        .modal-closed #eventModalContent { transform: scale(0.95) translateY(10px); }
+        #eventModal.modal-open { opacity: 1; pointer-events: auto; }
+        #eventModal.modal-open #eventModalContent { transform: scale(1) translateY(0); }
+        #eventModal.modal-closed { opacity: 0; pointer-events: none; }
+        #eventModal.modal-closed #eventModalContent { transform: scale(0.95) translateY(10px); }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 relative">
@@ -54,7 +54,7 @@
             </div>
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tight text-white">TAMILNADU TRUCKING CREW</h1>
-                <p class="text-slate-400 text-xs tracking-widest uppercase mt-0.5">Live Cloud Telemetry Engine</p>
+                <p class="text-slate-400 text-xs tracking-widest uppercase mt-0.5">DASHBOARD</p>
             </div>
         </div>
 
@@ -242,17 +242,15 @@
     <!-- ========================================== -->
     <!-- MODAL POPUP FOR EVENT DETAILS              -->
     <!-- ========================================== -->
+    <!-- NOTE: Added modal-closed class to ensure it's hidden on initial load -->
     <div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm modal-closed">
         <div id="eventModalContent" class="bg-tntc-card border border-slate-700 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden">
-            <!-- Modal Header (Image) -->
             <div id="modalImageContainer" class="w-full h-40 sm:h-48 bg-slate-800 relative bg-cover bg-center">
                 <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
                 <button onclick="closeModal()" class="absolute top-4 right-4 bg-black/50 p-1.5 rounded-full text-white hover:bg-black/80 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            
-            <!-- Modal Body -->
             <div class="p-5 sm:p-7 -mt-10 relative z-10">
                 <span id="modalCategory" class="inline-block px-2.5 py-1 bg-blue-900/80 text-blue-300 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
                 <h2 id="modalEventName" class="text-xl sm:text-2xl font-black text-white leading-tight mb-2">Event Name Here</h2>
@@ -263,11 +261,9 @@
                 <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
                     <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Drivers Attended (<span id="modalAttendanceCount">0</span>)
                 </h3>
-                
                 <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2">
                     <!-- Badges injected by JS -->
                 </div>
-                
                 <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:bg-emerald-400 text-slate-900 font-bold py-3 rounded-lg transition-colors shadow-lg">
                     View on TruckersMP <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i>
                 </a>
@@ -286,9 +282,8 @@
         let eventChartInstance = null;
         let globalJobData = []; 
         let globalEventData = { headers: [], rows: [] }; 
-        let currentFilteredEvents = []; // Needed for Modal
+        let currentFilteredEvents = []; 
 
-        // Number Rolling Animation
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             if (!obj) return;
@@ -328,7 +323,6 @@
             return true;
         }
 
-        // --- TAB LOGIC ---
         function switchTab(tabName) {
             const tabs = ['overview', 'logs', 'events'];
             tabs.forEach(t => {
@@ -349,7 +343,6 @@
             else if (tabName === 'events') applyEventFilters();
         }
 
-        // --- FETCH DATA ---
         function fetchData() {
             document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
             let timeParam = "t=" + new Date().getTime();
@@ -372,19 +365,17 @@
                 }
             });
 
-            // Fetch Events (WITH DYNAMIC HEADER FIX)
+            // Fetch Events 
             let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(eventUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
                     if (results.data && results.data.length > 1) {
                         let headerIndex = 0;
-                        // Search first 5 rows to find the actual header row (containing 'EVENT NAME' or 'DATE')
                         for(let i = 0; i < Math.min(5, results.data.length); i++) {
                             let rowStr = results.data[i].join(" ").toUpperCase();
                             if(rowStr.includes("EVENT NAME") || rowStr.includes("DATE")) {
-                                headerIndex = i;
-                                break;
+                                headerIndex = i; break;
                             }
                         }
                         globalEventData.headers = results.data[headerIndex];
@@ -403,7 +394,6 @@
             else if(!document.getElementById('tab-events').classList.contains('hidden')) applyEventFilters();
         }
 
-        // --- OVERVIEW TAB ---
         function applyOverviewFilter() {
             let timeFilter = document.getElementById('overviewTimeFilter').value;
             let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter));
@@ -451,13 +441,20 @@
             
             globalEventData.rows.forEach(row => {
                 let dateStr = row[1] || ''; 
+                let nameStr = row[2] || '';
+                
+                // 100+ Bug Fix: Skip empty rows at the bottom of sheet
+                if (dateStr.trim() === '' || nameStr.toString().trim() === '') return; 
+
                 if(checkDateFilter(dateStr, timeFilter)) {
                     totalEvents++; 
-                    for(let i = 6; i < headers.length; i++) { // Starts from index 6 (Driver G)
+                    for(let i = 6; i < headers.length; i++) { 
                         let dName = headers[i];
                         if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
+                        
                         let val = (row[i] || '').toString().trim().toUpperCase();
-                        if(val !== '' && val !== 'FALSE' && val !== '0') {
+                        // Smart Checkbox parsing (ignores FALSE, 0, NO, and Unicode unchecked symbols)
+                        if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
                             if(!driverEventMap[dName]) driverEventMap[dName] = 0;
                             driverEventMap[dName]++;
                         }
@@ -480,7 +477,6 @@
             renderEventChart(sortedEventDrivers.slice(0, 8)); 
         }
 
-        // --- LOGS TAB ---
         function populateDriverDropdown(rows) {
             let drivers = new Set();
             rows.forEach(row => { let d = row[2]; if(d && d.trim() !== '') drivers.add(d); });
@@ -520,10 +516,11 @@
             lucide.createIcons();
         }
 
-        // --- EVENTS TAB & MODAL ---
         function populateEventCategoryDropdown() {
             let categories = new Set();
             globalEventData.rows.forEach(row => {
+                let dateStr = row[1] || ''; let nameStr = row[2] || '';
+                if (dateStr.trim() === '' || nameStr.toString().trim() === '') return;
                 let cat = row[4]; 
                 if(cat && cat.trim() !== '') categories.add(cat.trim().toUpperCase());
             });
@@ -537,13 +534,16 @@
         function applyEventFilters() {
             let catFilter = document.getElementById('filterEventCategory').value;
             let timeFilter = document.getElementById('filterEventTime').value;
-            currentFilteredEvents = []; // Reset global array
+            currentFilteredEvents = []; 
             
             let recentEvents = [...globalEventData.rows].reverse();
             let headers = globalEventData.headers;
 
             recentEvents.forEach(row => {
                 let dateStr = row[1] || ''; 
+                let nameStr = row[2] || '';
+                if (dateStr.trim() === '' || nameStr.toString().trim() === '') return; 
+                
                 let category = (row[4] || '').trim().toUpperCase(); 
                 
                 if (catFilter !== 'ALL' && category !== catFilter) return;
@@ -554,7 +554,7 @@
                     let dName = headers[i];
                     if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
                     let val = (row[i] || '').toString().trim().toUpperCase();
-                    if(val !== '' && val !== 'FALSE' && val !== '0') {
+                    if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
                         driversAttended.push(dName);
                     }
                 }
@@ -564,7 +564,7 @@
                     name: row[2] || 'Unknown Event',
                     link: row[3] || '#',
                     category: category,
-                    image: row[5] || '', // Column F is Image Link
+                    image: row[5] || '', 
                     attendance: driversAttended.length,
                     drivers: driversAttended
                 });
@@ -595,48 +595,53 @@
             lucide.createIcons();
         }
 
-        // --- MODAL FUNCTIONS ---
+        // --- BULLETPROOF MODAL FUNCTIONS ---
         function openModal(index) {
             let ev = currentFilteredEvents[index];
             if(!ev) return;
 
-            document.getElementById('modalEventName').innerText = ev.name;
-            document.getElementById('modalDate').innerText = ev.date;
-            document.getElementById('modalCategory').innerText = ev.category;
-            document.getElementById('modalAttendanceCount').innerText = ev.attendance;
-            
-            // Set Image or fallback pattern
-            let imgContainer = document.getElementById('modalImageContainer');
-            if(ev.image && ev.image.startsWith('http')) {
-                imgContainer.style.backgroundImage = `url('${ev.image}')`;
-            } else {
-                imgContainer.style.backgroundImage = `linear-gradient(to right, #0f172a, #1e293b)`;
-            }
+            try {
+                // Populate Texts using textContent to prevent any HTML injection bugs
+                document.getElementById('modalEventName').textContent = ev.name || 'Unknown Event';
+                document.getElementById('modalDate').textContent = ev.date || 'No Date';
+                document.getElementById('modalCategory').textContent = ev.category || 'EVENT';
+                document.getElementById('modalAttendanceCount').textContent = ev.attendance || '0';
+                
+                // Set Background Image safely
+                let imgContainer = document.getElementById('modalImageContainer');
+                if(ev.image && typeof ev.image === 'string' && ev.image.startsWith('http')) {
+                    imgContainer.style.backgroundImage = `url('${ev.image}')`;
+                } else {
+                    imgContainer.style.backgroundImage = `linear-gradient(to right, #0f172a, #1e293b)`;
+                }
 
-            // Set Link
-            let linkBtn = document.getElementById('modalLinkBtn');
-            if(ev.link && ev.link !== '#') {
-                linkBtn.href = ev.link;
-                linkBtn.style.display = 'block';
-            } else {
-                linkBtn.style.display = 'none';
-            }
+                // Set View Link Safely
+                let linkBtn = document.getElementById('modalLinkBtn');
+                if(ev.link && ev.link !== '#' && ev.link.startsWith('http')) {
+                    linkBtn.href = ev.link;
+                    linkBtn.style.display = 'block';
+                } else {
+                    linkBtn.style.display = 'none';
+                }
 
-            // Create Driver Badges
-            let driversHTML = "";
-            if(ev.drivers.length > 0) {
-                ev.drivers.forEach(d => {
-                    driversHTML += `<span class="bg-emerald-900/40 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-md text-xs font-bold tracking-wide">${d}</span>`;
-                });
-            } else {
-                driversHTML = `<p class="text-slate-500 text-xs italic w-full">No drivers logged for this event.</p>`;
-            }
-            document.getElementById('modalDriversList').innerHTML = driversHTML;
+                // Populate Drivers Badges
+                let driversHTML = "";
+                if(ev.drivers && ev.drivers.length > 0) {
+                    ev.drivers.forEach(d => {
+                        driversHTML += `<span class="bg-emerald-900/40 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-md text-xs font-bold tracking-wide">${d}</span>`;
+                    });
+                } else {
+                    driversHTML = `<p class="text-slate-500 text-xs italic w-full">No drivers logged for this event.</p>`;
+                }
+                document.getElementById('modalDriversList').innerHTML = driversHTML;
 
-            // Show Modal
-            let modal = document.getElementById('eventModal');
-            modal.classList.remove('modal-closed');
-            modal.classList.add('modal-open');
+                // Open the modal only after successful population
+                let modal = document.getElementById('eventModal');
+                modal.classList.remove('modal-closed');
+                modal.classList.add('modal-open');
+            } catch (err) {
+                console.error("Modal Error:", err);
+            }
         }
 
         function closeModal() {
@@ -645,7 +650,6 @@
             modal.classList.add('modal-closed');
         }
 
-        // Close modal when clicking outside
         document.getElementById('eventModal').addEventListener('click', function(e) {
             if(e.target === this) closeModal();
         });
