@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TNTC Spartan Army - Live Telemetry Portal</title>
+    <title>TNTC Spartan Army - Live Telemetry</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Live Data -->
@@ -31,6 +32,10 @@
         .tab-active { background-color: #10b981; color: #022c22; font-weight: bold; }
         .tab-inactive { background-color: #1e293b; color: #94a3b8; }
         .tab-inactive:hover { background-color: #334155; color: #f8fafc; }
+        /* Custom Scrollbar for Leaderboard */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
@@ -59,11 +64,11 @@
     </header>
 
     <!-- Navigation Tabs -->
-    <div class="flex gap-2 mb-8">
-        <button onclick="switchTab('overview')" id="btn-overview" class="tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md">
+    <div class="flex flex-wrap gap-2 mb-8">
+        <button onclick="switchTab('overview')" id="btn-overview" class="tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md w-full sm:w-auto justify-center">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Division Overview
         </button>
-        <button onclick="switchTab('logs')" id="btn-logs" class="tab-inactive px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border border-slate-700">
+        <button onclick="switchTab('logs')" id="btn-logs" class="tab-inactive px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border border-slate-700 w-full sm:w-auto justify-center">
             <i data-lucide="filter" class="w-4 h-4"></i> Filter Job Logs
         </button>
     </div>
@@ -80,7 +85,7 @@
             </h2>
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <label class="text-xs font-semibold text-slate-400">Filter By:</label>
-                <select id="overviewTimeFilter" onchange="applyOverviewFilter()" class="w-full sm:w-auto bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 focus:border-emerald-500">
+                <select id="overviewTimeFilter" onchange="applyOverviewFilter()" class="w-full sm:w-auto bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                     <option value="ALL">All Time</option>
                     <option value="TODAY">Today</option>
                     <option value="MONTH">This Month</option>
@@ -114,9 +119,9 @@
                 <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-tntc-accent"></i> Delivery Volume</h3>
                 <div class="relative h-64 w-full"><canvas id="liveChart"></canvas></div>
             </div>
-            <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col max-h-[350px]">
+            <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col h-full md:h-[350px]">
                 <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-tntc-gold"></i> Driver Leaderboard</h3>
-                <div id="leaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar"></div>
+                <div id="leaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
             </div>
         </div>
     </div>
@@ -134,7 +139,7 @@
                 <!-- Driver Filter -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Select Driver</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500">
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                         <option value="ALL">All Drivers</option>
                     </select>
                 </div>
@@ -142,7 +147,7 @@
                 <!-- Time Filter -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
-                    <select id="filterTime" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500">
+                    <select id="filterTime" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                         <option value="ALL">All Time</option>
                         <option value="TODAY">Today's Jobs</option>
                         <option value="MONTH">This Month</option>
@@ -160,14 +165,15 @@
         <!-- Filtered Table -->
         <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr class="bg-slate-900/60 text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
                             <th class="p-3 sm:p-4">Time</th>
                             <th class="p-3 sm:p-4">Driver</th>
                             <th class="p-3 sm:p-4">Route</th>
-                            <th class="p-3 sm:p-4 hidden md:table-cell">Cargo</th>
+                            <th class="p-3 sm:p-4">Cargo</th>
                             <th class="p-3 sm:p-4">Distance</th>
+                            <th class="p-3 sm:p-4">Revenue</th>
                         </tr>
                     </thead>
                     <tbody id="filteredTableBody" class="text-xs divide-y divide-slate-800/60 font-medium">
@@ -182,12 +188,13 @@
         lucide.createIcons();
 
         // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URL HERE:
+        // Do not add anything extra, just paste the exact link.
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
 
         let chartInstance = null;
         let globalRawData = []; // Store all jobs for filtering
 
-        // Helper function for numbers
+        // Helper function for numbers (strips currency symbols and commas)
         function cleanNumber(str) {
             if (!str) return 0;
             let sanitized = str.toString().replace(/[^0-9.-]/g, '');
@@ -200,7 +207,7 @@
             let now = new Date();
             let rowDate = new Date(timeStr.replace(/-/g, ' '));
             
-            if (isNaN(rowDate)) return filterType === 'ALL'; // If invalid date, only show in ALL
+            if (isNaN(rowDate)) return filterType === 'ALL';
 
             if (filterType === 'TODAY') {
                 return rowDate.toDateString() === now.toDateString();
@@ -220,22 +227,30 @@
             if (tabName === 'overview') {
                 overviewTab.classList.remove('hidden');
                 logsTab.classList.add('hidden');
-                btnOverview.className = "tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md";
-                btnLogs.className = "tab-inactive px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border border-slate-700";
+                btnOverview.className = "tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md w-full sm:w-auto justify-center";
+                btnLogs.className = "tab-inactive px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border border-slate-700 w-full sm:w-auto justify-center";
+                applyOverviewFilter();
             } else {
                 overviewTab.classList.add('hidden');
                 logsTab.classList.remove('hidden');
-                btnLogs.className = "tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md";
-                btnOverview.className = "tab-inactive px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border border-slate-700";
+                btnLogs.className = "tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md w-full sm:w-auto justify-center";
+                btnOverview.className = "tab-inactive px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border border-slate-700 w-full sm:w-auto justify-center";
                 applyLogFilters(); 
             }
         }
 
-        // --- DATA FETCHING ---
+        // --- DATA FETCHING (WITH CACHE-BUSTER) ---
         function fetchLiveSheetData() {
             document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
-            Papa.parse(GOOGLE_SHEET_CSV_URL, {
-                download: true, header: false, skipEmptyLines: true,
+            
+            // CACHE BUSTER LOGIC: Forces the browser to get the freshest data
+            let separator = GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?';
+            let noCacheUrl = GOOGLE_SHEET_CSV_URL + separator + "t=" + new Date().getTime();
+
+            Papa.parse(noCacheUrl, {
+                download: true, 
+                header: false, 
+                skipEmptyLines: true,
                 complete: function(results) {
                     if (results.data && results.data.length > 1) {
                         const headers = results.data[0];
@@ -243,20 +258,26 @@
                         
                         let dataObjects = rows.map(row => {
                             let obj = {};
-                            headers.forEach((header, index) => { obj[index] = row[index]; });
+                            headers.forEach((header, index) => { obj[index] = row[index] || ''; });
                             return obj;
                         });
                         
                         globalRawData = dataObjects;
                         
-                        applyOverviewFilter(); // Updates Overview Tab stats & leaderboard
                         populateDriverDropdown(dataObjects);
                         
-                        if(!document.getElementById('tab-logs').classList.contains('hidden')){
-                            applyLogFilters(); // Updates Job Logs Table
+                        // Update the active tab's data
+                        if(document.getElementById('tab-logs').classList.contains('hidden')){
+                            applyOverviewFilter();
+                        } else {
+                            applyLogFilters();
                         }
                     }
                     document.getElementById('syncStatus').innerText = "Live Cloud Sync Active";
+                },
+                error: function(err) {
+                    console.error("PapaParse Error:", err);
+                    document.getElementById('syncStatus').innerText = "Sync Failed. Retrying...";
                 }
             });
         }
@@ -326,16 +347,18 @@
             
             let tableHTML = "";
             if(filteredJobs.length === 0) {
-                tableHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No jobs found for these filters.</td></tr>`;
+                tableHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No jobs found for these filters.</td></tr>`;
             } else {
                 filteredJobs.slice(0, 100).forEach(row => {
+                    let revenueVal = cleanNumber(row[15]);
                     tableHTML += `
                     <tr class="hover:bg-slate-800/40 transition-colors">
                         <td class="p-3 sm:p-4 text-slate-400 font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td>
                         <td class="p-3 sm:p-4 text-white font-bold">${row[2] || 'Unknown'}</td>
-                        <td class="p-3 sm:p-4 text-slate-300">${row[5]} <i data-lucide="arrow-right" class="w-3 h-3 inline text-emerald-400"></i> ${row[7]}</td>
-                        <td class="p-3 sm:p-4 hidden md:table-cell text-slate-300">${row[3] || '--'}</td>
+                        <td class="p-3 sm:p-4 text-slate-300">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-emerald-400 mx-1"></i> ${row[7] || '--'}</td>
+                        <td class="p-3 sm:p-4 text-slate-300 text-xs">${row[3] || '--'}</td>
                         <td class="p-3 sm:p-4 text-emerald-400 font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td>
+                        <td class="p-3 sm:p-4 text-amber-400 font-mono font-bold">€ ${revenueVal.toLocaleString()}</td>
                     </tr>`;
                 });
             }
@@ -343,7 +366,7 @@
             lucide.createIcons();
         }
 
-        // --- DASHBOARD OVERVIEW PROCESSOR (Generates Stats/Leaderboard based on filtered data) ---
+        // --- DASHBOARD OVERVIEW PROCESSOR ---
         function processTelemetryData(rows) {
             let totalKm = 0, totalRev = 0, totalJobs = rows.length;
             let driverMap = {};
@@ -390,7 +413,7 @@
                 });
             }
             document.getElementById('leaderboardList').innerHTML = leaderboardHTML;
-            renderChart(recentRows.slice(0, 10).reverse()); // Graph updates to match filtered data
+            renderChart(recentRows.slice(0, 10).reverse());
         }
 
         // --- CHART JS ---
@@ -413,7 +436,10 @@
 
         // Init
         fetchLiveSheetData();
-        setInterval(fetchLiveSheetData, 15000); // 15s refresh
+        setInterval(fetchLiveSheetData, 15000); // 15s refresh with Cache Buster
     </script>
 </body>
 </html>
+
+
+```
