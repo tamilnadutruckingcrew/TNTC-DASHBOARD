@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -38,7 +39,6 @@
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <!-- Top Header -->
     <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-800 pb-5 gap-4">
         <div class="flex items-center gap-4">
             <div class="bg-tntc-accent p-3 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)]">
@@ -65,7 +65,6 @@
         </div>
     </header>
 
-    <!-- Top Analytical Counters -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <div class="bg-tntc-card p-5 rounded-2xl border border-slate-800 relative overflow-hidden shadow-xl">
             <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Distance Driven</p>
@@ -92,7 +91,6 @@
         </div>
     </div>
 
-    <!-- Analytics Graph & Leaderboard Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Live Visual Chart -->
         <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 lg:col-span-2 shadow-xl flex flex-col justify-between">
@@ -120,7 +118,6 @@
         </div>
     </div>
 
-    <!-- Live Job Stream Table -->
     <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
         <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/40">
             <div>
@@ -157,9 +154,10 @@
 
         // ----------------------------------------------------------------------
         // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URL HERE:
+        // Make sure it looks like: "https://docs.google.com/.../pub?gid=0&single=true&output=csv"
         // ----------------------------------------------------------------------
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
-
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv"; 
+        
         let chartInstance = null;
 
         function cleanNumber(str) {
@@ -199,29 +197,35 @@
             let recentRows = [...rows].reverse(); // Show latest jobs first
 
             recentRows.forEach((row, idx) => {
-                // Extract columns based on Google Sheet Structure
-                let timestamp = row['Date & Time'] || row['A'] || '--';
-                let driver = row['Driver'] || row['C'] || 'Unknown Driver';
-                let cargo = row['Cargo'] || row['D'] || 'General Freight';
-                let weight = row['Weight'] || row['E'] || '0 t';
-                let srcCity = row['Source City'] || row['F'] || 'Unknown';
-                let dstCity = row['Dest City'] || row['H'] || 'Unknown';
-                let truck = row['Truck'] || row['J'] || 'Standard Truck';
-                let trailer = row['Trailer Type'] || row['K'] || 'Standard Trailer';
-                let drivenKm = cleanNumber(row['Driven Distance'] || row['M']);
-                let damage = row['Max Damage'] || row['Damage'] || row['O'] || '0 %';
-                let revenue = cleanNumber(row['Revenue'] || row['P']);
+                // BUG FIX: Bulletproof Column Extraction!
+                // If header name has hidden spaces, it falls back to the exact Column Index number.
+                let values = Object.values(row);
+                
+                let timestamp = row['Date & Time'] || values[0] || '--';
+                let driver    = row['Driver'] || row['Driver '] || row[' Driver'] || values[2] || 'Unknown Driver';
+                let cargo     = row['Cargo'] || row['Cargo '] || values[3] || 'General Freight';
+                let weight    = row['Weight'] || values[4] || '0 t';
+                let srcCity   = row['Source City'] || values[5] || 'Unknown';
+                let dstCity   = row['Dest City'] || values[7] || 'Unknown';
+                let truck     = row['Truck'] || values[9] || 'Standard Truck';
+                let trailer   = row['Trailer Type'] || values[10] || 'Standard Trailer';
+                let drivenKm  = cleanNumber(row['Driven Distance'] || values[12]);
+                let damage    = row['Max Damage'] || row['Damage'] || values[14] || '0 %';
+                let revenue   = cleanNumber(row['Revenue'] || values[15]);
 
                 // Accumulate Counters
                 totalKm += drivenKm;
                 totalRev += revenue;
 
                 // Accumulate Driver Aggregates
-                if (!driverMap[driver]) {
-                    driverMap[driver] = { km: 0, jobs: 0 };
+                if (driver && driver.trim() !== "") {
+                    let cleanDriverName = driver.trim();
+                    if (!driverMap[cleanDriverName]) {
+                        driverMap[cleanDriverName] = { km: 0, jobs: 0 };
+                    }
+                    driverMap[cleanDriverName].km += drivenKm;
+                    driverMap[cleanDriverName].jobs += 1;
                 }
-                driverMap[driver].km += drivenKm;
-                driverMap[driver].jobs += 1;
 
                 // Build Table Rows (Limit to last 15 for ultra-fast rendering)
                 if (idx < 15) {
@@ -262,7 +266,6 @@
             document.getElementById('statRevenue').innerText = `€ ${totalRev.toLocaleString()}`;
             document.getElementById('jobTableBody').innerHTML = tableBodyHTML;
 
-            // Process Leaderboard
             let sortedDrivers = Object.keys(driverMap).map(d => ({
                 name: d,
                 km: driverMap[d].km,
@@ -276,7 +279,9 @@
 
             let leaderboardHTML = "";
             sortedDrivers.forEach((d, rank) => {
-                let badgeClass = rank === 0 ? 'text-amber-400 font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
+                let badgeClass = rank === 0 ? 'text-amber-400 font-black shadow-[0_0_10px_rgba(245,158,11,0.5)] bg-amber-400/10 px-2 py-0.5 rounded' : 
+                               (rank === 1 ? 'text-slate-300 font-bold' : 
+                               (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
                 leaderboardHTML += `
                     <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-colors">
                         <div class="flex items-center gap-3">
@@ -300,8 +305,8 @@
         }
 
         function renderChart(chartRows) {
-            const labels = chartRows.map(r => r['Driver'] || r['C'] || 'Job');
-            const dataKm = chartRows.map(r => cleanNumber(r['Driven Distance'] || r['M']));
+            const labels = chartRows.map(r => r['Driver'] || Object.values(r)[2] || 'Job');
+            const dataKm = chartRows.map(r => cleanNumber(r['Driven Distance'] || Object.values(r)[12]));
 
             const ctx = document.getElementById('liveChart').getContext('2d');
             
