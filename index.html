@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TNTC Spartan Army - Live Telemetry</title>
+    <title>TAMILNADU TRUCKING CREW - Live Telemetry</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Live Data -->
@@ -39,7 +39,6 @@
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <!-- Top Header -->
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-slate-800 pb-5 gap-4">
         <div class="flex items-center gap-4">
             <div class="bg-tntc-accent p-3 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)]">
@@ -62,7 +61,6 @@
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
     <div class="flex flex-wrap gap-2 mb-8">
         <button onclick="switchTab('overview')" id="btn-overview" class="tab-active px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md w-full sm:w-auto justify-center">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Division Overview
@@ -72,9 +70,6 @@
         </button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 1: OVERVIEW DASHBOARD                  -->
-    <!-- ========================================== -->
     <div id="tab-overview" class="block">
         
         <!-- Global Time Filter for Overview -->
@@ -92,30 +87,31 @@
             </div>
         </div>
 
-        <!-- Top Analytical Counters -->
+        <!-- Top Analytical Counters (With Number Rolling Prep) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             <div class="bg-tntc-card p-5 rounded-2xl border border-slate-800 shadow-xl">
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Distance</p>
-                <h2 id="statDistance" class="text-3xl font-black text-white">0 <span class="text-sm font-normal text-slate-400">km</span></h2>
+                <!-- data-current-val keeps track of the number for the animation -->
+                <h2 id="statDistance" data-current-val="0" class="text-3xl font-black text-white">0 <span class="text-sm font-normal text-slate-400">km</span></h2>
             </div>
             <div class="bg-tntc-card p-5 rounded-2xl border border-slate-800 shadow-xl">
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Completed Waybills</p>
-                <h2 id="statJobs" class="text-3xl font-black text-white">0</h2>
+                <h2 id="statJobs" data-current-val="0" class="text-3xl font-black text-white">0</h2>
             </div>
             <div class="bg-tntc-card p-5 rounded-2xl border border-slate-800 shadow-xl">
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Company Revenue</p>
-                <h2 id="statRevenue" class="text-3xl font-black text-white">€ 0</h2>
+                <h2 id="statRevenue" data-current-val="0" class="text-3xl font-black text-white">€ 0</h2>
             </div>
             <div class="bg-tntc-card p-5 rounded-2xl border border-slate-800 shadow-xl">
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Active Drivers</p>
-                <h2 id="statDrivers" class="text-3xl font-black text-white">0</h2>
+                <h2 id="statDrivers" data-current-val="0" class="text-3xl font-black text-white">0</h2>
             </div>
         </div>
 
         <!-- Graph & Leaderboard -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 lg:col-span-2 shadow-xl">
-                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-tntc-accent"></i> Delivery Volume</h3>
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="w-4 h-4 text-tntc-accent"></i> Driver Distance Bar Chart</h3>
                 <div class="relative h-64 w-full"><canvas id="liveChart"></canvas></div>
             </div>
             <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col h-full md:h-[350px]">
@@ -125,9 +121,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 2: JOB LOGS & FILTERS                  -->
-    <!-- ========================================== -->
     <div id="tab-logs" class="hidden">
         <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl mb-6">
             <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
@@ -135,7 +128,6 @@
             </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Driver Filter -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Select Driver</label>
                     <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
@@ -143,7 +135,6 @@
                     </select>
                 </div>
                 
-                <!-- Time Filter -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
                     <select id="filterTime" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
@@ -153,7 +144,6 @@
                     </select>
                 </div>
                 
-                <!-- Stats Summary for Filter -->
                 <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-800 flex flex-col justify-center items-center">
                     <p class="text-xs text-slate-400 font-semibold mb-1">Filtered Distance</p>
                     <p id="filteredTotalKm" class="text-lg font-bold text-emerald-400">0 km</p>
@@ -161,7 +151,6 @@
             </div>
         </div>
         
-        <!-- Filtered Table -->
         <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -187,20 +176,17 @@
         lucide.createIcons();
 
         // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URL HERE:
-        // Do not add anything extra, just paste the exact link.
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
 
         let chartInstance = null;
-        let globalRawData = []; // Store all jobs for filtering
+        let globalRawData = []; 
 
-        // Helper function for numbers (strips currency symbols and commas)
         function cleanNumber(str) {
             if (!str) return 0;
             let sanitized = str.toString().replace(/[^0-9.-]/g, '');
             return parseFloat(sanitized) || 0;
         }
 
-        // Helper function to check dates
         function checkDateFilter(timeStr, filterType) {
             if (filterType === 'ALL') return true;
             let now = new Date();
@@ -216,7 +202,43 @@
             return true;
         }
 
-        // --- TAB SWITCHING LOGIC ---
+        // --- THE MAGIC NUMBER ROLLING ANIMATION ---
+        function animateCountUp(elementId, endValue, durationMs, prefix = '', suffix = '') {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            // Retrieve old value to animate from (defaults to 0 on first load)
+            const startValue = parseFloat(el.getAttribute('data-current-val')) || 0;
+            
+            // If data hasn't changed, don't run unnecessary animations
+            if (startValue === endValue) return;
+
+            let startTime = null;
+
+            function step(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / durationMs, 1);
+                
+                // EaseOut function for smooth deceleration at the end
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                // Calculate current frame's number
+                const currentVal = Math.floor(easeProgress * (endValue - startValue) + startValue);
+                
+                el.innerHTML = prefix + currentVal.toLocaleString() + suffix;
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    // Force exact end value and store it
+                    el.innerHTML = prefix + endValue.toLocaleString() + suffix;
+                    el.setAttribute('data-current-val', endValue);
+                }
+            }
+
+            window.requestAnimationFrame(step);
+        }
+
         function switchTab(tabName) {
             const overviewTab = document.getElementById('tab-overview');
             const logsTab = document.getElementById('tab-logs');
@@ -238,11 +260,10 @@
             }
         }
 
-        // --- DATA FETCHING (WITH CACHE-BUSTER) ---
+        // --- DATA FETCHING (CACHE BUSTER INCLUDED) ---
         function fetchLiveSheetData() {
             document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
             
-            // CACHE BUSTER LOGIC: Forces the browser to get the freshest data
             let separator = GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?';
             let noCacheUrl = GOOGLE_SHEET_CSV_URL + separator + "t=" + new Date().getTime();
 
@@ -265,7 +286,6 @@
                         
                         populateDriverDropdown(dataObjects);
                         
-                        // Update the active tab's data
                         if(document.getElementById('tab-logs').classList.contains('hidden')){
                             applyOverviewFilter();
                         } else {
@@ -281,7 +301,6 @@
             });
         }
 
-        // --- APPLY OVERVIEW FILTERS (For Total Stats & Leaderboard) ---
         function applyOverviewFilter() {
             let timeFilter = document.getElementById('overviewTimeFilter').value;
             let filteredRows = [];
@@ -296,7 +315,6 @@
             processTelemetryData(filteredRows);
         }
 
-        // --- POPULATE FILTER DROPDOWN FOR LOGS ---
         function populateDriverDropdown(rows) {
             let drivers = new Set();
             rows.forEach(row => {
@@ -317,7 +335,6 @@
             dropdown.value = currentVal || 'ALL';
         }
 
-        // --- APPLY LOG FILTERS LOGIC (For Tab 2 Table) ---
         function applyLogFilters() {
             let driverFilter = document.getElementById('filterDriver').value;
             let timeFilter = document.getElementById('filterTime').value;
@@ -331,17 +348,13 @@
                 let timeStr = row[0] || '';
                 let drivenKm = cleanNumber(row[12]);
 
-                // 1. Check Driver Filter
                 if (driverFilter !== 'ALL' && dName !== driverFilter) return;
-
-                // 2. Check Time Filter
                 if (!checkDateFilter(timeStr, timeFilter)) return;
 
                 filteredKm += drivenKm;
                 filteredJobs.push(row);
             });
 
-            // Update Log UI
             document.getElementById('filteredTotalKm').innerText = filteredKm.toLocaleString() + " km";
             
             let tableHTML = "";
@@ -365,7 +378,7 @@
             lucide.createIcons();
         }
 
-        // --- DASHBOARD OVERVIEW PROCESSOR ---
+        // --- OVERVIEW DATA PROCESSOR (TRIGGERS NUMBER ROLLING) ---
         function processTelemetryData(rows) {
             let totalKm = 0, totalRev = 0, totalJobs = rows.length;
             let driverMap = {};
@@ -383,14 +396,15 @@
                 driverMap[driver].jobs += 1;
             });
 
-            // Update Counters
-            document.getElementById('statDistance').innerHTML = `${totalKm.toLocaleString()} <span class="text-sm font-normal text-slate-400">km</span>`;
-            document.getElementById('statJobs').innerText = totalJobs;
-            document.getElementById('statRevenue').innerText = `€ ${totalRev.toLocaleString()}`;
+            // Trigger smooth count-up animations (1.5 seconds duration)
+            animateCountUp('statDistance', totalKm, 1500, '', ' <span class="text-sm font-normal text-slate-400">km</span>');
+            animateCountUp('statJobs', totalJobs, 1500);
+            animateCountUp('statRevenue', totalRev, 1500, '€ ');
+            
 
-            // Process Leaderboard
             let sortedDrivers = Object.keys(driverMap).map(d => ({ name: d, km: driverMap[d].km, jobs: driverMap[d].jobs })).sort((a, b) => b.km - a.km);
-            document.getElementById('statDrivers').innerText = sortedDrivers.length;
+            
+            animateCountUp('statDrivers', sortedDrivers.length, 1500);
 
             let leaderboardHTML = "";
             if (sortedDrivers.length === 0) {
@@ -412,30 +426,53 @@
                 });
             }
             document.getElementById('leaderboardList').innerHTML = leaderboardHTML;
-            renderChart(recentRows.slice(0, 10).reverse());
+            
+            // Pass the aggregated driver data to render the Bar Chart
+            renderChart(sortedDrivers); 
         }
 
-        // --- CHART JS ---
-        function renderChart(chartRows) {
-            const labels = chartRows.map(r => r[2] || 'Unknown');
-            const dataKm = chartRows.map(r => cleanNumber(r[12]));
+        // --- BAR CHART RENDERING ---
+        function renderChart(driverStats) {
+            let topDrivers = driverStats.slice(0, 10);
+            
+            const labels = topDrivers.map(d => d.name);
+            const dataKm = topDrivers.map(d => d.km);
+            
             const ctx = document.getElementById('liveChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
 
             let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
-            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.2)');
 
             chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: { labels: labels, datasets: [{ data: dataKm, borderColor: '#10b981', backgroundColor: gradient, borderWidth: 3, pointBackgroundColor: '#0f172a', pointBorderColor: '#10b981', fill: true, tension: 0.35 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
+                type: 'bar', 
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        label: 'Total Distance (km)',
+                        data: dataKm, 
+                        backgroundColor: gradient, 
+                        borderColor: '#10b981', 
+                        borderWidth: 1,
+                        borderRadius: 4 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, 
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } 
+                    } 
+                }
             });
         }
 
         // Init
         fetchLiveSheetData();
-        setInterval(fetchLiveSheetData, 15000); // 15s refresh with Cache Buster
+        setInterval(fetchLiveSheetData, 15000); 
     </script>
 </body>
 </html>
