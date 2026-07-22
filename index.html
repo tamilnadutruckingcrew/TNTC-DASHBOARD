@@ -17,23 +17,35 @@
             theme: {
                 extend: {
                     colors: {
-                        tntc: { dark: '#0f172a', card: '#1e293b', accent: '#10b981', danger: '#ef4444', gold: '#f59e0b', blue: '#3b82f6', purple: '#8b5cf6' }
+                        // Your Custom RGB Colors
+                        tntc: { 
+                            dark: '#050505', // Deep Black Background
+                            card: '#0f1115', // Dark Gray/Black for boxes
+                            blue: 'rgb(9,0,130)', // Your Dark Blue
+                            red: 'rgb(226,35,26)', // Your Red
+                            lightblue: 'rgb(12,177,192)', // Your Light Blue (Primary Accent)
+                            danger: '#ef4444', 
+                            gold: '#f59e0b' 
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        body { background-color: #050505; color: #f8fafc; font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .tab-active { background-color: #10b981; color: #022c22; font-weight: bold; border-color: #10b981; }
-        .tab-inactive { background-color: #1e293b; color: #94a3b8; border-color: #334155; }
-        .tab-inactive:hover { background-color: #334155; color: #f8fafc; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+        
+        /* Tab Colors using your Light Blue */
+        .tab-active { background-color: rgba(12, 177, 192, 0.15); color: rgb(12, 177, 192); font-weight: bold; border-color: rgb(12, 177, 192); border-width: 1px; }
+        .tab-inactive { background-color: #0f1115; color: #94a3b8; border-color: #1f2937; }
+        .tab-inactive:hover { background-color: #1f2937; color: #f8fafc; }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
         
         /* Modal Animation Fix */
         #eventModal { transition: opacity 0.3s ease-out; }
@@ -46,32 +58,34 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 relative">
 
-    <!-- Header (Updated Layout with your Logos) -->
-    <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 border-b border-slate-800 pb-5 gap-6 md:gap-4 mt-2">
+    <!-- Header (Updated Layout per Image 1) -->
+    <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-800 pb-5 gap-6 md:gap-4 mt-2">
         
         <!-- Left: TNTC Logo & Title -->
         <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
-            <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-tntc-accent/20 border border-emerald-500/30">
+            <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(12,177,192,0.2)] bg-tntc-lightblue/10 border border-tntc-lightblue/30">
+                <!-- Vvv INGA TNTC LOGO LINK PASTE PANNUNGA vvv -->
                 <img src="https://files.catbox.moe/ujn8ng.png" alt="TNTC Logo" class="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover">
             </div>
             <div class="text-center md:text-left">
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white uppercase">TAMILNADU TRUCKING CREW</h1>
-                <p class="text-slate-400 text-xs tracking-widest uppercase mt-0.5">Dashboard</p>
+                <p class="text-slate-400 text-xs tracking-widest uppercase mt-0.5 text-tntc-lightblue">Dashboard</p>
             </div>
         </div>
 
         <!-- Center: TNL Logo & Text (Perfectly centered on Desktop) -->
         <div class="md:absolute md:left-1/2 md:-translate-x-1/2 flex flex-col items-center z-0">
-            <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL Logo" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-tntc-blue shadow-[0_0_15px_rgba(59,130,246,0.3)] object-cover">
+            <!-- Vvv INGA TNL LOGO LINK PASTE PANNUNGA vvv -->
+            <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL Logo" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-tntc-gold shadow-[0_0_15px_rgba(245,158,11,0.2)] object-cover">
             <span class="text-[9px] font-black text-slate-400 tracking-widest uppercase mt-1">Tamilnadu Logistics</span>
         </div>
 
         <!-- Right: Live Sync Badge -->
         <div class="flex items-center gap-3 z-10">
-            <div class="bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700 flex items-center gap-2.5">
+            <div class="bg-tntc-card px-4 py-2 rounded-lg border border-gray-800 flex items-center gap-2.5">
                 <span class="relative flex h-2.5 w-2.5">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-lightblue opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tntc-lightblue"></span>
                 </span>
                 <span id="syncStatus" class="text-xs font-semibold text-slate-300">Syncing with Cloud...</span>
                 <span id="syncStatusMobile" class="hidden"></span>
@@ -96,43 +110,43 @@
     <!-- TAB 1: OVERVIEW DASHBOARD                  -->
     <!-- ========================================== -->
     <div id="tab-overview" class="block">
-        <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-slate-800 shadow-lg mb-6 gap-4">
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-gray-800 shadow-lg mb-6 gap-4">
             <h2 class="text-sm font-bold text-slate-300 flex items-center gap-2 w-full sm:w-auto">
-                <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-500"></i> Overall Division Stats
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-lightblue"></i> Overall Division Stats
             </h2>
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
                 <label class="text-xs font-semibold text-slate-400">Filter By:</label>
-                <select id="overviewTimeFilter" onchange="handleTimeChange('overviewTimeFilter', 'overviewDatePicker', 'applyOverviewFilter')" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                <select id="overviewTimeFilter" onchange="handleTimeChange('overviewTimeFilter', 'overviewDatePicker', 'applyOverviewFilter')" class="bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2 focus:ring-tntc-lightblue focus:border-tntc-lightblue outline-none">
                     <option value="ALL">All Time</option>
                     <option value="TODAY">Today</option>
                     <option value="WEEK">This Week</option>
                     <option value="MONTH">This Month</option>
                     <option value="CUSTOM">Select Date 📅</option>
                 </select>
-                <input type="date" id="overviewDatePicker" onchange="applyOverviewFilter()" class="hidden bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-1.5 focus:ring-emerald-500 outline-none">
+                <input type="date" id="overviewDatePicker" onchange="applyOverviewFilter()" class="hidden bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-1.5 focus:ring-tntc-lightblue outline-none">
             </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 mb-8">
-            <div class="bg-tntc-card p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-center border-b-2 border-b-tntc-lightblue">
                 <p class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Total Distance</p>
                 <h2 class="text-2xl sm:text-3xl font-black text-white"><span id="statDistance">0</span> <span class="text-xs font-normal text-slate-400">km</span></h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-center border-b-2 border-b-tntc-red">
                 <p class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Completed Waybills</p>
                 <h2 id="statJobs" class="text-2xl sm:text-3xl font-black text-white">0</h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-center border-b-2 border-b-tntc-blue">
                 <p class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Company Revenue</p>
                 <h2 class="text-2xl sm:text-3xl font-black text-white">€ <span id="statRevenue">0</span></h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-center border-b-2 border-b-tntc-lightblue">
                 <p class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Active Drivers</p>
                 <h2 id="statDrivers" class="text-2xl sm:text-3xl font-black text-white">0</h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-center relative overflow-hidden">
+            <div class="bg-tntc-card p-4 rounded-2xl border border-gray-800 shadow-xl flex flex-col justify-center relative overflow-hidden border-b-2 border-b-tntc-red">
                 <div class="absolute -right-4 -bottom-4 opacity-10">
-                    <i data-lucide="calendar-check" class="w-20 h-20 text-tntc-blue"></i>
+                    <i data-lucide="calendar-check" class="w-20 h-20 text-white"></i>
                 </div>
                 <p class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1 relative z-10">Division Events</p>
                 <h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-white relative z-10">0</h2>
@@ -140,22 +154,22 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="w-4 h-4 text-tntc-accent"></i> Distance Leaderboard (KM)</h3>
+            <div class="bg-tntc-card p-6 rounded-2xl border border-gray-800 shadow-xl">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="w-4 h-4 text-tntc-lightblue"></i> Distance Leaderboard (KM)</h3>
                 <div class="relative h-56 w-full"><canvas id="kmBarChart"></canvas></div>
             </div>
-            <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-tntc-blue"></i> Event Attendance Chart</h3>
+            <div class="bg-tntc-card p-6 rounded-2xl border border-gray-800 shadow-xl">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-tntc-red"></i> Event Attendance Chart</h3>
                 <div class="relative h-56 w-full"><canvas id="eventBarChart"></canvas></div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col h-[350px]">
+            <div class="bg-tntc-card p-6 rounded-2xl border border-gray-800 shadow-xl flex flex-col h-[350px]">
                 <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-tntc-gold"></i> Top Drivers by KM</h3>
                 <div id="kmLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
             </div>
-            <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col h-[350px]">
+            <div class="bg-tntc-card p-6 rounded-2xl border border-gray-800 shadow-xl flex flex-col h-[350px]">
                 <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-tntc-blue"></i> Top Drivers by Events</h3>
                 <div id="eventLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
             </div>
@@ -166,39 +180,39 @@
     <!-- TAB 2: JOB LOGS                            -->
     <!-- ========================================== -->
     <div id="tab-logs" class="hidden">
-        <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</h3>
+        <div class="bg-tntc-card p-6 rounded-2xl border border-gray-800 shadow-xl mb-6">
+            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-lightblue"></i> Search Job Logs</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Select Driver</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 outline-none">
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2.5 focus:ring-tntc-lightblue outline-none">
                         <option value="ALL">All Drivers</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
                     <div class="flex gap-2">
-                        <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 outline-none">
+                        <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2.5 focus:ring-tntc-lightblue outline-none">
                             <option value="ALL">All Time</option>
                             <option value="TODAY">Today's Jobs</option>
                             <option value="WEEK">This Week</option>
                             <option value="MONTH">This Month</option>
                             <option value="CUSTOM">Select Date 📅</option>
                         </select>
-                        <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 outline-none">
+                        <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2 focus:ring-tntc-lightblue outline-none">
                     </div>
                 </div>
-                <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-800 flex flex-col justify-center items-center">
+                <div class="bg-[#050505] rounded-lg p-3 border border-gray-800 flex flex-col justify-center items-center">
                     <p class="text-xs text-slate-400 font-semibold mb-1">Filtered Distance</p>
-                    <p id="filteredTotalKm" class="text-lg font-bold text-emerald-400">0 km</p>
+                    <p id="filteredTotalKm" class="text-lg font-bold text-tntc-lightblue">0 km</p>
                 </div>
             </div>
         </div>
-        <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+        <div class="bg-tntc-card rounded-2xl border border-gray-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                        <tr class="bg-slate-900/60 text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                        <tr class="bg-[#050505] text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-gray-800">
                             <th class="p-3 sm:p-4">Time</th>
                             <th class="p-3 sm:p-4">Driver</th>
                             <th class="p-3 sm:p-4">Route</th>
@@ -207,7 +221,7 @@
                             <th class="p-3 sm:p-4">Revenue</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-slate-800/60 font-medium"></tbody>
+                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-gray-800 font-medium"></tbody>
                 </table>
             </div>
         </div>
@@ -217,44 +231,44 @@
     <!-- TAB 3: EVENT RECORDS                       -->
     <!-- ========================================== -->
     <div id="tab-events" class="hidden">
-        <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl mb-6">
+        <div class="bg-tntc-card p-6 rounded-2xl border border-gray-800 shadow-xl mb-6">
             <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-blue"></i> Filter Event Records</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Event Category</label>
-                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
+                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2.5 focus:ring-tntc-blue outline-none">
                         <option value="ALL">All Categories</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Select Driver</label>
-                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
+                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2.5 focus:ring-tntc-blue outline-none">
                         <option value="ALL">All Drivers</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
                     <div class="flex gap-2">
-                        <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
+                        <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2.5 focus:ring-tntc-blue outline-none">
                             <option value="ALL">All Time</option>
                             <option value="WEEK">This Week</option>
                             <option value="MONTH">This Month</option>
                             <option value="CUSTOM">Select Date 📅</option>
                         </select>
-                        <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-blue-500 outline-none">
+                        <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-[#050505] border border-gray-800 text-white text-sm rounded-lg p-2 focus:ring-tntc-blue outline-none">
                     </div>
                 </div>
-                <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-800 flex flex-col justify-center items-center">
+                <div class="bg-[#050505] rounded-lg p-3 border border-gray-800 flex flex-col justify-center items-center">
                     <p class="text-xs text-slate-400 font-semibold mb-1">Total Filtered Events</p>
-                    <p id="filteredTotalEvents" class="text-lg font-bold text-blue-400">0</p>
+                    <p id="filteredTotalEvents" class="text-lg font-bold text-tntc-blue">0</p>
                 </div>
             </div>
         </div>
-        <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+        <div class="bg-tntc-card rounded-2xl border border-gray-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                        <tr class="bg-slate-900/60 text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-slate-800">
+                        <tr class="bg-[#050505] text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-gray-800">
                             <th class="p-3 sm:p-4">Date</th>
                             <th class="p-3 sm:p-4">Event Category</th>
                             <th class="p-3 sm:p-4">Event Name</th>
@@ -262,7 +276,7 @@
                             <th class="p-3 sm:p-4 text-right">Details</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-slate-800/60 font-medium"></tbody>
+                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-gray-800 font-medium"></tbody>
                 </table>
             </div>
         </div>
@@ -272,27 +286,25 @@
     <!-- MODAL POPUP FOR EVENT DETAILS              -->
     <!-- ========================================== -->
     <div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm modal-closed">
-        <div id="eventModalContent" class="bg-tntc-card border border-slate-700 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden">
-            <div id="modalImageContainer" class="w-full h-40 sm:h-48 bg-slate-800 relative bg-cover bg-center">
+        <div id="eventModalContent" class="bg-tntc-card border border-gray-700 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden">
+            <div id="modalImageContainer" class="w-full h-40 sm:h-48 bg-[#050505] relative bg-cover bg-center">
                 <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
                 <button onclick="closeModal()" class="absolute top-4 right-4 bg-black/50 p-1.5 rounded-full text-white hover:bg-black/80 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-5 sm:p-7 -mt-10 relative z-10">
-                <span id="modalCategory" class="inline-block px-2.5 py-1 bg-blue-900/80 text-blue-300 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
+                <span id="modalCategory" class="inline-block px-2.5 py-1 bg-tntc-blue/20 text-tntc-blue border border-tntc-blue/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
                 <h2 id="modalEventName" class="text-xl sm:text-2xl font-black text-white leading-tight mb-2">Event Name Here</h2>
                 <p class="text-slate-400 text-sm flex items-center gap-2 mb-6 font-medium">
                     <i data-lucide="calendar" class="w-4 h-4"></i> <span id="modalDate">Date</span>
                 </p>
                 
-                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
-                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Drivers Attended (<span id="modalAttendanceCount">0</span>)
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-gray-700 pb-2">
+                    <i data-lucide="users" class="w-4 h-4 text-tntc-lightblue"></i> Drivers Attended (<span id="modalAttendanceCount">0</span>)
                 </h3>
-                <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2">
-                    <!-- Badges injected by JS -->
-                </div>
-                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:bg-emerald-400 text-slate-900 font-bold py-3 rounded-lg transition-colors shadow-lg">
+                <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2"></div>
+                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-[rgba(12,177,192,0.15)] border border-tntc-lightblue text-tntc-lightblue hover:bg-tntc-lightblue hover:text-[#050505] font-bold py-3 rounded-lg transition-colors shadow-lg">
                     View on TruckersMP <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i>
                 </a>
             </div>
@@ -302,7 +314,7 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 Google Sheet URLs unchanged
+        // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URLs HERE:
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
 
@@ -339,7 +351,6 @@
             return parseFloat(sanitized) || 0;
         }
 
-        // Feature: Custom Calendar Dropdown handler
         function handleTimeChange(selectId, datePickerId, applyFuncName) {
             let val = document.getElementById(selectId).value;
             let dp = document.getElementById(datePickerId);
@@ -351,7 +362,6 @@
             window[applyFuncName](); 
         }
 
-        // Feature: Weekly and Custom Date filters applied here
         function checkDateFilter(timeStr, filterType, customDateStr) {
             if (filterType === 'ALL') return true;
             if (!timeStr) return false;
@@ -436,7 +446,7 @@
                         globalEventData.headers = results.data[headerIndex];
                         globalEventData.rows = results.data.slice(headerIndex + 1);
                         populateEventCategoryDropdown();
-                        populateEventDriverDropdown(); // Populates Driver list in Event Tab
+                        populateEventDriverDropdown(); 
                         refreshActiveTab();
                     }
                     document.getElementById('syncStatus').innerText = "Live Cloud Sync Active";
@@ -480,11 +490,11 @@
             animateValue("statDrivers", parseInt(document.getElementById('statDrivers').innerText) || 0, sortedDrivers.length, 500);
 
             let leaderboardHTML = "";
-            if (sortedDrivers.length === 0) leaderboardHTML = `<p class="text-slate-500 text-sm text-center mt-4">No logs found.</p>`;
+            if (sortedDrivers.length === 0) leaderboardHTML = `<p class="text-gray-500 text-sm text-center mt-4">No logs found.</p>`;
             else {
                 sortedDrivers.forEach((d, rank) => {
-                    let badgeClass = rank === 0 ? 'text-amber-400 font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-white">${d.name}</p><p class="text-[10px] text-slate-400">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-emerald-400">${d.km.toLocaleString()} km</p></div>`;
+                    let badgeClass = rank === 0 ? 'text-amber-400 font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-gray-500 font-semibold'));
+                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-[#050505] border border-gray-800"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-white">${d.name}</p><p class="text-[10px] text-slate-400">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-tntc-lightblue">${d.km.toLocaleString()} km</p></div>`;
                 });
             }
             document.getElementById('kmLeaderboardList').innerHTML = leaderboardHTML;
@@ -520,11 +530,11 @@
 
             let sortedEventDrivers = Object.keys(driverEventMap).map(d => ({ name: d, events: driverEventMap[d] })).sort((a, b) => b.events - a.events);
             let leaderboardHTML = "";
-            if (sortedEventDrivers.length === 0) leaderboardHTML = `<p class="text-slate-500 text-sm text-center mt-4">No events found.</p>`;
+            if (sortedEventDrivers.length === 0) leaderboardHTML = `<p class="text-gray-500 text-sm text-center mt-4">No events found.</p>`;
             else {
                 sortedEventDrivers.forEach((d, rank) => {
-                    let badgeClass = rank === 0 ? 'text-blue-400 font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-white">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-blue-400">${d.events} Convoys</p></div>`;
+                    let badgeClass = rank === 0 ? 'text-tntc-blue font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-gray-500 font-semibold'));
+                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-[#050505] border border-gray-800"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-white">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-tntc-blue">${d.events} Convoys</p></div>`;
                 });
             }
             document.getElementById('eventLeaderboardList').innerHTML = leaderboardHTML;
@@ -561,10 +571,10 @@
 
             document.getElementById('filteredTotalKm').innerText = filteredKm.toLocaleString() + " km";
             let tableHTML = "";
-            if(filteredJobs.length === 0) tableHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No jobs found.</td></tr>`;
+            if(filteredJobs.length === 0) tableHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-500">No jobs found.</td></tr>`;
             else {
                 filteredJobs.slice(0, 100).forEach(row => {
-                    tableHTML += `<tr class="hover:bg-slate-800/40 transition-colors"><td class="p-3 sm:p-4 text-slate-400 font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-white font-bold">${row[2] || 'Unknown'}</td><td class="p-3 sm:p-4 text-slate-300">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-emerald-400 mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-slate-300 text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-emerald-400 font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-amber-400 font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
+                    tableHTML += `<tr class="hover:bg-gray-800/40 transition-colors"><td class="p-3 sm:p-4 text-slate-400 font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-white font-bold">${row[2] || 'Unknown'}</td><td class="p-3 sm:p-4 text-slate-300">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-lightblue mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-slate-300 text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-tntc-lightblue font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-amber-400 font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
                 });
             }
             document.getElementById('filteredJobTableBody').innerHTML = tableHTML;
@@ -586,7 +596,6 @@
             dropdown.value = currentVal || 'ALL';
         }
 
-        // Feature: Driver Dropdown for Events Tab
         function populateEventDriverDropdown() {
             let drivers = new Set();
             for(let i = 6; i < globalEventData.headers.length; i++) {
@@ -621,12 +630,11 @@
                 if (catFilter !== 'ALL' && category !== catFilter) return;
                 if (!checkDateFilter(dateStr, timeFilter, customDate)) return;
                 
-                // Specific Driver Attend check
                 if (driverFilter !== 'ALL') {
                     let driverIdx = headers.indexOf(driverFilter);
-                    if (driverIdx === -1) return; // Driver missing in headers
+                    if (driverIdx === -1) return; 
                     let val = (row[driverIdx] || '').toString().trim().toUpperCase();
-                    if (val === '' || val === 'FALSE' || val === '0' || val === '☐' || val === 'NO') return; // Specific driver didn't attend
+                    if (val === '' || val === 'FALSE' || val === '0' || val === '☐' || val === 'NO') return; 
                 }
                 
                 let driversAttended = [];
@@ -653,18 +661,18 @@
             document.getElementById('filteredTotalEvents').innerText = currentFilteredEvents.length;
             
             let tableHTML = "";
-            if(currentFilteredEvents.length === 0) tableHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No events found.</td></tr>`;
+            if(currentFilteredEvents.length === 0) tableHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">No events found.</td></tr>`;
             else {
                 currentFilteredEvents.slice(0, 100).forEach((ev, index) => {
-                    let badgeColor = ev.category.includes('PRIVATE') ? 'bg-purple-900/50 text-purple-400' : 'bg-blue-900/50 text-blue-400';
+                    let badgeColor = ev.category.includes('PRIVATE') ? 'bg-purple-900/50 text-purple-400' : 'bg-tntc-blue/20 text-tntc-blue border border-tntc-blue/30';
                     tableHTML += `
-                    <tr class="hover:bg-slate-800/40 transition-colors">
+                    <tr class="hover:bg-gray-800/40 transition-colors">
                         <td class="p-3 sm:p-4 text-slate-300 font-mono text-[10px] sm:text-xs">${ev.date}</td>
-                        <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider ${badgeColor}">${ev.category}</span></td>
+                        <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded text-[10px] font-black tracking-wider ${badgeColor}">${ev.category}</span></td>
                         <td class="p-3 sm:p-4 text-white font-bold text-sm max-w-[200px] truncate" title="${ev.name}">${ev.name}</td>
-                        <td class="p-3 sm:p-4 text-center text-emerald-400 font-black">${ev.attendance} <i data-lucide="users" class="w-4 h-4 inline ml-1 opacity-70"></i></td>
+                        <td class="p-3 sm:p-4 text-center text-tntc-lightblue font-black">${ev.attendance} <i data-lucide="users" class="w-4 h-4 inline ml-1 opacity-70"></i></td>
                         <td class="p-3 sm:p-4 text-right">
-                            <button onclick="openModal(${index})" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold text-white flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
+                            <button onclick="openModal(${index})" class="px-3 py-1.5 bg-[#050505] border border-gray-700 hover:bg-gray-800 rounded text-xs font-semibold text-white flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
                                 <i data-lucide="eye" class="w-3 h-3"></i> View
                             </button>
                         </td>
@@ -688,7 +696,7 @@
                 if(ev.image && typeof ev.image === 'string' && ev.image.startsWith('http')) {
                     imgContainer.style.backgroundImage = `url('${ev.image}')`;
                 } else {
-                    imgContainer.style.backgroundImage = `linear-gradient(to right, #0f172a, #1e293b)`;
+                    imgContainer.style.backgroundImage = `linear-gradient(to right, #050505, #0f1115)`;
                 }
 
                 let linkBtn = document.getElementById('modalLinkBtn');
@@ -702,10 +710,10 @@
                 let driversHTML = "";
                 if(ev.drivers && ev.drivers.length > 0) {
                     ev.drivers.forEach(d => {
-                        driversHTML += `<span class="bg-emerald-900/40 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-md text-xs font-bold tracking-wide">${d}</span>`;
+                        driversHTML += `<span class="bg-[rgba(12,177,192,0.1)] border border-tntc-lightblue/30 text-tntc-lightblue px-3 py-1.5 rounded-md text-xs font-bold tracking-wide">${d}</span>`;
                     });
                 } else {
-                    driversHTML = `<p class="text-slate-500 text-xs italic w-full">No drivers logged for this event.</p>`;
+                    driversHTML = `<p class="text-gray-500 text-xs italic w-full">No drivers logged for this event.</p>`;
                 }
                 document.getElementById('modalDriversList').innerHTML = driversHTML;
 
@@ -733,9 +741,10 @@
             const ctx = document.getElementById('kmBarChart').getContext('2d');
             if (kmChartInstance) kmChartInstance.destroy();
             let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
-            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
-            kmChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataKm, backgroundColor: gradient, borderColor: '#10b981', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
+            // Light Blue Gradient
+            gradient.addColorStop(0, 'rgba(12, 177, 192, 0.8)');
+            gradient.addColorStop(1, 'rgba(12, 177, 192, 0.1)');
+            kmChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataKm, backgroundColor: gradient, borderColor: 'rgb(12, 177, 192)', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
         }
 
         function renderEventChart(topEventDrivers) {
@@ -744,9 +753,10 @@
             const ctx = document.getElementById('eventBarChart').getContext('2d');
             if (eventChartInstance) eventChartInstance.destroy();
             let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)'); 
-            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
-            eventChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataEvents, backgroundColor: gradient, borderColor: '#3b82f6', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
+            // Dark Blue Gradient for Events
+            gradient.addColorStop(0, 'rgba(9, 0, 130, 0.8)'); 
+            gradient.addColorStop(1, 'rgba(9, 0, 130, 0.1)');
+            eventChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataEvents, backgroundColor: gradient, borderColor: 'rgb(9, 0, 130)', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
         }
 
         fetchData();
