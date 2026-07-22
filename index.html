@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAMILNADU TRUCKING CREW - Live Telemetry</title>
+    <title>TAMILNADU TRUCKING CREW- Live Telemetry</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Live Data -->
@@ -34,9 +34,17 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        
+        /* Modal Animation */
+        #eventModal { transition: opacity 0.3s ease-out; }
+        #eventModalContent { transition: transform 0.3s ease-out; }
+        .modal-open #eventModal { opacity: 1; pointer-events: auto; }
+        .modal-open #eventModalContent { transform: scale(1) translateY(0); }
+        .modal-closed #eventModal { opacity: 0; pointer-events: none; }
+        .modal-closed #eventModalContent { transform: scale(0.95) translateY(10px); }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 relative">
 
     <!-- Header -->
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-slate-800 pb-5 gap-4">
@@ -61,7 +69,7 @@
         </div>
     </header>
 
-    <!-- Navigation Tabs (Ippo 3 Tabs) -->
+    <!-- Navigation Tabs -->
     <div class="flex flex-wrap gap-2 mb-8">
         <button onclick="switchTab('overview')" id="btn-overview" class="tab-active px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
@@ -78,7 +86,6 @@
     <!-- TAB 1: OVERVIEW DASHBOARD                  -->
     <!-- ========================================== -->
     <div id="tab-overview" class="block">
-        
         <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-slate-800 shadow-lg mb-6">
             <h2 class="text-sm font-bold text-slate-300 flex items-center gap-2 mb-3 sm:mb-0">
                 <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-500"></i> Overall Division Stats
@@ -143,24 +150,21 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- TAB 2: JOB LOGS & FILTERS                  -->
+    <!-- TAB 2: JOB LOGS                            -->
     <!-- ========================================== -->
     <div id="tab-logs" class="hidden">
         <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                <i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs
-            </h3>
-            
+            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Select Driver</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 outline-none">
                         <option value="ALL">All Drivers</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
-                    <select id="filterTime" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                    <select id="filterTime" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 outline-none">
                         <option value="ALL">All Time</option>
                         <option value="TODAY">Today's Jobs</option>
                         <option value="MONTH">This Month</option>
@@ -172,7 +176,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -186,33 +189,28 @@
                             <th class="p-3 sm:p-4">Revenue</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-slate-800/60 font-medium">
-                    </tbody>
+                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-slate-800/60 font-medium"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- TAB 3: EVENT RECORDS (PUTHIYA TAB)         -->
+    <!-- TAB 3: EVENT RECORDS                       -->
     <!-- ========================================== -->
     <div id="tab-events" class="hidden">
         <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                <i data-lucide="filter" class="w-4 h-4 text-tntc-blue"></i> Filter Event Records
-            </h3>
-            
+            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-blue"></i> Filter Event Records</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Event Category</label>
-                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
                         <option value="ALL">All Categories</option>
-                        <!-- Automatically populated via JS -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
-                    <select id="filterEventTime" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <select id="filterEventTime" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
                         <option value="ALL">All Time</option>
                         <option value="MONTH">This Month</option>
                     </select>
@@ -223,7 +221,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="bg-tntc-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -233,13 +230,47 @@
                             <th class="p-3 sm:p-4">Event Category</th>
                             <th class="p-3 sm:p-4">Event Name</th>
                             <th class="p-3 sm:p-4 text-center">Attendance</th>
-                            <th class="p-3 sm:p-4 text-right">Action</th>
+                            <th class="p-3 sm:p-4 text-right">Details</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-slate-800/60 font-medium">
-                        <!-- Javascript will fill this -->
-                    </tbody>
+                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-slate-800/60 font-medium"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL POPUP FOR EVENT DETAILS              -->
+    <!-- ========================================== -->
+    <div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm modal-closed">
+        <div id="eventModalContent" class="bg-tntc-card border border-slate-700 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden">
+            <!-- Modal Header (Image) -->
+            <div id="modalImageContainer" class="w-full h-40 sm:h-48 bg-slate-800 relative bg-cover bg-center">
+                <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
+                <button onclick="closeModal()" class="absolute top-4 right-4 bg-black/50 p-1.5 rounded-full text-white hover:bg-black/80 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-5 sm:p-7 -mt-10 relative z-10">
+                <span id="modalCategory" class="inline-block px-2.5 py-1 bg-blue-900/80 text-blue-300 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
+                <h2 id="modalEventName" class="text-xl sm:text-2xl font-black text-white leading-tight mb-2">Event Name Here</h2>
+                <p class="text-slate-400 text-sm flex items-center gap-2 mb-6 font-medium">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> <span id="modalDate">Date</span>
+                </p>
+                
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Drivers Attended (<span id="modalAttendanceCount">0</span>)
+                </h3>
+                
+                <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Badges injected by JS -->
+                </div>
+                
+                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:bg-emerald-400 text-slate-900 font-bold py-3 rounded-lg transition-colors shadow-lg">
+                    View on TruckersMP <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i>
+                </a>
             </div>
         </div>
     </div>
@@ -248,16 +279,16 @@
         lucide.createIcons();
 
         // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URLs HERE:
-        // 1. Pazhaya Job Logs CSV Link
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
-        // 2. Puthiya Event "ENTRY SHEET" CSV Link
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
 
         let kmChartInstance = null;
         let eventChartInstance = null;
         let globalJobData = []; 
         let globalEventData = { headers: [], rows: [] }; 
+        let currentFilteredEvents = []; // Needed for Modal
 
+        // Number Rolling Animation
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             if (!obj) return;
@@ -292,23 +323,17 @@
             let cleanStr = timeStr.replace(/-/g, ' ');
             let rowDate = new Date(cleanStr);
             if (isNaN(rowDate)) return filterType === 'ALL';
-
-            if (filterType === 'TODAY') {
-                return rowDate.toDateString() === now.toDateString();
-            } else if (filterType === 'MONTH') {
-                return rowDate.getMonth() === now.getMonth() && rowDate.getFullYear() === now.getFullYear();
-            }
+            if (filterType === 'TODAY') return rowDate.toDateString() === now.toDateString();
+            if (filterType === 'MONTH') return rowDate.getMonth() === now.getMonth() && rowDate.getFullYear() === now.getFullYear();
             return true;
         }
 
-        // --- TAB SWITCHING (Ippo 3 Tab logic) ---
+        // --- TAB LOGIC ---
         function switchTab(tabName) {
             const tabs = ['overview', 'logs', 'events'];
-            
             tabs.forEach(t => {
                 const tabEl = document.getElementById(`tab-${t}`);
                 const btnEl = document.getElementById(`btn-${t}`);
-                
                 if (t === tabName) {
                     tabEl.classList.remove('hidden');
                     btnEl.classList.add('tab-active');
@@ -319,19 +344,17 @@
                     btnEl.classList.add('tab-inactive');
                 }
             });
-
-            // Tab open aagum pothu data update pandrathuku
             if (tabName === 'overview') applyOverviewFilter();
             else if (tabName === 'logs') applyLogFilters();
             else if (tabName === 'events') applyEventFilters();
         }
 
-        // --- FETCH BOTH CSVs ---
+        // --- FETCH DATA ---
         function fetchData() {
             document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
             let timeParam = "t=" + new Date().getTime();
             
-            // 1. Fetch Job Logs
+            // Fetch Jobs
             let jobUrl = GOOGLE_SHEET_CSV_URL + (GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(jobUrl, {
                 download: true, header: false, skipEmptyLines: true,
@@ -349,14 +372,23 @@
                 }
             });
 
-            // 2. Fetch Events
+            // Fetch Events (WITH DYNAMIC HEADER FIX)
             let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(eventUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
                     if (results.data && results.data.length > 1) {
-                        globalEventData.headers = results.data[0];
-                        globalEventData.rows = results.data.slice(1);
+                        let headerIndex = 0;
+                        // Search first 5 rows to find the actual header row (containing 'EVENT NAME' or 'DATE')
+                        for(let i = 0; i < Math.min(5, results.data.length); i++) {
+                            let rowStr = results.data[i].join(" ").toUpperCase();
+                            if(rowStr.includes("EVENT NAME") || rowStr.includes("DATE")) {
+                                headerIndex = i;
+                                break;
+                            }
+                        }
+                        globalEventData.headers = results.data[headerIndex];
+                        globalEventData.rows = results.data.slice(headerIndex + 1);
                         populateEventCategoryDropdown();
                         refreshActiveTab();
                     }
@@ -371,10 +403,9 @@
             else if(!document.getElementById('tab-events').classList.contains('hidden')) applyEventFilters();
         }
 
-        // --- TAB 1: OVERVIEW PROCESSOR ---
+        // --- OVERVIEW TAB ---
         function applyOverviewFilter() {
             let timeFilter = document.getElementById('overviewTimeFilter').value;
-            
             let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter));
             processTelemetryData(filteredJobs);
             processEventData(timeFilter);
@@ -383,12 +414,10 @@
         function processTelemetryData(rows) {
             let totalKm = 0, totalRev = 0, totalJobs = rows.length;
             let driverMap = {};
-
             rows.forEach((row) => {
                 let driver = row[2] || 'Unknown';
                 let drivenKm = cleanNumber(row[12]);
                 let revenue = cleanNumber(row[15]);
-
                 totalKm += drivenKm; totalRev += revenue;
                 if (!driverMap[driver]) driverMap[driver] = { km: 0, jobs: 0 };
                 driverMap[driver].km += drivenKm;
@@ -403,19 +432,11 @@
             animateValue("statDrivers", parseInt(document.getElementById('statDrivers').innerText) || 0, sortedDrivers.length, 500);
 
             let leaderboardHTML = "";
-            if (sortedDrivers.length === 0) {
-                 leaderboardHTML = `<p class="text-slate-500 text-sm text-center mt-4">No logs found.</p>`;
-            } else {
+            if (sortedDrivers.length === 0) leaderboardHTML = `<p class="text-slate-500 text-sm text-center mt-4">No logs found.</p>`;
+            else {
                 sortedDrivers.forEach((d, rank) => {
                     let badgeClass = rank === 0 ? 'text-amber-400 font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
-                            <div class="flex items-center gap-3">
-                                <span class="text-sm ${badgeClass}">#${rank + 1}</span>
-                                <div><p class="text-xs font-bold text-white">${d.name}</p><p class="text-[10px] text-slate-400">${d.jobs} Jobs</p></div>
-                            </div>
-                            <p class="text-xs font-mono font-bold text-emerald-400">${d.km.toLocaleString()} km</p>
-                        </div>`;
+                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-white">${d.name}</p><p class="text-[10px] text-slate-400">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-emerald-400">${d.km.toLocaleString()} km</p></div>`;
                 });
             }
             document.getElementById('kmLeaderboardList').innerHTML = leaderboardHTML;
@@ -424,16 +445,15 @@
 
         function processEventData(timeFilter) {
             if(!globalEventData.rows.length) return;
-            
             let totalEvents = 0;
             let driverEventMap = {};
             let headers = globalEventData.headers;
             
             globalEventData.rows.forEach(row => {
-                let dateStr = row[1] || ''; // Col B
+                let dateStr = row[1] || ''; 
                 if(checkDateFilter(dateStr, timeFilter)) {
                     totalEvents++; 
-                    for(let i = 6; i < headers.length; i++) {
+                    for(let i = 6; i < headers.length; i++) { // Starts from index 6 (Driver G)
                         let dName = headers[i];
                         if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
                         let val = (row[i] || '').toString().trim().toUpperCase();
@@ -448,34 +468,22 @@
             animateValue("statEvents", parseInt(document.getElementById('statEvents').innerText) || 0, totalEvents, 800);
 
             let sortedEventDrivers = Object.keys(driverEventMap).map(d => ({ name: d, events: driverEventMap[d] })).sort((a, b) => b.events - a.events);
-            
             let leaderboardHTML = "";
-            if (sortedEventDrivers.length === 0) {
-                 leaderboardHTML = `<p class="text-slate-500 text-sm text-center mt-4">No events found.</p>`;
-            } else {
+            if (sortedEventDrivers.length === 0) leaderboardHTML = `<p class="text-slate-500 text-sm text-center mt-4">No events found.</p>`;
+            else {
                 sortedEventDrivers.forEach((d, rank) => {
                     let badgeClass = rank === 0 ? 'text-blue-400 font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `
-                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
-                            <div class="flex items-center gap-3">
-                                <span class="text-sm ${badgeClass}">#${rank + 1}</span>
-                                <div><p class="text-xs font-bold text-white">${d.name}</p></div>
-                            </div>
-                            <p class="text-xs font-mono font-bold text-blue-400">${d.events} Convoys</p>
-                        </div>`;
+                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-white">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-blue-400">${d.events} Convoys</p></div>`;
                 });
             }
             document.getElementById('eventLeaderboardList').innerHTML = leaderboardHTML;
             renderEventChart(sortedEventDrivers.slice(0, 8)); 
         }
 
-        // --- TAB 2: JOB LOGS ---
+        // --- LOGS TAB ---
         function populateDriverDropdown(rows) {
             let drivers = new Set();
-            rows.forEach(row => {
-                let d = row[2];
-                if(d && d.trim() !== '') drivers.add(d);
-            });
+            rows.forEach(row => { let d = row[2]; if(d && d.trim() !== '') drivers.add(d); });
             let dropdown = document.getElementById('filterDriver');
             let currentVal = dropdown.value; 
             dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
@@ -502,30 +510,21 @@
 
             document.getElementById('filteredTotalKm').innerText = filteredKm.toLocaleString() + " km";
             let tableHTML = "";
-            if(filteredJobs.length === 0) {
-                tableHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No jobs found.</td></tr>`;
-            } else {
+            if(filteredJobs.length === 0) tableHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No jobs found.</td></tr>`;
+            else {
                 filteredJobs.slice(0, 100).forEach(row => {
-                    tableHTML += `
-                    <tr class="hover:bg-slate-800/40 transition-colors">
-                        <td class="p-3 sm:p-4 text-slate-400 font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td>
-                        <td class="p-3 sm:p-4 text-white font-bold">${row[2] || 'Unknown'}</td>
-                        <td class="p-3 sm:p-4 text-slate-300">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-emerald-400 mx-1"></i> ${row[7] || '--'}</td>
-                        <td class="p-3 sm:p-4 text-slate-300 text-xs">${row[3] || '--'}</td>
-                        <td class="p-3 sm:p-4 text-emerald-400 font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td>
-                        <td class="p-3 sm:p-4 text-amber-400 font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td>
-                    </tr>`;
+                    tableHTML += `<tr class="hover:bg-slate-800/40 transition-colors"><td class="p-3 sm:p-4 text-slate-400 font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-white font-bold">${row[2] || 'Unknown'}</td><td class="p-3 sm:p-4 text-slate-300">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-emerald-400 mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-slate-300 text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-emerald-400 font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-amber-400 font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
                 });
             }
             document.getElementById('filteredJobTableBody').innerHTML = tableHTML;
             lucide.createIcons();
         }
 
-        // --- TAB 3: EVENT RECORDS ---
+        // --- EVENTS TAB & MODAL ---
         function populateEventCategoryDropdown() {
             let categories = new Set();
             globalEventData.rows.forEach(row => {
-                let cat = row[4]; // Column E (Index 4)
+                let cat = row[4]; 
                 if(cat && cat.trim() !== '') categories.add(cat.trim().toUpperCase());
             });
             let dropdown = document.getElementById('filterEventCategory');
@@ -538,60 +537,118 @@
         function applyEventFilters() {
             let catFilter = document.getElementById('filterEventCategory').value;
             let timeFilter = document.getElementById('filterEventTime').value;
-            let filteredEvents = [];
+            currentFilteredEvents = []; // Reset global array
             
-            // Latest event top-la varathuku reverse pandrom
             let recentEvents = [...globalEventData.rows].reverse();
             let headers = globalEventData.headers;
 
             recentEvents.forEach(row => {
-                let dateStr = row[1] || ''; // Col B
-                let category = (row[4] || '').trim().toUpperCase(); // Col E
+                let dateStr = row[1] || ''; 
+                let category = (row[4] || '').trim().toUpperCase(); 
                 
                 if (catFilter !== 'ALL' && category !== catFilter) return;
                 if (!checkDateFilter(dateStr, timeFilter)) return;
                 
-                // Attendance Count dynamically calculate panrom
-                let attendanceCount = 0;
+                let driversAttended = [];
                 for(let i = 6; i < headers.length; i++) {
                     let dName = headers[i];
                     if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
                     let val = (row[i] || '').toString().trim().toUpperCase();
-                    if(val !== '' && val !== 'FALSE' && val !== '0') attendanceCount++;
+                    if(val !== '' && val !== 'FALSE' && val !== '0') {
+                        driversAttended.push(dName);
+                    }
                 }
 
-                filteredEvents.push({
+                currentFilteredEvents.push({
                     date: dateStr,
                     name: row[2] || 'Unknown Event',
                     link: row[3] || '#',
                     category: category,
-                    attendance: attendanceCount
+                    image: row[5] || '', // Column F is Image Link
+                    attendance: driversAttended.length,
+                    drivers: driversAttended
                 });
             });
 
-            document.getElementById('filteredTotalEvents').innerText = filteredEvents.length;
+            document.getElementById('filteredTotalEvents').innerText = currentFilteredEvents.length;
             
             let tableHTML = "";
-            if(filteredEvents.length === 0) {
-                tableHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No events found for this filter.</td></tr>`;
-            } else {
-                filteredEvents.slice(0, 100).forEach(ev => {
+            if(currentFilteredEvents.length === 0) tableHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No events found.</td></tr>`;
+            else {
+                currentFilteredEvents.slice(0, 100).forEach((ev, index) => {
                     let badgeColor = ev.category.includes('PRIVATE') ? 'bg-purple-900/50 text-purple-400' : 'bg-blue-900/50 text-blue-400';
-                    let linkBtn = ev.link !== '#' ? `<a href="${ev.link}" target="_blank" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold text-white flex items-center justify-center gap-1 transition-colors"><i data-lucide="external-link" class="w-3 h-3"></i> View</a>` : '<span class="text-slate-500 text-xs">No Link</span>';
-                    
                     tableHTML += `
                     <tr class="hover:bg-slate-800/40 transition-colors">
                         <td class="p-3 sm:p-4 text-slate-300 font-mono text-[10px] sm:text-xs">${ev.date}</td>
                         <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider ${badgeColor}">${ev.category}</span></td>
                         <td class="p-3 sm:p-4 text-white font-bold text-sm max-w-[200px] truncate" title="${ev.name}">${ev.name}</td>
                         <td class="p-3 sm:p-4 text-center text-emerald-400 font-black">${ev.attendance} <i data-lucide="users" class="w-4 h-4 inline ml-1 opacity-70"></i></td>
-                        <td class="p-3 sm:p-4 text-right">${linkBtn}</td>
+                        <td class="p-3 sm:p-4 text-right">
+                            <button onclick="openModal(${index})" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold text-white flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View
+                            </button>
+                        </td>
                     </tr>`;
                 });
             }
             document.getElementById('filteredEventTableBody').innerHTML = tableHTML;
             lucide.createIcons();
         }
+
+        // --- MODAL FUNCTIONS ---
+        function openModal(index) {
+            let ev = currentFilteredEvents[index];
+            if(!ev) return;
+
+            document.getElementById('modalEventName').innerText = ev.name;
+            document.getElementById('modalDate').innerText = ev.date;
+            document.getElementById('modalCategory').innerText = ev.category;
+            document.getElementById('modalAttendanceCount').innerText = ev.attendance;
+            
+            // Set Image or fallback pattern
+            let imgContainer = document.getElementById('modalImageContainer');
+            if(ev.image && ev.image.startsWith('http')) {
+                imgContainer.style.backgroundImage = `url('${ev.image}')`;
+            } else {
+                imgContainer.style.backgroundImage = `linear-gradient(to right, #0f172a, #1e293b)`;
+            }
+
+            // Set Link
+            let linkBtn = document.getElementById('modalLinkBtn');
+            if(ev.link && ev.link !== '#') {
+                linkBtn.href = ev.link;
+                linkBtn.style.display = 'block';
+            } else {
+                linkBtn.style.display = 'none';
+            }
+
+            // Create Driver Badges
+            let driversHTML = "";
+            if(ev.drivers.length > 0) {
+                ev.drivers.forEach(d => {
+                    driversHTML += `<span class="bg-emerald-900/40 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-md text-xs font-bold tracking-wide">${d}</span>`;
+                });
+            } else {
+                driversHTML = `<p class="text-slate-500 text-xs italic w-full">No drivers logged for this event.</p>`;
+            }
+            document.getElementById('modalDriversList').innerHTML = driversHTML;
+
+            // Show Modal
+            let modal = document.getElementById('eventModal');
+            modal.classList.remove('modal-closed');
+            modal.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            let modal = document.getElementById('eventModal');
+            modal.classList.remove('modal-open');
+            modal.classList.add('modal-closed');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('eventModal').addEventListener('click', function(e) {
+            if(e.target === this) closeModal();
+        });
 
         // --- CHARTS GENERATION ---
         function renderKmChart(topDrivers) {
@@ -621,6 +678,3 @@
     </script>
 </body>
 </html>
-
-
-```
