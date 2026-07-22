@@ -46,13 +46,12 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 relative">
 
-    <!-- Header (Updated Layout) -->
+    <!-- Header (Updated Layout with your Logos) -->
     <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 border-b border-slate-800 pb-5 gap-6 md:gap-4 mt-2">
         
         <!-- Left: TNTC Logo & Title -->
         <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
             <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-tntc-accent/20 border border-emerald-500/30">
-                <!-- Vvv INGA TNTC LOGO LINK PASTE PANNUNGA vvv -->
                 <img src="https://files.catbox.moe/ujn8ng.png" alt="TNTC Logo" class="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover">
             </div>
             <div class="text-center md:text-left">
@@ -63,7 +62,6 @@
 
         <!-- Center: TNL Logo & Text (Perfectly centered on Desktop) -->
         <div class="md:absolute md:left-1/2 md:-translate-x-1/2 flex flex-col items-center z-0">
-            <!-- Vvv INGA TNL LOGO LINK PASTE PANNUNGA vvv -->
             <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL Logo" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-tntc-blue shadow-[0_0_15px_rgba(59,130,246,0.3)] object-cover">
             <span class="text-[9px] font-black text-slate-400 tracking-widest uppercase mt-1">Tamilnadu Logistics</span>
         </div>
@@ -76,7 +74,6 @@
                   <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
                 <span id="syncStatus" class="text-xs font-semibold text-slate-300">Syncing with Cloud...</span>
-                <!-- Hidden mobile ID to prevent JS errors -->
                 <span id="syncStatusMobile" class="hidden"></span>
             </div>
         </div>
@@ -99,17 +96,20 @@
     <!-- TAB 1: OVERVIEW DASHBOARD                  -->
     <!-- ========================================== -->
     <div id="tab-overview" class="block">
-        <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-slate-800 shadow-lg mb-6">
-            <h2 class="text-sm font-bold text-slate-300 flex items-center gap-2 mb-3 sm:mb-0">
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-slate-800 shadow-lg mb-6 gap-4">
+            <h2 class="text-sm font-bold text-slate-300 flex items-center gap-2 w-full sm:w-auto">
                 <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-500"></i> Overall Division Stats
             </h2>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
                 <label class="text-xs font-semibold text-slate-400">Filter By:</label>
-                <select id="overviewTimeFilter" onchange="applyOverviewFilter()" class="w-full sm:w-auto bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                <select id="overviewTimeFilter" onchange="handleTimeChange('overviewTimeFilter', 'overviewDatePicker', 'applyOverviewFilter')" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                     <option value="ALL">All Time</option>
                     <option value="TODAY">Today</option>
+                    <option value="WEEK">This Week</option>
                     <option value="MONTH">This Month</option>
+                    <option value="CUSTOM">Select Date 📅</option>
                 </select>
+                <input type="date" id="overviewDatePicker" onchange="applyOverviewFilter()" class="hidden bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-1.5 focus:ring-emerald-500 outline-none">
             </div>
         </div>
 
@@ -177,11 +177,16 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
-                    <select id="filterTime" onchange="applyLogFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 outline-none">
-                        <option value="ALL">All Time</option>
-                        <option value="TODAY">Today's Jobs</option>
-                        <option value="MONTH">This Month</option>
-                    </select>
+                    <div class="flex gap-2">
+                        <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-emerald-500 outline-none">
+                            <option value="ALL">All Time</option>
+                            <option value="TODAY">Today's Jobs</option>
+                            <option value="WEEK">This Week</option>
+                            <option value="MONTH">This Month</option>
+                            <option value="CUSTOM">Select Date 📅</option>
+                        </select>
+                        <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-emerald-500 outline-none">
+                    </div>
                 </div>
                 <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-800 flex flex-col justify-center items-center">
                     <p class="text-xs text-slate-400 font-semibold mb-1">Filtered Distance</p>
@@ -214,7 +219,7 @@
     <div id="tab-events" class="hidden">
         <div class="bg-tntc-card p-6 rounded-2xl border border-slate-800 shadow-xl mb-6">
             <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-blue"></i> Filter Event Records</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Event Category</label>
                     <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
@@ -222,11 +227,22 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
-                    <select id="filterEventTime" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
-                        <option value="ALL">All Time</option>
-                        <option value="MONTH">This Month</option>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Select Driver</label>
+                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
+                        <option value="ALL">All Drivers</option>
                     </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Time Period</label>
+                    <div class="flex gap-2">
+                        <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2.5 focus:ring-blue-500 outline-none">
+                            <option value="ALL">All Time</option>
+                            <option value="WEEK">This Week</option>
+                            <option value="MONTH">This Month</option>
+                            <option value="CUSTOM">Select Date 📅</option>
+                        </select>
+                        <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg p-2 focus:ring-blue-500 outline-none">
+                    </div>
                 </div>
                 <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-800 flex flex-col justify-center items-center">
                     <p class="text-xs text-slate-400 font-semibold mb-1">Total Filtered Events</p>
@@ -255,7 +271,6 @@
     <!-- ========================================== -->
     <!-- MODAL POPUP FOR EVENT DETAILS              -->
     <!-- ========================================== -->
-    <!-- NOTE: Added modal-closed class to ensure it's hidden on initial load -->
     <div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm modal-closed">
         <div id="eventModalContent" class="bg-tntc-card border border-slate-700 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden">
             <div id="modalImageContainer" class="w-full h-40 sm:h-48 bg-slate-800 relative bg-cover bg-center">
@@ -287,7 +302,7 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URLs HERE:
+        // 🔴 Google Sheet URLs unchanged
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
 
@@ -324,15 +339,44 @@
             return parseFloat(sanitized) || 0;
         }
 
-        function checkDateFilter(timeStr, filterType) {
+        // Feature: Custom Calendar Dropdown handler
+        function handleTimeChange(selectId, datePickerId, applyFuncName) {
+            let val = document.getElementById(selectId).value;
+            let dp = document.getElementById(datePickerId);
+            if (val === 'CUSTOM') {
+                dp.classList.remove('hidden');
+            } else {
+                dp.classList.add('hidden');
+            }
+            window[applyFuncName](); 
+        }
+
+        // Feature: Weekly and Custom Date filters applied here
+        function checkDateFilter(timeStr, filterType, customDateStr) {
             if (filterType === 'ALL') return true;
             if (!timeStr) return false;
             let now = new Date();
             let cleanStr = timeStr.replace(/-/g, ' ');
             let rowDate = new Date(cleanStr);
             if (isNaN(rowDate)) return filterType === 'ALL';
-            if (filterType === 'TODAY') return rowDate.toDateString() === now.toDateString();
-            if (filterType === 'MONTH') return rowDate.getMonth() === now.getMonth() && rowDate.getFullYear() === now.getFullYear();
+            
+            if (filterType === 'TODAY') {
+                return rowDate.toDateString() === now.toDateString();
+            } else if (filterType === 'WEEK') {
+                let startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                startOfWeek.setHours(0,0,0,0);
+                let endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                endOfWeek.setHours(23,59,59,999);
+                return rowDate >= startOfWeek && rowDate <= endOfWeek;
+            } else if (filterType === 'MONTH') {
+                return rowDate.getMonth() === now.getMonth() && rowDate.getFullYear() === now.getFullYear();
+            } else if (filterType === 'CUSTOM') {
+                if (!customDateStr) return true;
+                let selectedDate = new Date(customDateStr);
+                return rowDate.toDateString() === selectedDate.toDateString();
+            }
             return true;
         }
 
@@ -360,7 +404,6 @@
             document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
             let timeParam = "t=" + new Date().getTime();
             
-            // Fetch Jobs
             let jobUrl = GOOGLE_SHEET_CSV_URL + (GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(jobUrl, {
                 download: true, header: false, skipEmptyLines: true,
@@ -378,7 +421,6 @@
                 }
             });
 
-            // Fetch Events 
             let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(eventUrl, {
                 download: true, header: false, skipEmptyLines: true,
@@ -394,6 +436,7 @@
                         globalEventData.headers = results.data[headerIndex];
                         globalEventData.rows = results.data.slice(headerIndex + 1);
                         populateEventCategoryDropdown();
+                        populateEventDriverDropdown(); // Populates Driver list in Event Tab
                         refreshActiveTab();
                     }
                     document.getElementById('syncStatus').innerText = "Live Cloud Sync Active";
@@ -409,9 +452,11 @@
 
         function applyOverviewFilter() {
             let timeFilter = document.getElementById('overviewTimeFilter').value;
-            let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter));
+            let customDate = document.getElementById('overviewDatePicker').value;
+            
+            let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter, customDate));
             processTelemetryData(filteredJobs);
-            processEventData(timeFilter);
+            processEventData(timeFilter, customDate);
         }
 
         function processTelemetryData(rows) {
@@ -446,7 +491,7 @@
             renderKmChart(sortedDrivers.slice(0, 8)); 
         }
 
-        function processEventData(timeFilter) {
+        function processEventData(timeFilter, customDate) {
             if(!globalEventData.rows.length) return;
             let totalEvents = 0;
             let driverEventMap = {};
@@ -455,18 +500,14 @@
             globalEventData.rows.forEach(row => {
                 let dateStr = row[1] || ''; 
                 let nameStr = row[2] || '';
-                
-                // 100+ Bug Fix: Skip empty rows at the bottom of sheet
                 if (dateStr.trim() === '' || nameStr.toString().trim() === '') return; 
 
-                if(checkDateFilter(dateStr, timeFilter)) {
+                if(checkDateFilter(dateStr, timeFilter, customDate)) {
                     totalEvents++; 
                     for(let i = 6; i < headers.length; i++) { 
                         let dName = headers[i];
                         if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
-                        
                         let val = (row[i] || '').toString().trim().toUpperCase();
-                        // Smart Checkbox parsing (ignores FALSE, 0, NO, and Unicode unchecked symbols)
                         if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
                             if(!driverEventMap[dName]) driverEventMap[dName] = 0;
                             driverEventMap[dName]++;
@@ -503,6 +544,7 @@
         function applyLogFilters() {
             let driverFilter = document.getElementById('filterDriver').value;
             let timeFilter = document.getElementById('filterTime').value;
+            let customDate = document.getElementById('jobDatePicker').value;
             let filteredKm = 0;
             let filteredJobs = [];
             let recentRows = [...globalJobData].reverse(); 
@@ -512,7 +554,7 @@
                 let timeStr = row[0] || '';
                 let drivenKm = cleanNumber(row[12]);
                 if (driverFilter !== 'ALL' && dName !== driverFilter) return;
-                if (!checkDateFilter(timeStr, timeFilter)) return;
+                if (!checkDateFilter(timeStr, timeFilter, customDate)) return;
                 filteredKm += drivenKm;
                 filteredJobs.push(row);
             });
@@ -544,9 +586,27 @@
             dropdown.value = currentVal || 'ALL';
         }
 
+        // Feature: Driver Dropdown for Events Tab
+        function populateEventDriverDropdown() {
+            let drivers = new Set();
+            for(let i = 6; i < globalEventData.headers.length; i++) {
+                let dName = globalEventData.headers[i];
+                if(dName && dName.trim() !== '' && !dName.toUpperCase().includes('ATTENDANCE')) {
+                    drivers.add(dName.trim());
+                }
+            }
+            let dropdown = document.getElementById('filterEventDriver');
+            let currentVal = dropdown.value; 
+            dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
+            Array.from(drivers).sort().forEach(d => { dropdown.innerHTML += `<option value="${d}">${d}</option>`; });
+            dropdown.value = currentVal || 'ALL';
+        }
+
         function applyEventFilters() {
             let catFilter = document.getElementById('filterEventCategory').value;
+            let driverFilter = document.getElementById('filterEventDriver').value;
             let timeFilter = document.getElementById('filterEventTime').value;
+            let customDate = document.getElementById('eventDatePicker').value;
             currentFilteredEvents = []; 
             
             let recentEvents = [...globalEventData.rows].reverse();
@@ -558,9 +618,16 @@
                 if (dateStr.trim() === '' || nameStr.toString().trim() === '') return; 
                 
                 let category = (row[4] || '').trim().toUpperCase(); 
-                
                 if (catFilter !== 'ALL' && category !== catFilter) return;
-                if (!checkDateFilter(dateStr, timeFilter)) return;
+                if (!checkDateFilter(dateStr, timeFilter, customDate)) return;
+                
+                // Specific Driver Attend check
+                if (driverFilter !== 'ALL') {
+                    let driverIdx = headers.indexOf(driverFilter);
+                    if (driverIdx === -1) return; // Driver missing in headers
+                    let val = (row[driverIdx] || '').toString().trim().toUpperCase();
+                    if (val === '' || val === 'FALSE' || val === '0' || val === '☐' || val === 'NO') return; // Specific driver didn't attend
+                }
                 
                 let driversAttended = [];
                 for(let i = 6; i < headers.length; i++) {
@@ -608,19 +675,15 @@
             lucide.createIcons();
         }
 
-        // --- BULLETPROOF MODAL FUNCTIONS ---
         function openModal(index) {
             let ev = currentFilteredEvents[index];
             if(!ev) return;
-
             try {
-                // Populate Texts using textContent to prevent any HTML injection bugs
                 document.getElementById('modalEventName').textContent = ev.name || 'Unknown Event';
                 document.getElementById('modalDate').textContent = ev.date || 'No Date';
                 document.getElementById('modalCategory').textContent = ev.category || 'EVENT';
                 document.getElementById('modalAttendanceCount').textContent = ev.attendance || '0';
                 
-                // Set Background Image safely
                 let imgContainer = document.getElementById('modalImageContainer');
                 if(ev.image && typeof ev.image === 'string' && ev.image.startsWith('http')) {
                     imgContainer.style.backgroundImage = `url('${ev.image}')`;
@@ -628,7 +691,6 @@
                     imgContainer.style.backgroundImage = `linear-gradient(to right, #0f172a, #1e293b)`;
                 }
 
-                // Set View Link Safely
                 let linkBtn = document.getElementById('modalLinkBtn');
                 if(ev.link && ev.link !== '#' && ev.link.startsWith('http')) {
                     linkBtn.href = ev.link;
@@ -637,7 +699,6 @@
                     linkBtn.style.display = 'none';
                 }
 
-                // Populate Drivers Badges
                 let driversHTML = "";
                 if(ev.drivers && ev.drivers.length > 0) {
                     ev.drivers.forEach(d => {
@@ -648,7 +709,6 @@
                 }
                 document.getElementById('modalDriversList').innerHTML = driversHTML;
 
-                // Open the modal only after successful population
                 let modal = document.getElementById('eventModal');
                 modal.classList.remove('modal-closed');
                 modal.classList.add('modal-open');
@@ -667,7 +727,6 @@
             if(e.target === this) closeModal();
         });
 
-        // --- CHARTS GENERATION ---
         function renderKmChart(topDrivers) {
             const labels = topDrivers.map(d => d.name);
             const dataKm = topDrivers.map(d => d.km);
