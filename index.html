@@ -58,27 +58,35 @@
         .modal-open .custom-modal-content { transform: scale(1) translateY(0); }
         .modal-closed.custom-modal { opacity: 0; pointer-events: none; }
         .modal-closed .custom-modal-content { transform: scale(0.95) translateY(10px); }
+        
+        /* Smooth Collapse Animation */
+        .collapse-content { transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
+        .collapse-content.expanded { max-height: 5000px; opacity: 1; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
 
+    <!-- TNL GLOBAL TOP BAR (Spans full width) -->
+    <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-tntc-muted/20 bg-[#0a0d14] flex items-center justify-center gap-3 shadow-lg z-20 relative">
+        <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-tntc-revenue/50 shadow-[0_0_15px_rgba(250,204,21,0.2)] object-cover">
+        <h1 class="text-lg md:text-xl font-black text-tntc-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
+    </div>
+
     <!-- Header (Custom Logos & Text) -->
-    <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 border-b border-tntc-muted/20 pb-5 gap-6 md:gap-4 mt-2">
+    <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 pb-2 gap-6 md:gap-4">
+        
+        <!-- Left: TNTC Logo & Title -->
         <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
             <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.2)] bg-tntc-accent/10 border border-tntc-accent/30">
                 <img src="https://files.catbox.moe/ujn8ng.png" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
             </div>
             <div class="text-center md:text-left">
-                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-tntc-textPrimary uppercase">TAMILNADU TRUCKING CREW</h1>
+                <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-tntc-textPrimary uppercase">TAMILNADU TRUCKING CREW</h2>
                 <p class="text-tntc-accent text-xs tracking-widest uppercase mt-0.5">Dashboard</p>
             </div>
         </div>
 
-        <div class="md:absolute md:left-1/2 md:-translate-x-1/2 flex flex-col items-center z-0">
-            <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-tntc-muted shadow-[0_0_15px_rgba(2,132,199,0.3)] object-cover">
-            <span class="text-[9px] font-black text-tntc-textSecondary tracking-widest uppercase mt-1.5">Tamilnadu Logistics</span>
-        </div>
-
+        <!-- Right: Live Sync Badge -->
         <div class="flex items-center gap-3 z-10">
             <div class="bg-tntc-card px-4 py-2 rounded-lg border border-tntc-muted/30 flex items-center gap-2.5 shadow-sm">
                 <span class="relative flex h-2.5 w-2.5">
@@ -163,7 +171,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]">
                 <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-tntc-revenue"></i> Top Drivers by KM</h3>
                 <div id="kmLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
@@ -172,7 +180,38 @@
                 <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-tntc-accent"></i> Top Drivers by Events</h3>
                 <div id="eventLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
             </div>
+            <!-- Hall of Fame (Past Members) -->
+            <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-tntc-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Frame</h3>
+                    <span class="text-[9px] bg-tntc-main border border-tntc-muted/20 px-2 py-1 rounded text-tntc-textSecondary uppercase tracking-widest">Past Members</span>
+                </div>
+                <div id="pastLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
+            </div>
         </div>
+
+        <!-- DOWNLOAD TRACKER FOOTER (ONLY ON OVERVIEW) -->
+        <footer class="mt-4 mb-2 pt-6 border-t border-tntc-muted/20">
+            <div class="bg-gradient-to-r from-tntc-card to-tntc-main border border-tntc-muted/30 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute -left-12 -top-12 w-32 h-32 bg-tntc-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col md:flex-row items-center gap-5 z-10 text-center md:text-left">
+                    <div class="bg-tntc-main p-4 rounded-xl border border-tntc-muted/40 shadow-inner flex-shrink-0">
+                        <i data-lucide="download-cloud" class="w-8 h-8 text-tntc-accent"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-black text-tntc-textPrimary uppercase tracking-wide">TNTC Telemetry Engine</h3>
+                        <p class="text-xs sm:text-sm font-semibold text-tntc-textSecondary mt-1">Download the latest Windows client to track your deliveries automatically.</p>
+                    </div>
+                </div>
+
+                <div class="z-10 w-full md:w-auto shrink-0">
+                    <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest" target="_blank" class="w-full md:w-auto flex items-center justify-center gap-2.5 bg-tntc-accent hover:opacity-90 text-tntc-main font-black px-8 py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(56,189,248,0.2)]">
+                        <i data-lucide="download" class="w-5 h-5"></i> Download Tracker (.exe)
+                    </a>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- ========================================== -->
@@ -282,124 +321,113 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- TAB 4: EUROPEAN TOUR CAMPAIGN              -->
+    <!-- TAB 4: EUROPEAN TOUR CAMPAIGN (CARD UI)    -->
     <!-- ========================================== -->
     <div id="tab-campaign" class="hidden">
         
-        <!-- Hero Progress Section -->
-        <div class="bg-gradient-to-br from-[#0c1017] to-[#05070a] p-6 rounded-xl border border-tntc-muted/30 shadow-[0_10px_40px_-10px_rgba(74,222,128,0.15)] mb-6 relative overflow-hidden">
-            <div class="absolute -right-4 -top-8 opacity-[0.03] pointer-events-none">
-                <i data-lucide="globe-2" class="w-64 h-64 text-tntc-distance"></i>
-            </div>
+        <!-- CLICKABLE TOUR CARD -->
+        <div onclick="toggleCampaign('tour1')" class="cursor-pointer group relative bg-tntc-card border border-tntc-muted/30 rounded-2xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(74,222,128,0.15)] transition-all hover:border-tntc-accent/50 hover:shadow-[0_0_30px_rgba(56,189,248,0.2)] mb-6">
             
-            <div class="flex items-center gap-3 mb-2 z-10 relative">
-                <span class="bg-tntc-accent text-[#05070a] px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(56,189,248,0.5)]">LIVE CAMPAIGN</span>
-            </div>
-            <h2 class="text-2xl md:text-3xl font-black text-tntc-textPrimary uppercase tracking-tight mb-1 z-10 relative">European Tour</h2>
-            <p class="text-tntc-textSecondary text-xs md:text-sm font-medium mb-6 z-10 relative max-w-xl">The ultimate endurance challenge across the continent. Completed routes are automatically read from the Tour Sheet database.</p>
-
-            <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-8 sm:h-10 mb-3 relative overflow-hidden shadow-inner z-10">
-                <div id="campaignProgressBar" class="h-full rounded-full flex items-center justify-end pr-4 transition-all duration-[1500ms] ease-out shadow-[0_0_30px_rgba(74,222,128,0.6)]" style="width: 0%; background: linear-gradient(90deg, #166534 0%, #4ade80 100%);">
-                    <span id="campaignProgressText" class="text-[#05070a] font-black text-xs sm:text-sm drop-shadow-md">0%</span>
+            <!-- 🔴 EDIT THIS TO CHANGE THE MAIN CAMPAIGN BACKGROUND IMAGE -->
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-[#05070a]/90 to-transparent"></div>
+            
+            <!-- Card Header Content -->
+            <div class="p-6 md:p-8 relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+                <div>
+                    <!-- Dynamic Badge -->
+                    <span id="campaignStatusBadge" class="bg-tntc-accent text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(56,189,248,0.5)] mb-3 inline-block transition-colors">LIVE CAMPAIGN</span>
+                    <h2 class="text-3xl md:text-4xl font-black text-tntc-textPrimary uppercase tracking-tight mb-2">European Tour</h2>
+                    <p class="text-tntc-textSecondary text-sm font-medium max-w-xl">The ultimate endurance challenge across the continent. Completed routes are automatically read from the Tour Sheet database.</p>
+                </div>
+                
+                <div class="flex items-center gap-2 text-tntc-accent font-bold text-sm bg-tntc-main/50 px-4 py-2.5 rounded-lg border border-tntc-accent/20 backdrop-blur-sm group-hover:bg-tntc-accent group-hover:text-[#05070a] transition-colors shadow-sm">
+                    <span id="tour1-toggle-text">View Manifest</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="tour1-chevron"></i>
                 </div>
             </div>
             
-            <div class="flex justify-between text-xs font-bold text-tntc-textSecondary z-10 relative">
-                <span class="text-tntc-distance"><i data-lucide="flag" class="w-3 h-3 inline"></i> Start</span>
-                <span>Target: <span id="campaignDynamicTargetText">0</span> km <i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span>
-            </div>
-        </div>
-
-        <!-- Filter Drivers & Quick Stats -->
-        <div class="flex flex-col lg:flex-row gap-6 mb-6">
-            
-            <!-- Filter Box -->
-            <div class="bg-tntc-card p-5 rounded-xl border border-tntc-muted/30 shadow-xl lg:w-1/3 flex flex-col justify-center">
-                <h3 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 mb-3">
-                    <i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Campaign Driver
-                </h3>
-                <label class="block text-[10px] font-bold text-tntc-textSecondary uppercase tracking-wider mb-1">Select Driver to sort</label>
-                <select id="filterCampaignDriver" onchange="applyCampaignFilter()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none shadow-inner">
-                    <option value="ALL">All Drivers (Global Progress)</option>
-                    <!-- JS Injects Options Here -->
-                </select>
-                <p class="text-xs text-tntc-textSecondary/60 mt-3 italic">Completed routes will float to the top.</p>
-            </div>
-
-            <!-- Stats Boxes -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 lg:w-2/3">
-                <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxRoutes">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="map" class="w-4 h-4 text-tntc-textSecondary"></i>
-                        <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Routes Done</p>
-                    </div>
-                    <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">0</span></span></h2>
+            <div class="px-6 md:px-8 pb-6 relative z-10">
+                <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-1.5 uppercase tracking-wider">
+                    <span>Overall Division Progress</span>
+                    <span id="campaignCardPercent">0%</span>
                 </div>
-                <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxDist">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="milestone" class="w-4 h-4 text-tntc-textSecondary"></i>
-                        <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Distance Covered</p>
-                    </div>
-                    <h2 class="text-2xl font-black text-tntc-distance"><span id="campaignDistStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
-                </div>
-                <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start col-span-2 md:col-span-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="navigation" class="w-4 h-4 text-tntc-textSecondary"></i>
-                        <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Target</p>
-                    </div>
-                    <h2 class="text-2xl font-black text-tntc-revenue"><span id="campaignTargetStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
+                <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 overflow-hidden shadow-inner">
+                    <div id="campaignCardProgressBar" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_15px_rgba(74,222,128,0.5)]" style="width: 0%;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Routes Table -->
-        <div class="bg-tntc-card rounded-xl border border-tntc-muted/30 shadow-xl overflow-hidden">
-            <div class="p-4 border-b border-tntc-muted/30 bg-[#0a0d14] flex justify-between items-center">
-                <h3 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-tntc-accent"></i> Official Route Manifest</h3>
+        <!-- COLLAPSIBLE CONTENT -->
+        <div id="tour1-content" class="collapse-content">
+            
+            <!-- WARNING BANNER -->
+            <div id="campaignUpcomingBanner" class="hidden bg-tntc-revenue/10 border border-tntc-revenue/30 text-tntc-revenue p-4 rounded-xl text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center gap-3 shadow-lg mb-6">
+                <i data-lucide="clock" class="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"></i>
+                <p>This tour officially begins on <span class="text-[#f8fafc] font-black">August 1, 2026</span>. Deliveries logged before this date will not be validated.</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse whitespace-nowrap">
-                    <thead>
-                        <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tntc-muted/30">
-                            <th class="p-3 sm:p-4 w-12 text-center">No.</th>
-                            <th class="p-3 sm:p-4">Route Path</th>
-                            <th class="p-3 sm:p-4">Target Dist.</th>
-                            <th class="p-3 sm:p-4 text-center">Status</th>
-                            <th class="p-3 sm:p-4 text-right">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody id="campaignTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium">
-                        <!-- JS injects rows here -->
-                    </tbody>
-                </table>
+
+            <!-- Filter Drivers & Quick Stats -->
+            <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                <div class="bg-tntc-card p-5 rounded-xl border border-tntc-muted/30 shadow-xl lg:w-1/3 flex flex-col justify-center">
+                    <h3 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 mb-3">
+                        <i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Campaign Driver
+                    </h3>
+                    <label class="block text-[10px] font-bold text-tntc-textSecondary uppercase tracking-wider mb-1">Select Driver to view progress</label>
+                    <select id="filterCampaignDriver" onchange="applyCampaignFilter()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none shadow-inner">
+                        <option value="ALL">All Drivers (Global Progress)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 lg:w-2/3">
+                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxRoutes">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="map" class="w-4 h-4 text-tntc-textSecondary"></i>
+                            <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Routes Done</p>
+                        </div>
+                        <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">32</span></span></h2>
+                    </div>
+                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxDist">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="milestone" class="w-4 h-4 text-tntc-textSecondary"></i>
+                            <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Distance Covered</p>
+                        </div>
+                        <h2 class="text-2xl font-black text-tntc-distance"><span id="campaignDistStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
+                    </div>
+                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start col-span-2 md:col-span-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="navigation" class="w-4 h-4 text-tntc-textSecondary"></i>
+                            <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Target</p>
+                        </div>
+                        <h2 class="text-2xl font-black text-tntc-revenue"><span id="campaignTargetStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Routes Table -->
+            <div class="bg-tntc-card rounded-xl border border-tntc-muted/30 shadow-xl overflow-hidden mb-6">
+                <div class="p-4 border-b border-tntc-muted/30 bg-[#0a0d14] flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-tntc-accent"></i> Official Route Manifest</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tntc-muted/30">
+                                <th class="p-3 sm:p-4 w-12 text-center">No.</th>
+                                <th class="p-3 sm:p-4">Route Path</th>
+                                <th class="p-3 sm:p-4">Target Dist.</th>
+                                <th class="p-3 sm:p-4 text-center">Status</th>
+                                <th class="p-3 sm:p-4 text-right">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="campaignTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium">
+                            <!-- JS injects rows here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- ========================================== -->
-    <!-- DOWNLOAD TRACKER FOOTER                    -->
-    <!-- ========================================== -->
-    <footer class="mt-12 mb-6 pt-6 border-t border-tntc-muted/20">
-        <div class="bg-gradient-to-r from-tntc-card to-tntc-main border border-tntc-muted/30 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
-            <div class="absolute -left-12 -top-12 w-32 h-32 bg-tntc-accent/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <div class="flex flex-col md:flex-row items-center gap-5 z-10 text-center md:text-left">
-                <div class="bg-tntc-main p-4 rounded-xl border border-tntc-muted/40 shadow-inner flex-shrink-0">
-                    <i data-lucide="download-cloud" class="w-8 h-8 text-tntc-accent"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg sm:text-xl font-black text-tntc-textPrimary uppercase tracking-wide">TNTC Telemetry Engine</h3>
-                    <p class="text-xs sm:text-sm font-semibold text-tntc-textSecondary mt-1">Download the latest Windows client to track your deliveries automatically.</p>
-                </div>
-            </div>
-
-            <div class="z-10 w-full md:w-auto shrink-0">
-                <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest" target="_blank" class="w-full md:w-auto flex items-center justify-center gap-2.5 bg-tntc-accent hover:opacity-90 text-tntc-main font-black px-8 py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(56,189,248,0.2)]">
-                    <i data-lucide="download" class="w-5 h-5"></i> Download Tracker (.exe)
-                </a>
-            </div>
-        </div>
-    </footer>
 
     <!-- ========================================== -->
     <!-- MODALS (EVENT & CAMPAIGN)                  -->
@@ -437,11 +465,8 @@
     <div id="campaignModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-closed">
         <div class="custom-modal-content bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden relative">
             
-            <div class="w-full h-32 bg-gradient-to-r from-[#166534] to-[#0f172a] relative border-b border-tntc-muted/30 overflow-hidden">
-                <div class="absolute inset-0 opacity-10 bg-[url('https://i.postimg.cc/9F7K94r8/map-pattern.png')] bg-cover"></div>
-                <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+            <div id="campModalHeader" class="w-full h-32 relative border-b border-tntc-muted/30 overflow-hidden bg-cover bg-center">
+                 <!-- Close Button injected dynamically -->
             </div>
             
             <div class="p-5 sm:p-7 -mt-12 relative z-10">
@@ -458,11 +483,10 @@
                 </p>
 
                 <h3 class="text-xs font-bold text-tntc-textPrimary uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-tntc-muted/20 pb-2">
-                    <i data-lucide="users" class="w-4 h-4 text-tntc-distance"></i> Completed By (<span id="campModalCount">0</span>)
+                    <i data-lucide="users" class="w-4 h-4 text-tntc-distance"></i> Completed By (<span id="campModalCount">0</span> / <span id="campModalTotalDrivers">0</span>)
                 </h3>
                 
                 <div id="campModalDriversList" class="flex flex-wrap gap-2 mb-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
-                    <!-- Badges injected here -->
                 </div>
             </div>
         </div>
@@ -474,7 +498,6 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 HARDCODED GOOGLE SHEET URLs:
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
         const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; 
@@ -483,14 +506,27 @@
         let eventChartInstance = null;
         let globalJobData = []; 
         let globalEventData = { headers: [], rows: [] }; 
-        let currentFilteredEvents = []; 
         
         let globalTourData = { headers: [], rows: [] }; 
         let currentProcessedRoutes = []; 
         let dynamicTotalTargetDist = 0; 
-        let allCompanyDrivers = new Set(); // Stores all drivers from Job Logs
+        let validCampaignDrivers = new Set(); 
 
-        // Utility: Animate Numbers
+        function toggleCampaign(id) {
+            let content = document.getElementById(id + '-content');
+            let icon = document.getElementById(id + '-chevron');
+            let text = document.getElementById(id + '-toggle-text');
+            if(content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.style.transform = 'rotate(0deg)';
+                text.innerText = 'View Manifest';
+            } else {
+                content.classList.add('expanded');
+                icon.style.transform = 'rotate(180deg)';
+                text.innerText = 'Hide Manifest';
+            }
+        }
+
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             if (!obj) return;
@@ -576,7 +612,6 @@
             document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
             document.getElementById('syncStatusMobile').innerText = "Syncing...";
             let timeParam = "t=" + new Date().getTime();
-
             let fetchCount = 0;
             const checkSyncDone = () => {
                 fetchCount++;
@@ -592,79 +627,61 @@
             Papa.parse(jobUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
-                    try {
-                        if (results.data && results.data.length > 1) {
-                            const headers = results.data[0];
-                            globalJobData = results.data.slice(1).map(row => {
-                                let obj = {};
-                                headers.forEach((h, i) => { obj[i] = row[i] || ''; });
-                                return obj;
-                            });
-                            
-                            // Extract ALL unique driver names for global use
-                            allCompanyDrivers = new Set();
-                            globalJobData.forEach(row => { 
-                                let d = row[2]; 
-                                if(d && d.trim() !== '') allCompanyDrivers.add(d.trim()); 
-                            });
-
-                            populateDriverDropdown(globalJobData);
-                        }
-                    } catch (e) { console.error("Job Data Error", e); }
+                    if (results.data && results.data.length > 1) {
+                        const headers = results.data[0];
+                        globalJobData = results.data.slice(1).map(row => {
+                            let obj = {};
+                            headers.forEach((h, i) => { obj[i] = row[i] || ''; });
+                            return obj;
+                        });
+                        populateDriverDropdown(globalJobData);
+                    }
                     checkSyncDone();
                 }
             });
 
-            // 2. Events Fetch 
+            // 2. Events Fetch
             let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(eventUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
-                    try {
-                        if (results.data && results.data.length > 1) {
-                            let headerIndex = -1;
-                            for(let i = 0; i < Math.min(20, results.data.length); i++) {
-                                let rowStr = results.data[i].join(" ").toUpperCase();
-                                if(rowStr.includes("EVENT NAME") && (rowStr.includes("CATEGORY") || rowStr.includes("DATE"))) {
-                                    headerIndex = i; break;
-                                }
+                    if (results.data && results.data.length > 1) {
+                        let headerIndex = -1;
+                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
+                            let rowStr = results.data[i].join(" ").toUpperCase();
+                            if(rowStr.includes("EVENT NAME") && (rowStr.includes("CATEGORY") || rowStr.includes("DATE"))) {
+                                headerIndex = i; break;
                             }
-                            if (headerIndex === -1) headerIndex = 0; 
-                            
+                        }
+                        if (headerIndex !== -1) {
                             globalEventData.headers = results.data[headerIndex];
                             globalEventData.rows = results.data.slice(headerIndex + 1);
                             populateEventCategoryDropdown();
                             populateEventDriverDropdown();
                         }
-                    } catch (e) { console.error("Event Data Error", e); }
+                    }
                     checkSyncDone();
                 }
             });
 
-            // 3. Campaign (Tour) Fetch (SMART COLUMN AUTO-DETECT)
+            // 3. Campaign (Tour) Fetch
             let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(tourUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
-                    try {
-                        if (results.data && results.data.length > 0) {
-                            let headerIndex = -1;
-                            
-                            // Smart Scanner: looks for headers containing "SOURCE CITY" and "DESTINATION CITY"
-                            for (let i = 0; i < Math.min(20, results.data.length); i++) {
-                                let rowStr = results.data[i].join(" ").toUpperCase();
-                                if (rowStr.includes("SOURCE CITY") && rowStr.includes("DISTANCE")) {
-                                    headerIndex = i;
-                                    break;
-                                }
-                            }
-                            
-                            if (headerIndex !== -1) {
-                                globalTourData.headers = results.data[headerIndex];
-                                globalTourData.rows = results.data.slice(headerIndex + 1);
+                    if (results.data && results.data.length > 1) {
+                        let headerIndex = -1;
+                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
+                            let rowStr = results.data[i].join(" ").toUpperCase();
+                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
+                                headerIndex = i; break;
                             }
                         }
-                    } catch(e) { console.error("Tour Data Error", e); }
+                        if (headerIndex !== -1) {
+                            globalTourData.headers = results.data[headerIndex];
+                            globalTourData.rows = results.data.slice(headerIndex + 1);
+                        }
+                    }
                     checkSyncDone();
                 }
             });
@@ -682,58 +699,58 @@
         // ==========================================
         function processCampaignData() {
             if(!globalTourData.rows || globalTourData.rows.length === 0) {
-                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data or Check Header Names...</td></tr>`;
+                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data...</td></tr>`;
                 return;
             }
 
-            currentProcessedRoutes = [];
-            dynamicTotalTargetDist = 0; 
-            let headers = globalTourData.headers || [];
-
-            // Find column indexes dynamically
-            let colID = -1, colSource = -1, colDest = -1, colDist = -1;
+            let tourStartDate = new Date('2026-08-01T00:00:00');
+            let now = new Date();
+            let badge = document.getElementById('campaignStatusBadge');
             
-            headers.forEach((h, i) => {
-                let hUp = h.toString().toUpperCase().trim();
-                if(hUp.includes("S NO") || hUp.includes("JOB NO")) colID = i;
-                if(hUp === "SOURCE CITY") colSource = i;
-                if(hUp === "DESTINATION CITY") colDest = i;
-                if(hUp === "DISTANCE") colDist = i;
-            });
+            if (now < tourStartDate) {
+                document.getElementById('campaignUpcomingBanner').classList.remove('hidden');
+                document.getElementById('campaignUpcomingBanner').classList.add('flex');
+                if (badge) {
+                    badge.innerText = "COMING SOON";
+                    badge.className = "bg-tntc-revenue text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(250,204,21,0.5)] mb-3 inline-block transition-colors";
+                }
+            } else {
+                document.getElementById('campaignUpcomingBanner').classList.add('hidden');
+                document.getElementById('campaignUpcomingBanner').classList.remove('flex');
+                if (badge) {
+                    badge.innerText = "LIVE CAMPAIGN";
+                    badge.className = "bg-tntc-accent text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(56,189,248,0.5)] mb-3 inline-block transition-colors";
+                }
+            }
 
-            // Fallbacks just in case
-            if(colID === -1) colID = 0;
-            if(colSource === -1) colSource = 1;
-            if(colDest === -1) colDest = 3;
-            if(colDist === -1) colDist = 5;
+            currentProcessedRoutes = [];
+            validCampaignDrivers = new Set();
+            dynamicTotalTargetDist = 0;
+
+            for(let i = 7; i < globalTourData.headers.length; i++) {
+                let dName = globalTourData.headers[i];
+                if(dName && dName.trim() !== '') validCampaignDrivers.add(dName.trim());
+            }
 
             globalTourData.rows.forEach(tourRow => {
-                let id = parseInt(tourRow[colID]);
-                
-                // Skip empty, headers, or "Total" rows
+                let id = parseInt(tourRow[0]); 
                 if (isNaN(id) || id <= 0) return;
 
-                let source = (tourRow[colSource] || 'Unknown').toString().trim();
-                let dest = (tourRow[colDest] || 'Unknown').toString().trim();
-                let dist = cleanNumber(tourRow[colDist] || '0'); 
-                
-                if(!source || !dest) return;
+                let source = (tourRow[1] || '').toString().trim();
+                let dest = (tourRow[3] || '').toString().trim();
+                let dist = cleanNumber(tourRow[5] || '0');
+                let imageLink = (tourRow[6] || '').toString().trim(); 
 
                 dynamicTotalTargetDist += dist; 
 
-                // Read checkboxes from columns (Event Sheet Style)
-                let completedBy = [];
-                // Drivers start AFTER the Distance column
-                let startDriverCol = colDist + 1; 
-
-                for(let i = startDriverCol; i < headers.length; i++) {
-                    let dName = headers[i];
+                let completedBy = new Set();
+                for(let i = 7; i < globalTourData.headers.length; i++) {
+                    let dName = globalTourData.headers[i];
                     if(!dName || dName.trim() === '') continue;
                     
                     let val = (tourRow[i] || '').toString().trim().toUpperCase();
-                    // Check if it's marked true, checked, yes, etc.
-                    if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                        completedBy.push(dName.trim());
+                    if(val === 'TRUE' || val === '1' || val === 'YES' || val === '✓') {
+                        completedBy.add(dName.trim());
                     }
                 }
 
@@ -742,26 +759,21 @@
                     source: source,
                     dest: dest,
                     dist: dist,
-                    drivers: completedBy.sort()
+                    image: imageLink,
+                    drivers: Array.from(completedBy).sort()
                 });
             });
 
-            // Update UI total markers dynamically
             document.getElementById('campaignTargetStat').innerText = dynamicTotalTargetDist.toLocaleString();
-            document.getElementById('campaignDynamicTargetText').innerText = dynamicTotalTargetDist.toLocaleString();
             document.getElementById('campaignTotalRoutesSpan').innerText = currentProcessedRoutes.length;
 
-            // Populate the Dropdown Filter dynamically with ALL company drivers
             let dropdown = document.getElementById('filterCampaignDriver');
             let currentSelection = dropdown.value;
-            let optionsHTML = '<option value="ALL">All Drivers (Global Progress)</option>';
-            Array.from(allCompanyDrivers).sort().forEach(d => { 
-                optionsHTML += `<option value="${d}">${d}</option>`; 
+            dropdown.innerHTML = '<option value="ALL">All Drivers (Global Progress)</option>';
+            Array.from(validCampaignDrivers).sort().forEach(d => { 
+                dropdown.innerHTML += `<option value="${d}">${d}</option>`; 
             });
-            dropdown.innerHTML = optionsHTML;
-            
-            // Keep selection if it exists
-            if(Array.from(allCompanyDrivers).includes(currentSelection) || currentSelection === 'ALL') {
+            if(Array.from(validCampaignDrivers).includes(currentSelection) || currentSelection === 'ALL') {
                 dropdown.value = currentSelection;
             }
 
@@ -770,6 +782,7 @@
 
         function applyCampaignFilter() {
             let selectedDriver = document.getElementById('filterCampaignDriver').value;
+            let activeDriverCount = validCampaignDrivers.size;
             
             let globalCurrentDist = 0;
             let globalCompletedRoutes = 0;
@@ -779,9 +792,12 @@
             let displayRoutes = [...currentProcessedRoutes];
 
             currentProcessedRoutes.forEach(r => {
-                if(r.drivers.length > 0) {
-                    globalCurrentDist += r.dist;
+                let driverCompletes = r.drivers.length;
+                if(driverCompletes === activeDriverCount && activeDriverCount > 0) {
                     globalCompletedRoutes++;
+                }
+                if(activeDriverCount > 0) {
+                    globalCurrentDist += r.dist * (driverCompletes / activeDriverCount);
                 }
                 if(r.drivers.includes(selectedDriver)) {
                     filteredCurrentDist += r.dist;
@@ -789,11 +805,9 @@
                 }
             });
 
-            // Sorting Logic: Completed on Top, Pending on Bottom, ordered by ID naturally
             displayRoutes.sort((a, b) => {
                 let aCompleted = selectedDriver === 'ALL' ? a.drivers.length > 0 : a.drivers.includes(selectedDriver);
                 let bCompleted = selectedDriver === 'ALL' ? b.drivers.length > 0 : b.drivers.includes(selectedDriver);
-                
                 if (aCompleted && !bCompleted) return -1;
                 if (!aCompleted && bCompleted) return 1;
                 return a.id - b.id; 
@@ -801,20 +815,30 @@
 
             let tableHTML = "";
             displayRoutes.forEach((route) => {
-                let isVisuallyCompleted = selectedDriver === 'ALL' ? route.drivers.length > 0 : route.drivers.includes(selectedDriver);
                 let realIndex = currentProcessedRoutes.findIndex(r => r.id === route.id);
+                let driverCount = route.drivers.length;
+                let isVisuallyCompleted = selectedDriver === 'ALL' ? driverCount > 0 : route.drivers.includes(selectedDriver);
 
                 if (isVisuallyCompleted) {
+                    let statusBadgeHTML = "";
+                    if (selectedDriver === 'ALL') {
+                        statusBadgeHTML = `
+                            <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-tntc-accent/10 text-tntc-accent text-[10px] font-black tracking-widest uppercase rounded border border-tntc-accent/20">
+                                <i data-lucide="users" class="w-3 h-3"></i> ${driverCount} / ${activeDriverCount}
+                            </span>`;
+                    } else {
+                        statusBadgeHTML = `
+                            <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-[#166534]/40 text-tntc-distance text-[10px] font-black tracking-widest uppercase rounded border border-tntc-distance/30">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Verified
+                            </span>`;
+                    }
+
                     tableHTML += `
                     <tr class="bg-[#166534]/10 border-l-4 border-tntc-distance transition-colors">
                         <td class="p-3 sm:p-4 text-tntc-textPrimary font-black text-center">${route.id}</td>
                         <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold opacity-90"><span class="text-tntc-textSecondary font-normal text-[10px] uppercase block mb-0.5">Route</span>${route.source} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-distance mx-1"></i> ${route.dest}</td>
                         <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-xs">${route.dist.toLocaleString()} km</td>
-                        <td class="p-3 sm:p-4 text-center">
-                            <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1 bg-tntc-distance/10 text-tntc-distance text-[10px] font-black tracking-widest uppercase rounded shadow-[0_0_10px_rgba(74,222,128,0.2)] border border-tntc-distance/20">
-                                <i data-lucide="check" class="w-3 h-3"></i> Verified
-                            </span>
-                        </td>
+                        <td class="p-3 sm:p-4 text-center">${statusBadgeHTML}</td>
                         <td class="p-3 sm:p-4 text-right">
                             <button onclick="openCampaignModal(${realIndex})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-[#166534]/40 hover:border-tntc-distance/50 rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
                                 <i data-lucide="eye" class="w-3 h-3 text-tntc-distance"></i> View
@@ -822,14 +846,14 @@
                         </td>
                     </tr>`;
                 } else {
+                    let pendingBadgeHTML = selectedDriver === 'ALL' ? `<span class="text-tntc-textSecondary/40 text-[10px] font-bold">0 / ${activeDriverCount}</span>` : `<span class="inline-flex items-center justify-center px-2 py-1 bg-tntc-muted/10 text-tntc-textSecondary text-[10px] font-bold tracking-wider rounded border border-tntc-muted/20">PENDING</span>`;
+
                     tableHTML += `
                     <tr class="hover:bg-tntc-hover transition-colors border-l-4 border-transparent opacity-60 hover:opacity-100">
                         <td class="p-3 sm:p-4 text-tntc-textSecondary font-bold text-center">${route.id}</td>
                         <td class="p-3 sm:p-4 text-tntc-textSecondary font-bold"><span class="text-tntc-textSecondary/50 font-normal text-[10px] uppercase block mb-0.5">Route</span>${route.source} <i data-lucide="arrow-right" class="w-3 h-3 inline opacity-50 mx-1"></i> ${route.dest}</td>
                         <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-xs">${route.dist.toLocaleString()} km</td>
-                        <td class="p-3 sm:p-4 text-center">
-                            <span class="inline-flex items-center justify-center px-2 py-1 bg-tntc-muted/10 text-tntc-textSecondary text-[10px] font-bold tracking-wider rounded border border-tntc-muted/20">PENDING</span>
-                        </td>
+                        <td class="p-3 sm:p-4 text-center">${pendingBadgeHTML}</td>
                         <td class="p-3 sm:p-4 text-right">
                             <button onclick="openCampaignModal(${realIndex})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
                                 <i data-lucide="eye" class="w-3 h-3 text-tntc-accent"></i> View
@@ -843,8 +867,6 @@
 
             let dispDist = selectedDriver === 'ALL' ? globalCurrentDist : filteredCurrentDist;
             let dispRoutes = selectedDriver === 'ALL' ? globalCompletedRoutes : filteredCompletedRoutes;
-            
-            // Progress Bar ALWAYS shows Global Master Progress using the Dynamic Target
             let globalPercent = dynamicTotalTargetDist > 0 ? ((globalCurrentDist / dynamicTotalTargetDist) * 100).toFixed(1) : 0;
             
             document.getElementById('campaignRoutesStat').innerText = dispRoutes;
@@ -858,56 +880,133 @@
                 document.getElementById('statBoxDist').classList.remove('border-tntc-accent/50', 'bg-tntc-accent/5');
             }
 
-            // Using requestAnimationFrame ensures the DOM has updated before creating icons
-            requestAnimationFrame(() => {
-                document.getElementById('campaignProgressBar').style.width = globalPercent + "%";
-                document.getElementById('campaignProgressText').innerText = globalPercent + "%";
-                lucide.createIcons();
-            });
+            setTimeout(() => {
+                let pBar2 = document.getElementById('campaignCardProgressBar');
+                let pText2 = document.getElementById('campaignCardPercent');
+                if(pBar2) pBar2.style.width = globalPercent + "%";
+                if(pText2) pText2.innerText = globalPercent + "%";
+            }, 50);
+
+            lucide.createIcons();
         }
 
-        // --- OLD LOGS & EVENTS LOGIC (UNCHANGED) ---
         function applyOverviewFilter() {
             let timeFilter = document.getElementById('overviewTimeFilter').value;
             let customDate = document.getElementById('overviewDatePicker').value;
             let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter, customDate));
-            processTelemetryData(filteredJobs);
-            processEventData(timeFilter, customDate);
+            
+            let thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            let driverLastJobDate = {};
+            let originalDriverNames = {}; 
+            
+            globalJobData.forEach(row => {
+                let driverOrig = (row[2] || '').trim();
+                // STRICT UNKNOWN CHECK
+                if (!driverOrig || driverOrig.toUpperCase() === 'UNKNOWN') return;
+
+                let driverKey = driverOrig.toUpperCase(); 
+                let dateStr = row[0] || '';
+                
+                if (!driverKey || !dateStr) return;
+                originalDriverNames[driverKey] = driverOrig;
+                
+                let jobDate = new Date(dateStr.replace(/-/g, ' '));
+                if (!isNaN(jobDate)) {
+                    if (!driverLastJobDate[driverKey] || jobDate > driverLastJobDate[driverKey]) {
+                        driverLastJobDate[driverKey] = jobDate;
+                    }
+                }
+            });
+
+            globalEventData.rows.forEach(row => {
+                for(let i = 6; i < globalEventData.headers.length; i++) {
+                    let origName = (globalEventData.headers[i] || '').trim();
+                    // STRICT UNKNOWN CHECK
+                    if (!origName || origName.toUpperCase() === 'UNKNOWN') continue;
+
+                    let dNameKey = origName.toUpperCase();
+                    let val = (row[i] || '').toString().trim().toUpperCase();
+                    
+                    if(dNameKey && !dNameKey.includes('ATTENDANCE') && val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
+                        if (!originalDriverNames[dNameKey]) originalDriverNames[dNameKey] = origName;
+                        if (!driverLastJobDate[dNameKey]) {
+                            driverLastJobDate[dNameKey] = new Date(0); 
+                        }
+                    }
+                }
+            });
+
+            let activeDriversSet = new Set();
+            let pastDriversSet = new Set();
+
+            Object.keys(driverLastJobDate).forEach(driverKey => {
+                if (driverLastJobDate[driverKey] >= thirtyDaysAgo) {
+                    activeDriversSet.add(driverKey);
+                } else {
+                    pastDriversSet.add(driverKey);
+                }
+            });
+
+            animateValue("statDrivers", parseInt(document.getElementById('statDrivers').innerText) || 0, activeDriversSet.size, 500);
+
+            processTelemetryData(filteredJobs, activeDriversSet, pastDriversSet, originalDriverNames);
+            processEventData(timeFilter, customDate, activeDriversSet, pastDriversSet, originalDriverNames);
         }
 
-        function processTelemetryData(rows) {
+        function processTelemetryData(rows, activeDriversSet, pastDriversSet, originalDriverNames) {
             let totalKm = 0, totalRev = 0, totalJobs = rows.length;
             let driverMap = {};
+            
             rows.forEach((row) => {
-                let driver = row[2] || 'Unknown';
+                let origName = (row[2] || '').trim();
+                if(!origName || origName.toUpperCase() === 'UNKNOWN') return;
+
+                let driverKey = origName.toUpperCase();
                 let drivenKm = cleanNumber(row[12]);
                 let revenue = cleanNumber(row[15]);
-                totalKm += drivenKm; totalRev += revenue;
-                if (!driverMap[driver]) driverMap[driver] = { km: 0, jobs: 0 };
-                driverMap[driver].km += drivenKm;
-                driverMap[driver].jobs += 1;
+                
+                totalKm += drivenKm; 
+                totalRev += revenue;
+                
+                if (!driverMap[driverKey]) driverMap[driverKey] = { km: 0, jobs: 0 };
+                driverMap[driverKey].km += drivenKm;
+                driverMap[driverKey].jobs += 1;
             });
 
             animateValue("statDistance", parseInt(document.getElementById('statDistance').innerText.replace(/,/g, '')) || 0, totalKm, 1000);
             animateValue("statJobs", parseInt(document.getElementById('statJobs').innerText.replace(/,/g, '')) || 0, totalJobs, 800);
             animateValue("statRevenue", parseInt(document.getElementById('statRevenue').innerText.replace(/,/g, '')) || 0, totalRev, 1000);
 
-            let sortedDrivers = Object.keys(driverMap).map(d => ({ name: d, km: driverMap[d].km, jobs: driverMap[d].jobs })).sort((a, b) => b.km - a.km);
-            animateValue("statDrivers", parseInt(document.getElementById('statDrivers').innerText) || 0, sortedDrivers.length, 500);
+            let activeKMDrivers = [];
+            let pastDriversStats = {};
+
+            Object.keys(driverMap).forEach(dKey => {
+                let displayName = originalDriverNames[dKey] || dKey;
+                if (activeDriversSet.has(dKey)) {
+                    activeKMDrivers.push({ name: displayName, km: driverMap[dKey].km, jobs: driverMap[dKey].jobs });
+                } else {
+                    pastDriversStats[dKey] = { name: displayName, km: driverMap[dKey].km, jobs: driverMap[dKey].jobs, events: 0 };
+                }
+            });
+
+            activeKMDrivers.sort((a, b) => b.km - a.km);
 
             let leaderboardHTML = "";
-            if (sortedDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No logs found.</p>`;
+            if (activeKMDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No active logs found.</p>`;
             else {
-                sortedDrivers.forEach((d, rank) => {
+                activeKMDrivers.forEach((d, rank) => {
                     let badgeClass = rank === 0 ? 'text-tntc-revenue font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
                     leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p><p class="text-[10px] text-tntc-textSecondary">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-tntc-distance">${d.km.toLocaleString()} km</p></div>`;
                 });
             }
             document.getElementById('kmLeaderboardList').innerHTML = leaderboardHTML;
-            renderKmChart(sortedDrivers.slice(0, 8)); 
+            renderKmChart(activeKMDrivers.slice(0, 8)); 
+            
+            window.tempPastDriversStats = pastDriversStats;
         }
 
-        function processEventData(timeFilter, customDate) {
+        function processEventData(timeFilter, customDate, activeDriversSet, pastDriversSet, originalDriverNames) {
             if(!globalEventData.rows.length) return;
             let totalEvents = 0;
             let driverEventMap = {};
@@ -921,12 +1020,16 @@
                 if(checkDateFilter(dateStr, timeFilter, customDate)) {
                     totalEvents++; 
                     for(let i = 6; i < headers.length; i++) { 
-                        let dName = headers[i];
-                        if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
+                        let origName = (headers[i] || '').trim();
+                        if (!origName || origName.toUpperCase() === 'UNKNOWN') continue;
+
+                        let dNameKey = origName.toUpperCase();
+                        if(!dNameKey || dNameKey === '' || dNameKey.includes('ATTENDANCE')) continue;
+                        
                         let val = (row[i] || '').toString().trim().toUpperCase();
                         if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                            if(!driverEventMap[dName]) driverEventMap[dName] = 0;
-                            driverEventMap[dName]++;
+                            if(!driverEventMap[dNameKey]) driverEventMap[dNameKey] = 0;
+                            driverEventMap[dNameKey]++;
                         }
                     }
                 }
@@ -934,22 +1037,73 @@
 
             animateValue("statEvents", parseInt(document.getElementById('statEvents').innerText) || 0, totalEvents, 800);
 
-            let sortedEventDrivers = Object.keys(driverEventMap).map(d => ({ name: d, events: driverEventMap[d] })).sort((a, b) => b.events - a.events);
+            let activeEventDrivers = [];
+            let pastStats = window.tempPastDriversStats || {};
+
+            Object.keys(driverEventMap).forEach(dKey => {
+                let displayName = originalDriverNames[dKey] || dKey;
+                if (activeDriversSet.has(dKey)) {
+                    activeEventDrivers.push({ name: displayName, events: driverEventMap[dKey] });
+                } else {
+                    if (!pastStats[dKey]) pastStats[dKey] = { name: displayName, km: 0, jobs: 0, events: 0 };
+                    pastStats[dKey].events = driverEventMap[dKey];
+                }
+            });
+
+            activeEventDrivers.sort((a, b) => b.events - a.events);
+
             let leaderboardHTML = "";
-            if (sortedEventDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No events found.</p>`;
+            if (activeEventDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No events found.</p>`;
             else {
-                sortedEventDrivers.forEach((d, rank) => {
+                activeEventDrivers.forEach((d, rank) => {
                     let badgeClass = rank === 0 ? 'text-tntc-accent font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
                     leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-tntc-accent">${d.events} Convoys</p></div>`;
                 });
             }
             document.getElementById('eventLeaderboardList').innerHTML = leaderboardHTML;
-            renderEventChart(sortedEventDrivers.slice(0, 8)); 
+            renderEventChart(activeEventDrivers.slice(0, 8)); 
+            
+            renderPastDrivers(pastStats);
+        }
+
+        function renderPastDrivers(pastStats) {
+            let pastArray = Object.keys(pastStats).map(dKey => ({
+                name: pastStats[dKey].name || dKey,
+                km: pastStats[dKey].km || 0,
+                events: pastStats[dKey].events || 0
+            })).filter(d => d.name.toUpperCase() !== 'UNKNOWN'); // Final strict filter
+
+            pastArray.sort((a, b) => b.km - a.km);
+
+            let pastHTML = "";
+            if (pastArray.length === 0) {
+                pastHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No past members found.</p>`;
+            } else {
+                pastArray.forEach(d => {
+                    pastHTML += `
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/10 opacity-70 hover:opacity-100 transition-opacity">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="user-minus" class="w-4 h-4 text-tntc-textSecondary"></i>
+                            <div>
+                                <p class="text-xs font-bold text-tntc-textSecondary">${d.name}</p>
+                                <p class="text-[9px] text-tntc-textSecondary/60">${d.events} Events</p>
+                            </div>
+                        </div>
+                        <p class="text-xs font-mono font-semibold text-tntc-textSecondary">${d.km.toLocaleString()} km</p>
+                    </div>`;
+                });
+            }
+            let el = document.getElementById('pastLeaderboardList');
+            if (el) el.innerHTML = pastHTML;
+            lucide.createIcons();
         }
 
         function populateDriverDropdown(rows) {
             let drivers = new Set();
-            rows.forEach(row => { let d = row[2]; if(d && d.trim() !== '') drivers.add(d); });
+            rows.forEach(row => { 
+                let d = (row[2] || '').trim(); 
+                if(d && d.toUpperCase() !== 'UNKNOWN') drivers.add(d); 
+            });
             let dropdown = document.getElementById('filterDriver');
             let currentVal = dropdown.value; 
             dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
@@ -966,7 +1120,9 @@
             let recentRows = [...globalJobData].reverse(); 
 
             recentRows.forEach(row => {
-                let dName = row[2] || 'Unknown';
+                let dName = (row[2] || '').trim();
+                if(!dName || dName.toUpperCase() === 'UNKNOWN') return;
+                
                 let timeStr = row[0] || '';
                 let drivenKm = cleanNumber(row[12]);
                 if (driverFilter !== 'ALL' && dName !== driverFilter) return;
@@ -980,11 +1136,12 @@
             if(filteredJobs.length === 0) tableHTML = `<tr><td colspan="6" class="p-6 text-center text-tntc-textSecondary">No jobs found.</td></tr>`;
             else {
                 filteredJobs.slice(0, 100).forEach(row => {
-                    tableHTML += `<tr class="hover:bg-tntc-hover transition-colors"><td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${row[2] || 'Unknown'}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-accent mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textSecondary text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-tntc-revenue font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
+                    let dName = (row[2] || '').trim();
+                    tableHTML += `<tr class="hover:bg-tntc-hover transition-colors"><td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${dName}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-accent mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textSecondary text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-tntc-revenue font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
                 });
             }
             document.getElementById('filteredJobTableBody').innerHTML = tableHTML;
-            requestAnimationFrame(() => lucide.createIcons());
+            lucide.createIcons();
         }
 
         function populateEventCategoryDropdown() {
@@ -1005,9 +1162,9 @@
         function populateEventDriverDropdown() {
             let drivers = new Set();
             for(let i = 6; i < globalEventData.headers.length; i++) {
-                let dName = globalEventData.headers[i];
-                if(dName && dName.trim() !== '' && !dName.toUpperCase().includes('ATTENDANCE')) {
-                    drivers.add(dName.trim());
+                let dName = (globalEventData.headers[i] || '').trim();
+                if(dName && dName.toUpperCase() !== 'UNKNOWN' && !dName.toUpperCase().includes('ATTENDANCE')) {
+                    drivers.add(dName);
                 }
             }
             let dropdown = document.getElementById('filterEventDriver');
@@ -1045,8 +1202,8 @@
 
                 let driversAttended = [];
                 for(let i = 6; i < headers.length; i++) {
-                    let dName = headers[i];
-                    if(!dName || dName.trim() === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
+                    let dName = (headers[i] || '').trim();
+                    if(!dName || dName.toUpperCase() === 'UNKNOWN' || dName.toUpperCase().includes('ATTENDANCE')) continue;
                     let val = (row[i] || '').toString().trim().toUpperCase();
                     if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
                         driversAttended.push(dName);
@@ -1086,10 +1243,9 @@
                 });
             }
             document.getElementById('filteredEventTableBody').innerHTML = tableHTML;
-            requestAnimationFrame(() => lucide.createIcons());
+            lucide.createIcons();
         }
 
-        // --- MODAL CONTROLLERS ---
         function closeModal(modalId) {
             let modal = document.getElementById(modalId);
             modal.classList.remove('modal-open');
@@ -1102,7 +1258,6 @@
             });
         });
 
-        // Event Modal
         function openEventModal(index) {
             let ev = currentFilteredEvents[index];
             if(!ev) return;
@@ -1143,7 +1298,6 @@
             } catch (err) { console.error("Modal Error:", err); }
         }
 
-        // Campaign Route Modal
         function openCampaignModal(index) {
             let route = currentProcessedRoutes[index];
             if(!route) return;
@@ -1153,6 +1307,24 @@
                 document.getElementById('campModalDest').textContent = route.dest;
                 document.getElementById('campModalDist').textContent = route.dist.toLocaleString();
                 document.getElementById('campModalCount').textContent = route.drivers.length;
+                document.getElementById('campModalTotalDrivers').textContent = validCampaignDrivers.size;
+
+                let headerDiv = document.getElementById('campModalHeader');
+                if (route.image && route.image.startsWith('http')) {
+                    headerDiv.style.backgroundImage = `url('${route.image}')`;
+                    headerDiv.innerHTML = `
+                        <div class="absolute inset-0 bg-gradient-to-t from-tntc-card via-tntc-card/50 to-transparent z-0"></div>
+                        <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>`;
+                } else {
+                    headerDiv.style.backgroundImage = `url('https://i.postimg.cc/9F7K94r8/map-pattern.png')`;
+                    headerDiv.innerHTML = `
+                        <div class="absolute inset-0 opacity-20 bg-tntc-accent z-0"></div>
+                        <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>`;
+                }
 
                 let driversHTML = "";
                 if(route.drivers && route.drivers.length > 0) {
@@ -1171,7 +1343,6 @@
             } catch (err) { console.error("Campaign Modal Error:", err); }
         }
 
-        // --- CHARTS ---
         function renderKmChart(topDrivers) {
             const labels = topDrivers.map(d => d.name);
             const dataKm = topDrivers.map(d => d.km);
