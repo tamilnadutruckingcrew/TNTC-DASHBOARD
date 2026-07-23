@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -477,9 +476,11 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 HARDCODED GOOGLE SHEET URLs (READY TO DEPLOY):
+        // 🔴 PUBLISHED GOOGLE SHEET CSV URLs:
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
+        
+        // 🔴 UPDATED TO YOUR NEW SHEET LINK:
         const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; 
 
         let kmChartInstance = null;
@@ -632,24 +633,24 @@
             });
 
             // 3. Campaign (Tour) Fetch (SMART SCANNER FOR HEADERS)
+            // 3. Campaign (Tour) Fetch (SMART HEADER DETECTION)
             let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(tourUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        let startIndex = 1; 
-                        // Smart Scanner: looks for the first row that starts with "1" or "Job No."
-                        for (let i = 0; i < results.data.length; i++) {
-                            let cellA = (results.data[i][0] || "").toString().trim().toUpperCase();
-                            if (cellA === "1") {
-                                startIndex = i; // Found route 1!
-                                break;
-                            } else if (cellA.includes("JOB NO")) {
-                                startIndex = i + 1; // Found header, route 1 is next row
-                                break;
+                    if (results.data && results.data.length > 1) {
+                        let headerIndex = -1;
+                        // Scan top 20 rows to find exact header keywords
+                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
+                            let rowStr = results.data[i].join(" ").toUpperCase();
+                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
+                                headerIndex = i; break;
                             }
                         }
-                        globalTourData = results.data.slice(startIndex);
+                        
+                        if (headerIndex !== -1) {
+                            globalTourData = results.data.slice(headerIndex + 1);
+                        }
                     }
                     checkSyncDone();
                 }
@@ -657,37 +658,37 @@
         }
 
         function refreshActiveTab() {
-            if(!document.getElementById('tab-overview').classList.contains('hidden')) applyOverviewFilter();
-            else if(!document.getElementById('tab-logs').classList.contains('hidden')) applyLogFilters();
-            else if(!document.getElementById('tab-events').classList.contains('hidden')) applyEventFilters();
-            else if(!document.getElementById('tab-campaign').classList.contains('hidden')) processCampaignData();
-        }
-
-        // ==========================================
-        // CAMPAIGN LOGIC ENGINE
+        // CAMPAIGN LOGIC ENGINE (NEW & SORTED)
         // ==========================================
         function processCampaignData() {
             if(globalTourData.length === 0) {
-                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No valid routes found in the sheet.</td></tr>`;
+                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data...</td></tr>`;
                 return;
             }
 
             currentProcessedRoutes = [];
-            let driversWhoParticipated = new Set();
+            let allCompanyDrivers = new Set(); // Automatically get all active drivers
             dynamicTotalTargetDist = 0; // Reset Dynamic calculation
 
+            // 1. Gather all drivers from Job Logs so they always appear in the dropdown
+            globalJobData.forEach(job => {
+                let driver = job[2];
+                if(driver && driver.trim() !== '') {
+                    allCompanyDrivers.add(driver.trim());
+                }
+            });
+
+            // Build smart route data objects
             globalTourData.forEach(tourRow => {
                 let id = parseInt(tourRow[0]);
-                // Skip empty, headers, or "Total" rows
-                if (isNaN(id) || id <= 0) return;
+                let source = (tourRow[1] || '').toString().trim();
+                let dest = (tourRow[3] || '').toString().trim();
+                let dist = cleanNumber(tourRow[5] || '0'); // Automatically cleans "~700 km" to "700"
 
-                let source = (tourRow[1] || 'Unknown').toString().trim();
-                let dest = (tourRow[3] || 'Unknown').toString().trim();
-                let dist = cleanNumber(tourRow[5] || '0'); 
-                
-                if(!source || !dest) return;
+                // VERY IMPORTANT: Skip empty rows or "Total" row at the bottom
+                if (!id || isNaN(id) || !source || !dest) return;
 
-                dynamicTotalTargetDist += dist; 
+                dynamicTotalTargetDist += dist; // Auto-calculate total target!
 
                 let completedBy = new Set();
                 globalJobData.forEach(job => {
@@ -696,10 +697,9 @@
                     let jDriver = (job[2] || '').toString().trim();
                     
                     if (jSource && jDest) {
-                        // Match exactly (ignoring case)
-                        if (jSource.toLowerCase() === source.toLowerCase() && jDest.toLowerCase() === dest.toLowerCase()) {
+                        if (jSource.toLowerCase() === source.toLowerCase() && 
+                            jDest.toLowerCase() === dest.toLowerCase()) {
                             completedBy.add(jDriver);
-                            driversWhoParticipated.add(jDriver);
                         }
                     }
                 });
@@ -718,17 +718,19 @@
             document.getElementById('campaignDynamicTargetText').innerText = dynamicTotalTargetDist.toLocaleString();
             document.getElementById('campaignTotalRoutesSpan').innerText = currentProcessedRoutes.length;
 
-            // Populate the Dropdown Filter dynamically
+            // Populate the Dropdown Filter dynamically with ALL drivers
             let dropdown = document.getElementById('filterCampaignDriver');
             let currentSelection = dropdown.value;
             dropdown.innerHTML = '<option value="ALL">All Drivers (Global Progress)</option>';
-            Array.from(driversWhoParticipated).sort().forEach(d => { 
+            Array.from(allCompanyDrivers).sort().forEach(d => { 
                 dropdown.innerHTML += `<option value="${d}">${d}</option>`; 
             });
-            if(Array.from(driversWhoParticipated).includes(currentSelection) || currentSelection === 'ALL') {
+            // Keep selection if it exists
+            if(Array.from(allCompanyDrivers).includes(currentSelection) || currentSelection === 'ALL') {
                 dropdown.value = currentSelection;
             }
 
+            // Apply filter to table
             applyCampaignFilter();
         }
 
