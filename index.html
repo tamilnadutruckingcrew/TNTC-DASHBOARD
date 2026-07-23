@@ -476,11 +476,10 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 PUBLISHED GOOGLE SHEET CSV URLs:
+        // 🔴 HARDCODED GOOGLE SHEET URLs (READY TO DEPLOY):
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
-        
-        // 🔴 UPDATED TO YOUR NEW SHEET LINK:
+        // 🔴 YOUR NEWEST TOUR SHEET:
         const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; 
 
         let kmChartInstance = null;
@@ -490,6 +489,7 @@
         let currentFilteredEvents = []; 
         
         let globalTourData = []; 
+        let tourColConfig = { id: 1, src: 2, dest: 4, dist: 6 }; // Default indices based on your new sheet
         let currentProcessedRoutes = []; 
         let dynamicTotalTargetDist = 0; // Automatically calculates total target now!
 
@@ -632,23 +632,33 @@
                 }
             });
 
-            // 3. Campaign (Tour) Fetch (SMART SCANNER FOR HEADERS)
-            // 3. Campaign (Tour) Fetch (SMART HEADER DETECTION)
+            // 3. Campaign (Tour) Fetch (SMART COLUMN AUTO-DETECT)
             let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(tourUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
-                    if (results.data && results.data.length > 1) {
+                    if (results.data && results.data.length > 0) {
                         let headerIndex = -1;
-                        // Scan top 20 rows to find exact header keywords
-                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
+                        
+                        // Smart Scanner: looks for headers instead of guessing columns!
+                        for (let i = 0; i < Math.min(20, results.data.length); i++) {
                             let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
-                                headerIndex = i; break;
+                            if (rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
+                                headerIndex = i;
+                                // Map the columns automatically
+                                let headerRow = results.data[i];
+                                for(let j=0; j < headerRow.length; j++){
+                                    let cell = (headerRow[j] || "").toUpperCase().trim();
+                                    if(cell === "S NO" || cell === "JOB NO" || cell === "JOB NO.") tourColConfig.id = j;
+                                    else if(cell === "SOURCE CITY") tourColConfig.src = j;
+                                    else if(cell === "DESTINATION CITY") tourColConfig.dest = j;
+                                    else if(cell === "DISTANCE") tourColConfig.dist = j;
+                                }
+                                break;
                             }
                         }
                         
-                        if (headerIndex !== -1) {
+                        if(headerIndex !== -1) {
                             globalTourData = results.data.slice(headerIndex + 1);
                         }
                     }
@@ -658,7 +668,14 @@
         }
 
         function refreshActiveTab() {
-        // CAMPAIGN LOGIC ENGINE (NEW & SORTED)
+            if(!document.getElementById('tab-overview').classList.contains('hidden')) applyOverviewFilter();
+            else if(!document.getElementById('tab-logs').classList.contains('hidden')) applyLogFilters();
+            else if(!document.getElementById('tab-events').classList.contains('hidden')) applyEventFilters();
+            else if(!document.getElementById('tab-campaign').classList.contains('hidden')) processCampaignData();
+        }
+
+        // ==========================================
+        // CAMPAIGN LOGIC ENGINE
         // ==========================================
         function processCampaignData() {
             if(globalTourData.length === 0) {
@@ -667,10 +684,10 @@
             }
 
             currentProcessedRoutes = [];
-            let allCompanyDrivers = new Set(); // Automatically get all active drivers
             dynamicTotalTargetDist = 0; // Reset Dynamic calculation
-
-            // 1. Gather all drivers from Job Logs so they always appear in the dropdown
+            
+            // Collect ALL Company Drivers from job logs (So the dropdown is never empty!)
+            let allCompanyDrivers = new Set();
             globalJobData.forEach(job => {
                 let driver = job[2];
                 if(driver && driver.trim() !== '') {
@@ -678,17 +695,19 @@
                 }
             });
 
-            // Build smart route data objects
+            // Process the Tour Rows based on Auto-Detected Columns
             globalTourData.forEach(tourRow => {
-                let id = parseInt(tourRow[0]);
-                let source = (tourRow[1] || '').toString().trim();
-                let dest = (tourRow[3] || '').toString().trim();
-                let dist = cleanNumber(tourRow[5] || '0'); // Automatically cleans "~700 km" to "700"
+                let id = parseInt(tourRow[tourColConfig.id]);
+                // Skip empty, headers, or "Total" rows safely
+                if (isNaN(id) || id <= 0) return;
 
-                // VERY IMPORTANT: Skip empty rows or "Total" row at the bottom
-                if (!id || isNaN(id) || !source || !dest) return;
+                let source = (tourRow[tourColConfig.src] || 'Unknown').toString().trim();
+                let dest = (tourRow[tourColConfig.dest] || 'Unknown').toString().trim();
+                let dist = cleanNumber(tourRow[tourColConfig.dist] || '0'); 
+                
+                if(!source || !dest) return;
 
-                dynamicTotalTargetDist += dist; // Auto-calculate total target!
+                dynamicTotalTargetDist += dist; 
 
                 let completedBy = new Set();
                 globalJobData.forEach(job => {
@@ -697,8 +716,8 @@
                     let jDriver = (job[2] || '').toString().trim();
                     
                     if (jSource && jDest) {
-                        if (jSource.toLowerCase() === source.toLowerCase() && 
-                            jDest.toLowerCase() === dest.toLowerCase()) {
+                        // Match exactly (ignoring case and spaces)
+                        if (jSource.toLowerCase() === source.toLowerCase() && jDest.toLowerCase() === dest.toLowerCase()) {
                             completedBy.add(jDriver);
                         }
                     }
@@ -718,19 +737,20 @@
             document.getElementById('campaignDynamicTargetText').innerText = dynamicTotalTargetDist.toLocaleString();
             document.getElementById('campaignTotalRoutesSpan').innerText = currentProcessedRoutes.length;
 
-            // Populate the Dropdown Filter dynamically with ALL drivers
+            // Populate the Dropdown Filter dynamically with ALL company drivers
             let dropdown = document.getElementById('filterCampaignDriver');
             let currentSelection = dropdown.value;
-            dropdown.innerHTML = '<option value="ALL">All Drivers (Global Progress)</option>';
+            let optionsHTML = '<option value="ALL">All Drivers (Global Progress)</option>';
             Array.from(allCompanyDrivers).sort().forEach(d => { 
-                dropdown.innerHTML += `<option value="${d}">${d}</option>`; 
+                optionsHTML += `<option value="${d}">${d}</option>`; 
             });
+            dropdown.innerHTML = optionsHTML;
+            
             // Keep selection if it exists
             if(Array.from(allCompanyDrivers).includes(currentSelection) || currentSelection === 'ALL') {
                 dropdown.value = currentSelection;
             }
 
-            // Apply filter to table
             applyCampaignFilter();
         }
 
@@ -755,7 +775,7 @@
                 }
             });
 
-            // Sorting Logic: Completed on Top, Pending on Bottom, ordered by ID
+            // Sorting Logic: Completed on Top, Pending on Bottom, ordered by ID naturally
             displayRoutes.sort((a, b) => {
                 let aCompleted = selectedDriver === 'ALL' ? a.drivers.length > 0 : a.drivers.includes(selectedDriver);
                 let bCompleted = selectedDriver === 'ALL' ? b.drivers.length > 0 : b.drivers.includes(selectedDriver);
@@ -824,12 +844,12 @@
                 document.getElementById('statBoxDist').classList.remove('border-tntc-accent/50', 'bg-tntc-accent/5');
             }
 
-            setTimeout(() => {
+            // Using requestAnimationFrame ensures the DOM has updated before creating icons
+            requestAnimationFrame(() => {
                 document.getElementById('campaignProgressBar').style.width = globalPercent + "%";
                 document.getElementById('campaignProgressText').innerText = globalPercent + "%";
-            }, 50);
-
-            lucide.createIcons();
+                lucide.createIcons();
+            });
         }
 
         // --- OLD LOGS & EVENTS LOGIC (UNCHANGED) ---
@@ -950,7 +970,7 @@
                 });
             }
             document.getElementById('filteredJobTableBody').innerHTML = tableHTML;
-            lucide.createIcons();
+            requestAnimationFrame(() => lucide.createIcons());
         }
 
         function populateEventCategoryDropdown() {
@@ -1052,7 +1072,7 @@
                 });
             }
             document.getElementById('filteredEventTableBody').innerHTML = tableHTML;
-            lucide.createIcons();
+            requestAnimationFrame(() => lucide.createIcons());
         }
 
         // --- MODAL CONTROLLERS ---
