@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -296,7 +297,7 @@
                 <span class="bg-tntc-accent text-[#05070a] px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(56,189,248,0.5)]">LIVE CAMPAIGN</span>
             </div>
             <h2 class="text-2xl md:text-3xl font-black text-tntc-textPrimary uppercase tracking-tight mb-1 z-10 relative">European Tour</h2>
-            <p class="text-tntc-textSecondary text-xs md:text-sm font-medium mb-6 z-10 relative max-w-xl">The ultimate 32-route endurance challenge across the continent. Completed routes are automatically verified via Live Job Logs.</p>
+            <p class="text-tntc-textSecondary text-xs md:text-sm font-medium mb-6 z-10 relative max-w-xl">The ultimate endurance challenge across the continent. Completed routes are automatically verified via Live Job Logs.</p>
 
             <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-8 sm:h-10 mb-3 relative overflow-hidden shadow-inner z-10">
                 <div id="campaignProgressBar" class="h-full rounded-full flex items-center justify-end pr-4 transition-all duration-[1500ms] ease-out shadow-[0_0_30px_rgba(74,222,128,0.6)]" style="width: 0%; background: linear-gradient(90deg, #166534 0%, #4ade80 100%);">
@@ -306,11 +307,11 @@
             
             <div class="flex justify-between text-xs font-bold text-tntc-textSecondary z-10 relative">
                 <span class="text-tntc-distance"><i data-lucide="flag" class="w-3 h-3 inline"></i> Start</span>
-                <span>Target: 21,750 km <i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span>
+                <span>Target: <span id="campaignDynamicTargetText">0</span> km <i data-lucide="check-circle-2" class="w-3 h-3 inline"></i></span>
             </div>
         </div>
 
-        <!-- NEW: Filter Drivers & Quick Stats -->
+        <!-- Filter Drivers & Quick Stats -->
         <div class="flex flex-col lg:flex-row gap-6 mb-6">
             
             <!-- Filter Box -->
@@ -333,7 +334,7 @@
                         <i data-lucide="map" class="w-4 h-4 text-tntc-textSecondary"></i>
                         <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Routes Done</p>
                     </div>
-                    <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ 32</span></h2>
+                    <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">32</span></span></h2>
                 </div>
                 <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxDist">
                     <div class="flex items-center gap-2 mb-1">
@@ -345,9 +346,9 @@
                 <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start col-span-2 md:col-span-1">
                     <div class="flex items-center gap-2 mb-1">
                         <i data-lucide="navigation" class="w-4 h-4 text-tntc-textSecondary"></i>
-                        <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Target Dist.</p>
+                        <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Target</p>
                     </div>
-                    <h2 class="text-2xl font-black text-tntc-revenue">21,750 <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
+                    <h2 class="text-2xl font-black text-tntc-revenue"><span id="campaignTargetStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
                 </div>
             </div>
         </div>
@@ -476,10 +477,10 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 PASTE YOUR PUBLISHED GOOGLE SHEET CSV URLs HERE LEO:
-        const GOOGLE_SHEET_CSV_URL = "YOUR_JOB_LOGS_URL_HERE";
-        const EVENT_SHEET_CSV_URL = "YOUR_EVENTS_URL_HERE";
-        const TOUR_SHEET_CSV_URL = "YOUR_NEW_TOUR_SHEET_URL_HERE"; 
+        // 🔴 PUBLISHED GOOGLE SHEET CSV URLs:
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
+        const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
+        const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQcYtjoGHtE107sRBFy1J2n60wiaAC8kPlf_ubbOL3CqYms1EwrsH4UCxHk-ZPbxA/pub?gid=1716104147&single=true&output=csv"; 
 
         let kmChartInstance = null;
         let eventChartInstance = null;
@@ -488,7 +489,8 @@
         let currentFilteredEvents = []; 
         
         let globalTourData = []; 
-        let currentProcessedRoutes = []; // Holds the cleaned data for filtering
+        let currentProcessedRoutes = []; 
+        let dynamicTotalTargetDist = 0; // Automatically calculated now!
 
         // Utility: Animate Numbers
         function animateValue(id, start, end, duration) {
@@ -605,19 +607,23 @@
                 }
             });
 
-            // 2. Events Fetch
+            // 2. Events Fetch (SMART HEADER DETECTION)
             let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(eventUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
                     if (results.data && results.data.length > 1) {
-                        let headerIndex = 0;
-                        for(let i = 0; i < Math.min(5, results.data.length); i++) {
+                        let headerIndex = -1;
+                        // Scan top 20 rows to find exact header keywords
+                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
                             let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("EVENT NAME") || rowStr.includes("DATE")) {
+                            if(rowStr.includes("EVENT NAME") && (rowStr.includes("CATEGORY") || rowStr.includes("DATE"))) {
                                 headerIndex = i; break;
                             }
                         }
+                        // Default to row 0 if we can't find it
+                        if (headerIndex === -1) headerIndex = 0; 
+                        
                         globalEventData.headers = results.data[headerIndex];
                         globalEventData.rows = results.data.slice(headerIndex + 1);
                         populateEventCategoryDropdown();
@@ -627,28 +633,28 @@
                 }
             });
 
-            // 3. Campaign (Tour) Fetch
-            if (TOUR_SHEET_CSV_URL && !TOUR_SHEET_CSV_URL.includes("https://docs.google.com/spreadsheets/d/e/2PACX-1vQcYtjoGHtE107sRBFy1J2n60wiaAC8kPlf_ubbOL3CqYms1EwrsH4UCxHk-ZPbxA/pub?gid=1716104147&single=true&output=csv")) {
-                let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-                Papa.parse(tourUrl, {
-                    download: true, header: false, skipEmptyLines: true,
-                    complete: function(results) {
-                        if (results.data && results.data.length > 1) {
-                            let headerIndex = 0;
-                            for(let i = 0; i < Math.min(15, results.data.length); i++) {
-                                let rowStr = results.data[i].join(" ").toUpperCase();
-                                if(rowStr.includes("JOB NO") || rowStr.includes("SOURCE CITY")) {
-                                    headerIndex = i; break;
-                                }
+            // 3. Campaign (Tour) Fetch (SMART HEADER DETECTION)
+            let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
+            Papa.parse(tourUrl, {
+                download: true, header: false, skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 1) {
+                        let headerIndex = -1;
+                        // Scan top 20 rows to find exact header keywords
+                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
+                            let rowStr = results.data[i].join(" ").toUpperCase();
+                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
+                                headerIndex = i; break;
                             }
+                        }
+                        
+                        if (headerIndex !== -1) {
                             globalTourData = results.data.slice(headerIndex + 1);
                         }
-                        checkSyncDone();
                     }
-                });
-            } else {
-                checkSyncDone();
-            }
+                    checkSyncDone();
+                }
+            });
         }
 
         function refreshActiveTab() {
@@ -663,21 +669,25 @@
         // ==========================================
         function processCampaignData() {
             if(globalTourData.length === 0) {
-                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data... (Ensure CSV Link is added)</td></tr>`;
+                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data...</td></tr>`;
                 return;
             }
 
             currentProcessedRoutes = [];
             let driversWhoParticipated = new Set();
+            dynamicTotalTargetDist = 0; // Reset Dynamic calculation
 
             // Build smart route data objects
             globalTourData.forEach(tourRow => {
                 let id = parseInt(tourRow[0]);
                 let source = tourRow[1];
                 let dest = tourRow[3];
-                let dist = cleanNumber(tourRow[5] || '0');
+                let dist = cleanNumber(tourRow[5] || '0'); // Automatically cleans "~700 km" to "700"
 
-                if (!id || isNaN(id)) return;
+                // VERY IMPORTANT: Skip empty rows or "Total" row at the bottom
+                if (!id || isNaN(id) || !source || !dest) return;
+
+                dynamicTotalTargetDist += dist; // Auto-calculate total target!
 
                 let completedBy = new Set();
                 globalJobData.forEach(job => {
@@ -702,6 +712,11 @@
                 });
             });
 
+            // Update UI total markers dynamically
+            document.getElementById('campaignTargetStat').innerText = dynamicTotalTargetDist.toLocaleString();
+            document.getElementById('campaignDynamicTargetText').innerText = dynamicTotalTargetDist.toLocaleString();
+            document.getElementById('campaignTotalRoutesSpan').innerText = currentProcessedRoutes.length;
+
             // Populate the Dropdown Filter dynamically
             let dropdown = document.getElementById('filterCampaignDriver');
             let currentSelection = dropdown.value;
@@ -720,7 +735,6 @@
 
         function applyCampaignFilter() {
             let selectedDriver = document.getElementById('filterCampaignDriver').value;
-            let totalTargetDist = 21750; 
             
             // Stats Variables
             let globalCurrentDist = 0;
@@ -805,8 +819,8 @@
             let dispDist = selectedDriver === 'ALL' ? globalCurrentDist : filteredCurrentDist;
             let dispRoutes = selectedDriver === 'ALL' ? globalCompletedRoutes : filteredCompletedRoutes;
             
-            // Progress Bar ALWAYS shows Global Master Progress
-            let globalPercent = totalTargetDist > 0 ? ((globalCurrentDist / totalTargetDist) * 100).toFixed(1) : 0;
+            // Progress Bar ALWAYS shows Global Master Progress using the Dynamic Target
+            let globalPercent = dynamicTotalTargetDist > 0 ? ((globalCurrentDist / dynamicTotalTargetDist) * 100).toFixed(1) : 0;
             
             // Update Stats UI
             document.getElementById('campaignRoutesStat').innerText = dispRoutes;
@@ -1164,3 +1178,6 @@
     </script>
 </body>
 </html>
+
+
+```
