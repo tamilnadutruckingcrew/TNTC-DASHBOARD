@@ -479,8 +479,7 @@
         // 🔴 HARDCODED GOOGLE SHEET URLs (READY TO DEPLOY):
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
-        // 🔴 YOUR NEWEST TOUR SHEET:
-        const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; 
+        const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQcYtjoGHtE107sRBFy1J2n60wiaAC8kPlf_ubbOL3CqYms1EwrsH4UCxHk-ZPbxA/pub?gid=1716104147&single=true&output=csv"; 
 
         let kmChartInstance = null;
         let eventChartInstance = null;
@@ -488,8 +487,7 @@
         let globalEventData = { headers: [], rows: [] }; 
         let currentFilteredEvents = []; 
         
-        let globalTourData = []; 
-        let tourColConfig = { id: 1, src: 2, dest: 4, dist: 6 }; // Default indices based on your new sheet
+        let globalTourData = { headers: [], rows: [] }; 
         let currentProcessedRoutes = []; 
         let dynamicTotalTargetDist = 0; // Automatically calculates total target now!
 
@@ -640,27 +638,27 @@
                     if (results.data && results.data.length > 0) {
                         let headerIndex = -1;
                         
-                        // Smart Scanner: looks for headers instead of guessing columns!
-                        for (let i = 0; i < Math.min(20, results.data.length); i++) {
-                            let rowStr = results.data[i].join(" ").toUpperCase();
-                            if (rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
-                                headerIndex = i;
-                                // Map the columns automatically
-                                let headerRow = results.data[i];
-                                for(let j=0; j < headerRow.length; j++){
-                                    let cell = (headerRow[j] || "").toUpperCase().trim();
-                                    if(cell === "S NO" || cell === "JOB NO" || cell === "JOB NO.") tourColConfig.id = j;
-                                    else if(cell === "SOURCE CITY") tourColConfig.src = j;
-                                    else if(cell === "DESTINATION CITY") tourColConfig.dest = j;
-                                    else if(cell === "DISTANCE") tourColConfig.dist = j;
-                                }
+            // 3. Campaign (Tour) Fetch (SMART SCANNER FOR HEADERS)
+            let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
+            Papa.parse(tourUrl, {
+                download: true, header: false, skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        let startIndex = 1; 
+                        let headerIndex = 0;
+                        // Smart Scanner: looks for the first row that starts with "1" or "Job No."
+                        for (let i = 0; i < results.data.length; i++) {
+                            let cellA = (results.data[i][0] || "").toString().trim().toUpperCase();
+                            if (cellA === "1") {
+                                startIndex = i; // Found route 1!
                                 break;
+                            } else if (cellA.includes("JOB NO") || cellA.includes("S NO")) {
+                                headerIndex = i;
+                                startIndex = i + 1; // Found header, route 1 is next row
                             }
                         }
-                        
-                        if(headerIndex !== -1) {
-                            globalTourData = results.data.slice(headerIndex + 1);
-                        }
+                        globalTourData.headers = results.data[headerIndex];
+                        globalTourData.rows = results.data.slice(startIndex);
                     }
                     checkSyncDone();
                 }
@@ -678,57 +676,48 @@
         // CAMPAIGN LOGIC ENGINE
         // ==========================================
         function processCampaignData() {
-            if(globalTourData.length === 0) {
-                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data...</td></tr>`;
+            if(!globalTourData.rows || globalTourData.rows.length === 0) {
+                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No valid routes found in the sheet.</td></tr>`;
                 return;
             }
 
             currentProcessedRoutes = [];
+            let driversWhoParticipated = new Set();
             dynamicTotalTargetDist = 0; // Reset Dynamic calculation
-            
-            // Collect ALL Company Drivers from job logs (So the dropdown is never empty!)
-            let allCompanyDrivers = new Set();
-            globalJobData.forEach(job => {
-                let driver = job[2];
-                if(driver && driver.trim() !== '') {
-                    allCompanyDrivers.add(driver.trim());
-                }
-            });
+            let headers = globalTourData.headers || [];
 
-            // Process the Tour Rows based on Auto-Detected Columns
-            globalTourData.forEach(tourRow => {
-                let id = parseInt(tourRow[tourColConfig.id]);
-                // Skip empty, headers, or "Total" rows safely
+            globalTourData.rows.forEach(tourRow => {
+                let id = parseInt(tourRow[0]);
+                // Skip empty, headers, or "Total" rows
                 if (isNaN(id) || id <= 0) return;
 
-                let source = (tourRow[tourColConfig.src] || 'Unknown').toString().trim();
-                let dest = (tourRow[tourColConfig.dest] || 'Unknown').toString().trim();
-                let dist = cleanNumber(tourRow[tourColConfig.dist] || '0'); 
+                let source = (tourRow[1] || 'Unknown').toString().trim();
+                let dest = (tourRow[3] || 'Unknown').toString().trim();
+                let dist = cleanNumber(tourRow[5] || '0'); 
                 
                 if(!source || !dest) return;
 
                 dynamicTotalTargetDist += dist; 
 
-                let completedBy = new Set();
-                globalJobData.forEach(job => {
-                    let jSource = (job[5] || '').toString().trim();
-                    let jDest = (job[7] || '').toString().trim();
-                    let jDriver = (job[2] || '').toString().trim();
+                // NEW LOGIC: Read checkboxes from columns (Event Sheet Style)
+                let completedBy = [];
+                for(let i = 6; i < headers.length; i++) {
+                    let dName = headers[i];
+                    if(!dName || dName.trim() === '' || dName.toUpperCase().includes('DISTANCE')) continue;
                     
-                    if (jSource && jDest) {
-                        // Match exactly (ignoring case and spaces)
-                        if (jSource.toLowerCase() === source.toLowerCase() && jDest.toLowerCase() === dest.toLowerCase()) {
-                            completedBy.add(jDriver);
-                        }
+                    let val = (tourRow[i] || '').toString().trim().toUpperCase();
+                    if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
+                        completedBy.push(dName.trim());
+                        driversWhoParticipated.add(dName.trim());
                     }
-                });
+                }
 
                 currentProcessedRoutes.push({
                     id: id,
                     source: source,
                     dest: dest,
                     dist: dist,
-                    drivers: Array.from(completedBy).sort()
+                    drivers: completedBy.sort()
                 });
             });
 
