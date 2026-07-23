@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -334,7 +334,7 @@
                         <i data-lucide="map" class="w-4 h-4 text-tntc-textSecondary"></i>
                         <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Routes Done</p>
                     </div>
-                    <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">32</span></span></h2>
+                    <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">0</span></span></h2>
                 </div>
                 <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxDist">
                     <div class="flex items-center gap-2 mb-1">
@@ -477,7 +477,7 @@
     <script>
         lucide.createIcons();
 
-        // 🔴 PUBLISHED GOOGLE SHEET CSV URLs:
+        // 🔴 HARDCODED GOOGLE SHEET URLs (READY TO DEPLOY):
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
         const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQcYtjoGHtE107sRBFy1J2n60wiaAC8kPlf_ubbOL3CqYms1EwrsH4UCxHk-ZPbxA/pub?gid=1716104147&single=true&output=csv"; 
@@ -490,7 +490,7 @@
         
         let globalTourData = []; 
         let currentProcessedRoutes = []; 
-        let dynamicTotalTargetDist = 0; // Automatically calculated now!
+        let dynamicTotalTargetDist = 0; // Automatically calculates total target now!
 
         // Utility: Animate Numbers
         function animateValue(id, start, end, duration) {
@@ -607,21 +607,19 @@
                 }
             });
 
-            // 2. Events Fetch (SMART HEADER DETECTION)
+            // 2. Events Fetch 
             let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(eventUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
                     if (results.data && results.data.length > 1) {
                         let headerIndex = -1;
-                        // Scan top 20 rows to find exact header keywords
                         for(let i = 0; i < Math.min(20, results.data.length); i++) {
                             let rowStr = results.data[i].join(" ").toUpperCase();
                             if(rowStr.includes("EVENT NAME") && (rowStr.includes("CATEGORY") || rowStr.includes("DATE"))) {
                                 headerIndex = i; break;
                             }
                         }
-                        // Default to row 0 if we can't find it
                         if (headerIndex === -1) headerIndex = 0; 
                         
                         globalEventData.headers = results.data[headerIndex];
@@ -633,24 +631,25 @@
                 }
             });
 
-            // 3. Campaign (Tour) Fetch (SMART HEADER DETECTION)
+            // 3. Campaign (Tour) Fetch (SMART SCANNER FOR HEADERS)
             let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
             Papa.parse(tourUrl, {
                 download: true, header: false, skipEmptyLines: true,
                 complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        let headerIndex = -1;
-                        // Scan top 20 rows to find exact header keywords
-                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
-                            let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
-                                headerIndex = i; break;
+                    if (results.data && results.data.length > 0) {
+                        let startIndex = 1; 
+                        // Smart Scanner: looks for the first row that starts with "1" or "Job No."
+                        for (let i = 0; i < results.data.length; i++) {
+                            let cellA = (results.data[i][0] || "").toString().trim().toUpperCase();
+                            if (cellA === "1") {
+                                startIndex = i; // Found route 1!
+                                break;
+                            } else if (cellA.includes("JOB NO")) {
+                                startIndex = i + 1; // Found header, route 1 is next row
+                                break;
                             }
                         }
-                        
-                        if (headerIndex !== -1) {
-                            globalTourData = results.data.slice(headerIndex + 1);
-                        }
+                        globalTourData = results.data.slice(startIndex);
                     }
                     checkSyncDone();
                 }
@@ -665,11 +664,11 @@
         }
 
         // ==========================================
-        // CAMPAIGN LOGIC ENGINE (NEW & SORTED)
+        // CAMPAIGN LOGIC ENGINE
         // ==========================================
         function processCampaignData() {
             if(globalTourData.length === 0) {
-                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data...</td></tr>`;
+                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No valid routes found in the sheet.</td></tr>`;
                 return;
             }
 
@@ -677,26 +676,28 @@
             let driversWhoParticipated = new Set();
             dynamicTotalTargetDist = 0; // Reset Dynamic calculation
 
-            // Build smart route data objects
             globalTourData.forEach(tourRow => {
                 let id = parseInt(tourRow[0]);
-                let source = tourRow[1];
-                let dest = tourRow[3];
-                let dist = cleanNumber(tourRow[5] || '0'); // Automatically cleans "~700 km" to "700"
+                // Skip empty, headers, or "Total" rows
+                if (isNaN(id) || id <= 0) return;
 
-                // VERY IMPORTANT: Skip empty rows or "Total" row at the bottom
-                if (!id || isNaN(id) || !source || !dest) return;
+                let source = (tourRow[1] || 'Unknown').toString().trim();
+                let dest = (tourRow[3] || 'Unknown').toString().trim();
+                let dist = cleanNumber(tourRow[5] || '0'); 
+                
+                if(!source || !dest) return;
 
-                dynamicTotalTargetDist += dist; // Auto-calculate total target!
+                dynamicTotalTargetDist += dist; 
 
                 let completedBy = new Set();
                 globalJobData.forEach(job => {
-                    let jSource = job[5];
-                    let jDest = job[7];
-                    let jDriver = job[2];
-                    if (jSource && jDest && source && dest) {
-                        if (jSource.trim().toLowerCase() === source.trim().toLowerCase() && 
-                            jDest.trim().toLowerCase() === dest.trim().toLowerCase()) {
+                    let jSource = (job[5] || '').toString().trim();
+                    let jDest = (job[7] || '').toString().trim();
+                    let jDriver = (job[2] || '').toString().trim();
+                    
+                    if (jSource && jDest) {
+                        // Match exactly (ignoring case)
+                        if (jSource.toLowerCase() === source.toLowerCase() && jDest.toLowerCase() === dest.toLowerCase()) {
                             completedBy.add(jDriver);
                             driversWhoParticipated.add(jDriver);
                         }
@@ -724,35 +725,28 @@
             Array.from(driversWhoParticipated).sort().forEach(d => { 
                 dropdown.innerHTML += `<option value="${d}">${d}</option>`; 
             });
-            // Keep selection if it exists
             if(Array.from(driversWhoParticipated).includes(currentSelection) || currentSelection === 'ALL') {
                 dropdown.value = currentSelection;
             }
 
-            // Apply filter to table
             applyCampaignFilter();
         }
 
         function applyCampaignFilter() {
             let selectedDriver = document.getElementById('filterCampaignDriver').value;
             
-            // Stats Variables
             let globalCurrentDist = 0;
             let globalCompletedRoutes = 0;
             let filteredCurrentDist = 0;
             let filteredCompletedRoutes = 0;
 
-            // Clone data so we can sort it without messing up original IDs
             let displayRoutes = [...currentProcessedRoutes];
 
-            // Calculate Stats First
             currentProcessedRoutes.forEach(r => {
-                // Global stats (anyone completed)
                 if(r.drivers.length > 0) {
                     globalCurrentDist += r.dist;
                     globalCompletedRoutes++;
                 }
-                // Filtered stats (specific driver completed)
                 if(r.drivers.includes(selectedDriver)) {
                     filteredCurrentDist += r.dist;
                     filteredCompletedRoutes++;
@@ -766,16 +760,12 @@
                 
                 if (aCompleted && !bCompleted) return -1;
                 if (!aCompleted && bCompleted) return 1;
-                return a.id - b.id; // Both same status? Sort by ID naturally
+                return a.id - b.id; 
             });
 
-            // Build HTML
             let tableHTML = "";
             displayRoutes.forEach((route) => {
-                // Determine if this row is visually completed based on the filter
                 let isVisuallyCompleted = selectedDriver === 'ALL' ? route.drivers.length > 0 : route.drivers.includes(selectedDriver);
-                
-                // Real original index for modal linking
                 let realIndex = currentProcessedRoutes.findIndex(r => r.id === route.id);
 
                 if (isVisuallyCompleted) {
@@ -815,18 +805,15 @@
 
             document.getElementById('campaignTableBody').innerHTML = tableHTML;
 
-            // Display Updates based on filter
             let dispDist = selectedDriver === 'ALL' ? globalCurrentDist : filteredCurrentDist;
             let dispRoutes = selectedDriver === 'ALL' ? globalCompletedRoutes : filteredCompletedRoutes;
             
             // Progress Bar ALWAYS shows Global Master Progress using the Dynamic Target
             let globalPercent = dynamicTotalTargetDist > 0 ? ((globalCurrentDist / dynamicTotalTargetDist) * 100).toFixed(1) : 0;
             
-            // Update Stats UI
             document.getElementById('campaignRoutesStat').innerText = dispRoutes;
             animateValue("campaignDistStat", parseInt(document.getElementById('campaignDistStat').innerText.replace(/,/g, '')) || 0, dispDist, 800);
             
-            // Color changing logic to indicate filter mode
             if(selectedDriver !== 'ALL') {
                 document.getElementById('statBoxRoutes').classList.add('border-tntc-accent/50', 'bg-tntc-accent/5');
                 document.getElementById('statBoxDist').classList.add('border-tntc-accent/50', 'bg-tntc-accent/5');
@@ -843,7 +830,7 @@
             lucide.createIcons();
         }
 
-        // --- OLD LOGS & EVENTS LOGIC ---
+        // --- OLD LOGS & EVENTS LOGIC (UNCHANGED) ---
         function applyOverviewFilter() {
             let timeFilter = document.getElementById('overviewTimeFilter').value;
             let customDate = document.getElementById('overviewDatePicker').value;
@@ -1074,7 +1061,6 @@
             modal.classList.add('modal-closed');
         }
 
-        // Close when clicking outside
         document.querySelectorAll('.custom-modal').forEach(modal => {
             modal.addEventListener('click', function(e) {
                 if(e.target === this) closeModal(this.id);
@@ -1178,6 +1164,3 @@
     </script>
 </body>
 </html>
-
-
-```
