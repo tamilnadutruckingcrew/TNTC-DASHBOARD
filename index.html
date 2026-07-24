@@ -72,7 +72,7 @@
         <h1 class="text-lg md:text-xl font-black text-tntc-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
     </div>
 
-    <!-- Header (Custom Logos & Text) -->
+    <!-- Header (TNTC Sub-Brand & Live Sync) -->
     <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 pb-2 gap-6 md:gap-4">
         
         <!-- Left: TNTC Logo & Title -->
@@ -111,7 +111,10 @@
             <i data-lucide="calendar-days" class="w-4 h-4"></i> Event Records
         </button>
         <button onclick="switchTab('campaign')" id="btn-campaign" class="tab-inactive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center">
-            <i data-lucide="route" class="w-4 h-4"></i> Tour
+            <i data-lucide="route" class="w-4 h-4"></i> EU Tour
+        </button>
+        <button onclick="switchTab('liveriders')" id="btn-liveriders" class="tab-inactive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center">
+            <i data-lucide="radio" class="w-4 h-4 text-red-500 animate-pulse"></i> Live Riders
         </button>
     </div>
 
@@ -183,7 +186,7 @@
             <!-- Hall of Fame (Past Members) -->
             <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-base font-bold text-tntc-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Frame</h3>
+                    <h3 class="text-base font-bold text-tntc-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Fame</h3>
                     <span class="text-[9px] bg-tntc-main border border-tntc-muted/20 px-2 py-1 rounded text-tntc-textSecondary uppercase tracking-widest">Past Members</span>
                 </div>
                 <div id="pastLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
@@ -430,6 +433,32 @@
     </div>
 
     <!-- ========================================== -->
+    <!-- TAB 5: LIVE RIDERS                         -->
+    <!-- ========================================== -->
+    <div id="tab-liveriders" class="hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-black text-tntc-textPrimary uppercase tracking-tight flex items-center gap-3">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    Live Division Radar
+                </h2>
+                <p class="text-tntc-textSecondary text-sm mt-1">Real-time tracking of active deliveries currently in progress.</p>
+            </div>
+            <div class="bg-tntc-card px-5 py-2.5 rounded-lg border border-tntc-muted/30 flex items-center gap-2.5 shadow-xl shrink-0">
+                <i data-lucide="truck" class="w-5 h-5 text-tntc-accent"></i>
+                <span class="text-sm font-bold text-tntc-textPrimary"><span id="activeRiderCount">0</span> Riders on Duty</span>
+            </div>
+        </div>
+
+        <div id="liveRidersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamic Cards Injected Here -->
+        </div>
+    </div>
+
+    <!-- ========================================== -->
     <!-- MODALS (EVENT & CAMPAIGN)                  -->
     <!-- ========================================== -->
     
@@ -501,6 +530,7 @@
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
         const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
         const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; 
+        const LIVE_RIDERS_CSV_URL = "🔴_PASTE_ACTIVE_RIDERS_TAB_CSV_URL_HERE_🔴";
 
         let kmChartInstance = null;
         let eventChartInstance = null;
@@ -511,6 +541,19 @@
         let currentProcessedRoutes = []; 
         let dynamicTotalTargetDist = 0; 
         let validCampaignDrivers = new Set(); 
+
+        // NEW: Smart DOM Cache to stop table flickering!
+        let domCache = {};
+        function updateDOMIfChanged(elementId, newHTML) {
+            if (domCache[elementId] !== newHTML) {
+                domCache[elementId] = newHTML;
+                let el = document.getElementById(elementId);
+                if (el) {
+                    el.innerHTML = newHTML;
+                    lucide.createIcons({ root: el }); // Only redraw icons in the changed area
+                }
+            }
+        }
 
         function toggleCampaign(id) {
             let content = document.getElementById(id + '-content');
@@ -591,7 +634,7 @@
         }
 
         function switchTab(tabName) {
-            const tabs = ['overview', 'logs', 'events', 'campaign'];
+            const tabs = ['overview', 'logs', 'events', 'campaign', 'liveriders'];
             tabs.forEach(t => {
                 const tabEl = document.getElementById(`tab-${t}`);
                 const btnEl = document.getElementById(`btn-${t}`);
@@ -608,16 +651,23 @@
             refreshActiveTab();
         }
 
-        function fetchData() {
-            document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
-            document.getElementById('syncStatusMobile').innerText = "Syncing...";
+        function fetchData(isInitialLoad = false) {
+            if (isInitialLoad) {
+                document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
+                let mobileSync = document.getElementById('syncStatusMobile');
+                if (mobileSync) mobileSync.innerText = "Syncing...";
+            }
+            
             let timeParam = "t=" + new Date().getTime();
             let fetchCount = 0;
             const checkSyncDone = () => {
                 fetchCount++;
                 if(fetchCount >= 3) { 
-                    document.getElementById('syncStatus').innerText = "Live Cloud Sync Active";
-                    document.getElementById('syncStatusMobile').innerText = "Sync Active";
+                    if (isInitialLoad) {
+                        document.getElementById('syncStatus').innerText = "Live Cloud Sync Active";
+                        let mobileSync = document.getElementById('syncStatusMobile');
+                        if (mobileSync) mobileSync.innerText = "Sync Active";
+                    }
                     refreshActiveTab();
                 }
             };
@@ -685,6 +735,17 @@
                     checkSyncDone();
                 }
             });
+
+            // 4. Live Riders Fetch
+            if (LIVE_RIDERS_CSV_URL && !LIVE_RIDERS_CSV_URL.includes("🔴")) {
+                let liveUrl = LIVE_RIDERS_CSV_URL + (LIVE_RIDERS_CSV_URL.includes('?') ? '&' : '?') + timeParam;
+                Papa.parse(liveUrl, {
+                    download: true, header: false, skipEmptyLines: true,
+                    complete: function(results) {
+                        renderLiveRiders(results.data);
+                    }
+                });
+            }
         }
 
         function refreshActiveTab() {
@@ -692,6 +753,113 @@
             else if(!document.getElementById('tab-logs').classList.contains('hidden')) applyLogFilters();
             else if(!document.getElementById('tab-events').classList.contains('hidden')) applyEventFilters();
             else if(!document.getElementById('tab-campaign').classList.contains('hidden')) processCampaignData();
+        }
+
+        // ==========================================
+        // LIVE RIDERS LOGIC ENGINE
+        // ==========================================
+        function renderLiveRiders(data) {
+            let grid = document.getElementById('liveRidersGrid');
+            if(!grid) return;
+            
+            let validRows = [];
+            data.forEach(row => {
+                // Ignore empty rows or the header row
+                if(row[0] && row[0].toUpperCase() !== 'DRIVER' && row[0].trim() !== '') {
+                    validRows.push(row);
+                }
+            });
+            
+            document.getElementById('activeRiderCount').innerText = validRows.length;
+            
+            if(validRows.length === 0) {
+                updateDOMIfChanged('liveRidersGrid', `
+                <div class="col-span-full bg-tntc-card border border-tntc-muted/30 p-12 rounded-xl text-center shadow-xl flex flex-col items-center justify-center">
+                    <div class="p-4 bg-tntc-main rounded-full border border-tntc-muted/20 mb-4 shadow-inner">
+                        <i data-lucide="coffee" class="w-10 h-10 text-tntc-textSecondary"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-tntc-textPrimary uppercase tracking-wide">No Active Deliveries</h3>
+                    <p class="text-tntc-textSecondary text-sm mt-2 max-w-sm">All division drivers are currently off duty or in deep sleep. Waiting for telemetry link...</p>
+                </div>`);
+                return;
+            }
+            
+            let html = "";
+            validRows.forEach(row => {
+                // Map the 8 columns exact to the python script output
+                let driver = row[0] || 'Unknown';
+                let source_city = row[1] || 'Unknown';
+                let source_company = row[2] || 'Unknown';
+                let dest_city = row[3] || 'Unknown';
+                let dest_company = row[4] || 'Unknown';
+                let cargo = row[5] || 'Unknown';
+                let dist = row[6] || '0 km';
+                let time = row[7] || '';
+                
+                html += `
+                <div class="bg-tntc-card border border-tntc-muted/40 rounded-xl overflow-hidden shadow-xl hover:border-tntc-accent/50 transition-colors group relative flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-tntc-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    
+                    <div class="p-5 border-b border-tntc-muted/20 bg-[#0a0d14] flex justify-between items-center relative z-10 shrink-0">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-full bg-tntc-accent/20 border border-tntc-accent/50 flex items-center justify-center shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                                <i data-lucide="user" class="w-5 h-5 text-tntc-accent"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-black text-tntc-textPrimary uppercase tracking-wide leading-tight">${driver}</h3>
+                                <p class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-wider flex items-center gap-1 mt-0.5">
+                                    <i data-lucide="clock" class="w-3 h-3"></i> Started at ${time}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="flex h-3 w-3 relative ml-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
+                        </span>
+                    </div>
+                    
+                    <div class="p-6 relative z-10 flex-1 flex flex-col justify-between">
+                        <div class="flex flex-col gap-4 mb-6">
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-tntc-main border border-tntc-muted/40 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-tntc-textSecondary"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-wider mb-1">Source</p>
+                                    <p class="text-sm font-bold text-tntc-textPrimary leading-tight">${source_city}</p>
+                                    <p class="text-[10px] font-semibold text-tntc-textSecondary mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-0.5"></i> ${source_company}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="ml-3 border-l-2 border-dashed border-tntc-muted/30 h-6 my-[-16px]"></div>
+                            
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-tntc-distance/20 border border-tntc-distance/50 flex items-center justify-center shrink-0 mt-0.5 shadow-sm shadow-tntc-distance/20">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-tntc-distance"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-tntc-distance font-black uppercase tracking-wider mb-1">Destination</p>
+                                    <p class="text-sm font-bold text-tntc-textPrimary leading-tight">${dest_city}</p>
+                                    <p class="text-[10px] font-semibold text-tntc-textSecondary mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-0.5"></i> ${dest_company}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 p-3.5 bg-tntc-main rounded-xl border border-tntc-muted/20 shadow-inner">
+                            <div>
+                                <p class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i data-lucide="package" class="w-3 h-3"></i> Cargo</p>
+                                <p class="text-xs font-bold text-tntc-textPrimary truncate" title="${cargo}">${cargo}</p>
+                            </div>
+                            <div class="border-l border-tntc-muted/20 pl-3">
+                                <p class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i data-lucide="milestone" class="w-3 h-3"></i> Distance</p>
+                                <p class="text-xs font-mono font-bold text-tntc-accent">${dist}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            updateDOMIfChanged('liveRidersGrid', html);
         }
 
         // ==========================================
@@ -797,6 +965,7 @@
                 let driverCompletes = r.drivers.length;
                 
                 if (selectedDriver === 'ALL') {
+                    // NEW MATH: Multiply distance directly. (e.g. 700km x 3 drivers = 2100km total)
                     dispDist += (r.dist * driverCompletes);
                     dispRoutes += driverCompletes;
                 } else {
@@ -808,6 +977,7 @@
             });
 
             if (selectedDriver === 'ALL') {
+                // Global Scale Target: Max Dist x Total Drivers
                 targetDist = dynamicTotalTargetDist * activeDriverCount;
                 targetRoutes = currentProcessedRoutes.length * activeDriverCount;
             } else {
@@ -832,13 +1002,11 @@
                 if (isVisuallyCompleted) {
                     let statusBadgeHTML = "";
                     if (selectedDriver === 'ALL') {
-                        // Global View: Show exactly how many drivers finished it
                         statusBadgeHTML = `
                             <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-tntc-accent/10 text-tntc-accent text-[10px] font-black tracking-widest uppercase rounded border border-tntc-accent/20">
                                 <i data-lucide="users" class="w-3 h-3"></i> ${driverCount} / ${activeDriverCount}
                             </span>`;
                     } else {
-                        // Individual View: Show verified
                         statusBadgeHTML = `
                             <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-[#166534]/40 text-tntc-distance text-[10px] font-black tracking-widest uppercase rounded border border-tntc-distance/30">
                                 <i data-lucide="check" class="w-3.5 h-3.5"></i> Verified
@@ -875,7 +1043,7 @@
                 }
             });
 
-            document.getElementById('campaignTableBody').innerHTML = tableHTML;
+            updateDOMIfChanged('campaignTableBody', tableHTML);
 
             document.getElementById('campaignTotalRoutesSpan').innerText = targetRoutes;
             document.getElementById('campaignRoutesStat').innerText = dispRoutes;
@@ -916,7 +1084,7 @@
             globalJobData.forEach(row => {
                 let driverOrig = (row[2] || '').trim();
                 // STRICT UNKNOWN CHECK
-                if (!driverOrig || driverOrig.toUpperCase() === 'UNKNOWN') return;
+                if (!driverOrig || driverOrig.toUpperCase() === 'UNKNOWN' || driverOrig === '') return;
 
                 let driverKey = driverOrig.toUpperCase(); 
                 let dateStr = row[0] || '';
@@ -936,7 +1104,7 @@
                 for(let i = 6; i < globalEventData.headers.length; i++) {
                     let origName = (globalEventData.headers[i] || '').trim();
                     // STRICT UNKNOWN CHECK
-                    if (!origName || origName.toUpperCase() === 'UNKNOWN') continue;
+                    if (!origName || origName.toUpperCase() === 'UNKNOWN' || origName === '') continue;
 
                     let dNameKey = origName.toUpperCase();
                     let val = (row[i] || '').toString().trim().toUpperCase();
@@ -973,7 +1141,7 @@
             
             rows.forEach((row) => {
                 let origName = (row[2] || '').trim();
-                if(!origName || origName.toUpperCase() === 'UNKNOWN') return;
+                if(!origName || origName.toUpperCase() === 'UNKNOWN' || origName === '') return;
 
                 let driverKey = origName.toUpperCase();
                 let drivenKm = cleanNumber(row[12]);
@@ -1013,7 +1181,7 @@
                     leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p><p class="text-[10px] text-tntc-textSecondary">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-tntc-distance">${d.km.toLocaleString()} km</p></div>`;
                 });
             }
-            document.getElementById('kmLeaderboardList').innerHTML = leaderboardHTML;
+            updateDOMIfChanged('kmLeaderboardList', leaderboardHTML);
             renderKmChart(activeKMDrivers.slice(0, 8)); 
             
             window.tempPastDriversStats = pastDriversStats;
@@ -1034,7 +1202,7 @@
                     totalEvents++; 
                     for(let i = 6; i < headers.length; i++) { 
                         let origName = (headers[i] || '').trim();
-                        if (!origName || origName.toUpperCase() === 'UNKNOWN') continue;
+                        if (!origName || origName.toUpperCase() === 'UNKNOWN' || origName === '') continue;
 
                         let dNameKey = origName.toUpperCase();
                         if(!dNameKey || dNameKey === '' || dNameKey.includes('ATTENDANCE')) continue;
@@ -1073,7 +1241,7 @@
                     leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-tntc-accent">${d.events} Convoys</p></div>`;
                 });
             }
-            document.getElementById('eventLeaderboardList').innerHTML = leaderboardHTML;
+            updateDOMIfChanged('eventLeaderboardList', leaderboardHTML);
             renderEventChart(activeEventDrivers.slice(0, 8)); 
             
             renderPastDrivers(pastStats);
@@ -1084,7 +1252,7 @@
                 name: pastStats[dKey].name || dKey,
                 km: pastStats[dKey].km || 0,
                 events: pastStats[dKey].events || 0
-            })).filter(d => d.name.toUpperCase() !== 'UNKNOWN'); // Final strict filter
+            })).filter(d => d.name.toUpperCase() !== 'UNKNOWN' && d.name !== ''); // Final strict filter
 
             pastArray.sort((a, b) => b.km - a.km);
 
@@ -1106,16 +1274,14 @@
                     </div>`;
                 });
             }
-            let el = document.getElementById('pastLeaderboardList');
-            if (el) el.innerHTML = pastHTML;
-            lucide.createIcons();
+            updateDOMIfChanged('pastLeaderboardList', pastHTML);
         }
 
         function populateDriverDropdown(rows) {
             let drivers = new Set();
             rows.forEach(row => { 
                 let d = (row[2] || '').trim(); 
-                if(d && d.toUpperCase() !== 'UNKNOWN') drivers.add(d); 
+                if(d && d.toUpperCase() !== 'UNKNOWN' && d !== '') drivers.add(d); 
             });
             let dropdown = document.getElementById('filterDriver');
             let currentVal = dropdown.value; 
@@ -1134,7 +1300,7 @@
 
             recentRows.forEach(row => {
                 let dName = (row[2] || '').trim();
-                if(!dName || dName.toUpperCase() === 'UNKNOWN') return;
+                if(!dName || dName.toUpperCase() === 'UNKNOWN' || dName === '') return;
                 
                 let timeStr = row[0] || '';
                 let drivenKm = cleanNumber(row[12]);
@@ -1153,8 +1319,7 @@
                     tableHTML += `<tr class="hover:bg-tntc-hover transition-colors"><td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${dName}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-accent mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textSecondary text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-tntc-revenue font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
                 });
             }
-            document.getElementById('filteredJobTableBody').innerHTML = tableHTML;
-            lucide.createIcons();
+            updateDOMIfChanged('filteredJobTableBody', tableHTML);
         }
 
         function populateEventCategoryDropdown() {
@@ -1176,7 +1341,7 @@
             let drivers = new Set();
             for(let i = 6; i < globalEventData.headers.length; i++) {
                 let dName = (globalEventData.headers[i] || '').trim();
-                if(dName && dName.toUpperCase() !== 'UNKNOWN' && !dName.toUpperCase().includes('ATTENDANCE')) {
+                if(dName && dName.toUpperCase() !== 'UNKNOWN' && dName !== '' && !dName.toUpperCase().includes('ATTENDANCE')) {
                     drivers.add(dName);
                 }
             }
@@ -1216,7 +1381,7 @@
                 let driversAttended = [];
                 for(let i = 6; i < headers.length; i++) {
                     let dName = (headers[i] || '').trim();
-                    if(!dName || dName.toUpperCase() === 'UNKNOWN' || dName.toUpperCase().includes('ATTENDANCE')) continue;
+                    if(!dName || dName.toUpperCase() === 'UNKNOWN' || dName === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
                     let val = (row[i] || '').toString().trim().toUpperCase();
                     if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
                         driversAttended.push(dName);
@@ -1255,8 +1420,7 @@
                     </tr>`;
                 });
             }
-            document.getElementById('filteredEventTableBody').innerHTML = tableHTML;
-            lucide.createIcons();
+            updateDOMIfChanged('filteredEventTableBody', tableHTML);
         }
 
         function closeModal(modalId) {
@@ -1359,8 +1523,16 @@
         function renderKmChart(topDrivers) {
             const labels = topDrivers.map(d => d.name);
             const dataKm = topDrivers.map(d => d.km);
+            
+            // SMART FIX: Update existing chart instead of destroying it
+            if (kmChartInstance) {
+                kmChartInstance.data.labels = labels;
+                kmChartInstance.data.datasets[0].data = dataKm;
+                kmChartInstance.update(); 
+                return;
+            }
+
             const ctx = document.getElementById('kmBarChart').getContext('2d');
-            if (kmChartInstance) kmChartInstance.destroy();
             let gradient = ctx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(74, 222, 128, 0.8)'); 
             gradient.addColorStop(1, 'rgba(74, 222, 128, 0.1)');
@@ -1370,16 +1542,25 @@
         function renderEventChart(topEventDrivers) {
             const labels = topEventDrivers.map(d => d.name);
             const dataEvents = topEventDrivers.map(d => d.events);
+            
+            // SMART FIX: Update existing chart instead of destroying it
+            if (eventChartInstance) {
+                eventChartInstance.data.labels = labels;
+                eventChartInstance.data.datasets[0].data = dataEvents;
+                eventChartInstance.update();
+                return;
+            }
+
             const ctx = document.getElementById('eventBarChart').getContext('2d');
-            if (eventChartInstance) eventChartInstance.destroy();
             let gradient = ctx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(56, 189, 248, 0.8)'); 
             gradient.addColorStop(1, 'rgba(56, 189, 248, 0.1)');
             eventChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataEvents, backgroundColor: gradient, borderColor: '#38bdf8', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(2, 132, 199, 0.2)' }, ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
         }
 
-        fetchData();
-        setInterval(fetchData, 15000); 
+        // Initialize with 'true' to show first load UI, then run silently every 15s
+        fetchData(true);
+        setInterval(() => fetchData(false), 15000); 
     </script>
 </body>
 </html>
