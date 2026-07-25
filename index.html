@@ -20,29 +20,29 @@
                 extend: {
                     colors: {
                         tntc: { 
-                            main: '#05070a',        // Deep, rich black
-                            card: '#0c1017',        // Slightly lighter black for tables & cards
-                            hover: '#161f30',       // Muted blue-tinted gray for row hovers
-                            accent: '#38bdf8',      // Vibrant light blue
-                            muted: '#0284c7',       // Darker light blue for borders
-                            textPrimary: '#f8fafc', // Crisp, clean off-white
-                            textSecondary: '#94a3b8', // Readable soft gray
-                            distance: '#4ade80',    // Brighter mint green
-                            revenue: '#facc15',     // Vibrant gold-yellow
-                            active: '#22c55e'       // Clean green for live status
+                            main: '#05070a',
+                            card: '#0c1017',
+                            hover: '#161f30',
+                            accent: '#38bdf8',
+                            muted: '#0284c7',
+                            textPrimary: '#f8fafc',
+                            textSecondary: '#94a3b8',
+                            distance: '#4ade80',
+                            revenue: '#facc15',
+                            active: '#22c55e'
                         }
                     }
                 }
             }
         }
     </script>
+    
     <style>
         body { background-color: #05070a; color: #f8fafc; font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #05070a; }
         ::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
 
-        /* Active Navigation Tab matching user CSS */
         .tab-active { background-color: #38bdf8; color: #05070a; font-weight: bold; border-color: #38bdf8; }
         .tab-inactive { background-color: #0c1017; color: #94a3b8; border-color: rgba(2, 132, 199, 0.3); }
         .tab-inactive:hover { background-color: #161f30; color: #f8fafc; }
@@ -51,7 +51,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
 
-        /* Modal Animation Fix */
         .custom-modal { transition: opacity 0.3s ease-out; }
         .custom-modal-content { transition: transform 0.3s ease-out; }
         .modal-open.custom-modal { opacity: 1; pointer-events: auto; }
@@ -59,23 +58,20 @@
         .modal-closed.custom-modal { opacity: 0; pointer-events: none; }
         .modal-closed .custom-modal-content { transform: scale(0.95) translateY(10px); }
         
-        /* Smooth Collapse Animation */
         .collapse-content { transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
         .collapse-content.expanded { max-height: 5000px; opacity: 1; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
 
-    <!-- TNL GLOBAL TOP BAR (Spans full width) -->
+    <!-- TNL GLOBAL TOP BAR -->
     <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-tntc-muted/20 bg-[#0a0d14] flex items-center justify-center gap-3 shadow-lg z-20 relative">
         <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-tntc-revenue/50 shadow-[0_0_15px_rgba(250,204,21,0.2)] object-cover">
         <h1 class="text-lg md:text-xl font-black text-tntc-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
     </div>
 
-    <!-- Header (TNTC Sub-Brand & Live Sync) -->
+    <!-- Header -->
     <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 pb-2 gap-6 md:gap-4">
-        
-        <!-- Left: TNTC Logo & Title -->
         <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
             <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.2)] bg-tntc-accent/10 border border-tntc-accent/30">
                 <img src="https://files.catbox.moe/ujn8ng.png" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
@@ -86,7 +82,6 @@
             </div>
         </div>
 
-        <!-- Right: Live Sync Badge -->
         <div class="flex items-center gap-3 z-10">
             <div class="bg-tntc-card px-4 py-2 rounded-lg border border-tntc-muted/30 flex items-center gap-2.5 shadow-sm">
                 <span class="relative flex h-2.5 w-2.5">
@@ -94,7 +89,6 @@
                   <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tntc-active"></span>
                 </span>
                 <span id="syncStatus" class="text-xs font-semibold text-tntc-textPrimary">Syncing with Cloud...</span>
-                <span id="syncStatusMobile" class="hidden"></span>
             </div>
         </div>
     </header>
@@ -118,9 +112,7 @@
         </button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 1: OVERVIEW DASHBOARD                  -->
-    <!-- ========================================== -->
+    <!-- TAB 1: OVERVIEW DASHBOARD -->
     <div id="tab-overview" class="block">
         <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-lg mb-6 gap-4">
             <h2 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 w-full sm:w-auto">
@@ -128,7 +120,7 @@
             </h2>
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
                 <label class="text-xs font-semibold text-tntc-textSecondary">Filter By:</label>
-                <select id="overviewTimeFilter" onchange="handleTimeChange('overviewTimeFilter', 'overviewDatePicker', 'applyOverviewFilter')" class="bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 focus:ring-tntc-accent focus:border-tntc-accent outline-none">
+                <select id="overviewTimeFilter" onchange="handleTimeChange('overviewTimeFilter', 'overviewDatePicker', 'applyOverviewFilter')" class="bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 focus:ring-tntc-accent outline-none">
                     <option value="ALL">All Time</option>
                     <option value="TODAY">Today</option>
                     <option value="WEEK">This Week</option>
@@ -140,23 +132,23 @@
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 mb-8">
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors">
                 <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Total Distance</p>
                 <h2 class="text-2xl sm:text-3xl font-black text-tntc-textPrimary"><span id="statDistance">0</span> <span class="text-xs font-normal text-tntc-textSecondary">km</span></h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors">
                 <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Completed Waybills</p>
                 <h2 id="statJobs" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">0</h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors">
                 <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Company Revenue</p>
                 <h2 class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">€ <span id="statRevenue">0</span></h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center">
+            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors">
                 <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Active Drivers</p>
                 <h2 id="statDrivers" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">0</h2>
             </div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center relative overflow-hidden">
+            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-tntc-accent/50 transition-colors">
                 <div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="calendar-check" class="w-20 h-20 text-tntc-textPrimary"></i></div>
                 <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1 relative z-10">Division Events</p>
                 <h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary relative z-10">0</h2>
@@ -183,7 +175,6 @@
                 <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-tntc-accent"></i> Top Drivers by Events</h3>
                 <div id="eventLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div>
             </div>
-            <!-- Hall of Fame (Past Members) -->
             <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-base font-bold text-tntc-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Frame</h3>
@@ -193,11 +184,9 @@
             </div>
         </div>
 
-        <!-- DOWNLOAD TRACKER FOOTER (ONLY ON OVERVIEW) -->
         <footer class="mt-4 mb-2 pt-6 border-t border-tntc-muted/20">
             <div class="bg-gradient-to-r from-tntc-card to-tntc-main border border-tntc-muted/30 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
                 <div class="absolute -left-12 -top-12 w-32 h-32 bg-tntc-accent/10 rounded-full blur-3xl pointer-events-none"></div>
-
                 <div class="flex flex-col md:flex-row items-center gap-5 z-10 text-center md:text-left">
                     <div class="bg-tntc-main p-4 rounded-xl border border-tntc-muted/40 shadow-inner flex-shrink-0">
                         <i data-lucide="download-cloud" class="w-8 h-8 text-tntc-accent"></i>
@@ -207,7 +196,6 @@
                         <p class="text-xs sm:text-sm font-semibold text-tntc-textSecondary mt-1">Download the latest Windows client to track your deliveries automatically.</p>
                     </div>
                 </div>
-
                 <div class="z-10 w-full md:w-auto shrink-0">
                     <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest" target="_blank" class="w-full md:w-auto flex items-center justify-center gap-2.5 bg-tntc-accent hover:opacity-90 text-tntc-main font-black px-8 py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(56,189,248,0.2)]">
                         <i data-lucide="download" class="w-5 h-5"></i> Download Tracker (.exe)
@@ -217,30 +205,28 @@
         </footer>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 2: JOB LOGS                            -->
-    <!-- ========================================== -->
+    <!-- TAB 2: JOB LOGS -->
     <div id="tab-logs" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
             <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Select Driver</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none">
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
                         <option value="ALL">All Drivers</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Time Period</label>
                     <div class="flex gap-2">
-                        <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none">
+                        <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
                             <option value="ALL">All Time</option>
                             <option value="TODAY">Today's Jobs</option>
                             <option value="WEEK">This Week</option>
                             <option value="MONTH">This Month</option>
                             <option value="CUSTOM">Select Date 📅</option>
                         </select>
-                        <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 focus:ring-tntc-accent outline-none">
+                        <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 outline-none">
                     </div>
                 </div>
                 <div class="bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
@@ -268,35 +254,33 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 3: EVENT RECORDS                       -->
-    <!-- ========================================== -->
+    <!-- TAB 3: EVENT RECORDS -->
     <div id="tab-events" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
             <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Event Records</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Event Category</label>
-                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none">
+                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
                         <option value="ALL">All Categories</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Select Driver</label>
-                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none">
+                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
                         <option value="ALL">All Drivers</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Time Period</label>
                     <div class="flex gap-2">
-                        <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none">
+                        <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
                             <option value="ALL">All Time</option>
                             <option value="WEEK">This Week</option>
                             <option value="MONTH">This Month</option>
                             <option value="CUSTOM">Select Date 📅</option>
                         </select>
-                        <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 focus:ring-tntc-accent outline-none">
+                        <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 outline-none">
                     </div>
                 </div>
                 <div class="bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
@@ -311,7 +295,7 @@
                     <thead>
                         <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tntc-muted/30">
                             <th class="p-3 sm:p-4">Date</th>
-                            <th class="p-3 sm:p-4">Event Category</th>
+                            <th class="p-3 sm:p-4">Category</th>
                             <th class="p-3 sm:p-4">Event Name</th>
                             <th class="p-3 sm:p-4 text-center">Attendance</th>
                             <th class="p-3 sm:p-4 text-right">Details</th>
@@ -323,28 +307,21 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 4: EUROPEAN TOUR CAMPAIGN (CARD UI)    -->
-    <!-- ========================================== -->
+    <!-- TAB 4: EUROPEAN TOUR CAMPAIGN -->
     <div id="tab-campaign" class="hidden">
         
-        <!-- CLICKABLE TOUR CARD -->
-        <div onclick="toggleCampaign('tour1')" class="cursor-pointer group relative bg-tntc-card border border-tntc-muted/30 rounded-2xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(74,222,128,0.15)] transition-all hover:border-tntc-accent/50 hover:shadow-[0_0_30px_rgba(56,189,248,0.2)] mb-6">
-            
-            <!-- 🔴 EDIT THIS TO CHANGE THE MAIN CAMPAIGN BACKGROUND IMAGE -->
+        <div onclick="toggleCampaign('tour1')" class="cursor-pointer group relative bg-tntc-card border border-tntc-muted/30 rounded-2xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(74,222,128,0.15)] transition-all hover:border-tntc-accent/50 mb-6">
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-[#05070a]/90 to-transparent"></div>
             
-            <!-- Card Header Content -->
             <div class="p-6 md:p-8 relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
                 <div>
-                    <!-- Dynamic Badge -->
                     <span id="campaignStatusBadge" class="bg-tntc-accent text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(56,189,248,0.5)] mb-3 inline-block transition-colors">LIVE CAMPAIGN</span>
                     <h2 class="text-3xl md:text-4xl font-black text-tntc-textPrimary uppercase tracking-tight mb-2">European Tour</h2>
-                    <p class="text-tntc-textSecondary text-sm font-medium max-w-xl">The ultimate endurance challenge across the continent. Completed routes are automatically read from the Tour Sheet database.</p>
+                    <p class="text-tntc-textSecondary text-sm font-medium max-w-xl">The ultimate endurance challenge across the continent.</p>
                 </div>
                 
-                <div class="flex items-center gap-2 text-tntc-accent font-bold text-sm bg-tntc-main/50 px-4 py-2.5 rounded-lg border border-tntc-accent/20 backdrop-blur-sm group-hover:bg-tntc-accent group-hover:text-[#05070a] transition-colors shadow-sm">
+                <div class="flex items-center gap-2 text-tntc-accent font-bold text-sm bg-tntc-main/50 px-4 py-2.5 rounded-lg border border-tntc-accent/20 backdrop-blur-sm group-hover:bg-tntc-accent group-hover:text-[#05070a] transition-colors">
                     <span id="tour1-toggle-text">View Manifest</span>
                     <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="tour1-chevron"></i>
                 </div>
@@ -356,66 +333,48 @@
                     <span id="campaignCardPercent">0%</span>
                 </div>
                 <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 overflow-hidden shadow-inner">
-                    <div id="campaignCardProgressBar" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_15px_rgba(74,222,128,0.5)]" style="width: 0%;"></div>
+                    <div id="campaignCardProgressBar" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out" style="width: 0%;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- COLLAPSIBLE CONTENT -->
         <div id="tour1-content" class="collapse-content">
-            
-            <!-- WARNING BANNER -->
             <div id="campaignUpcomingBanner" class="hidden bg-tntc-revenue/10 border border-tntc-revenue/30 text-tntc-revenue p-4 rounded-xl text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center gap-3 shadow-lg mb-6">
                 <i data-lucide="clock" class="w-5 h-5 shrink-0 mt-0.5 sm:mt-0"></i>
-                <p>This tour officially begins on <span class="text-[#f8fafc] font-black">August 1, 2026</span>. Deliveries logged before this date will not be validated.</p>
+                <p>This tour officially begins on <span class="text-[#f8fafc] font-black">August 1, 2026</span>.</p>
             </div>
 
-            <!-- Filter Drivers & Quick Stats -->
             <div class="flex flex-col lg:flex-row gap-6 mb-6">
                 <div class="bg-tntc-card p-5 rounded-xl border border-tntc-muted/30 shadow-xl lg:w-1/3 flex flex-col justify-center">
                     <h3 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 mb-3">
                         <i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Campaign Driver
                     </h3>
-                    <label class="block text-[10px] font-bold text-tntc-textSecondary uppercase tracking-wider mb-1">Select Driver to view progress</label>
-                    <select id="filterCampaignDriver" onchange="applyCampaignFilter()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 focus:ring-tntc-accent outline-none shadow-inner">
+                    <select id="filterCampaignDriver" onchange="applyCampaignFilter()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none shadow-inner">
                         <option value="ALL">All Drivers (Global Progress)</option>
                     </select>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 lg:w-2/3">
-                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxRoutes">
-                        <div class="flex items-center gap-2 mb-1">
-                            <i data-lucide="map" class="w-4 h-4 text-tntc-textSecondary"></i>
-                            <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Routes Done</p>
-                        </div>
-                        <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">32</span></span></h2>
+                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center" id="statBoxRoutes">
+                        <p class="text-tntc-textSecondary text-[10px] font-bold uppercase mb-1">Routes Done</p>
+                        <h2 class="text-2xl font-black text-tntc-textPrimary"><span id="campaignRoutesStat" class="text-tntc-accent">0</span> <span class="text-sm text-tntc-textSecondary">/ <span id="campaignTotalRoutesSpan">0</span></span></h2>
                     </div>
-                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start transition-colors" id="statBoxDist">
-                        <div class="flex items-center gap-2 mb-1">
-                            <i data-lucide="milestone" class="w-4 h-4 text-tntc-textSecondary"></i>
-                            <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Distance Covered</p>
-                        </div>
-                        <h2 class="text-2xl font-black text-tntc-distance"><span id="campaignDistStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
+                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center" id="statBoxDist">
+                        <p class="text-tntc-textSecondary text-[10px] font-bold uppercase mb-1">Distance Covered</p>
+                        <h2 class="text-2xl font-black text-tntc-distance"><span id="campaignDistStat">0</span> <span class="text-sm text-tntc-textSecondary">km</span></h2>
                     </div>
-                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center items-center md:items-start col-span-2 md:col-span-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <i data-lucide="navigation" class="w-4 h-4 text-tntc-textSecondary"></i>
-                            <p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider">Total Target</p>
-                        </div>
-                        <h2 class="text-2xl font-black text-tntc-revenue"><span id="campaignTargetStat">0</span> <span class="text-sm font-semibold text-tntc-textSecondary">km</span></h2>
+                    <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center col-span-2 md:col-span-1">
+                        <p class="text-tntc-textSecondary text-[10px] font-bold uppercase mb-1">Total Target</p>
+                        <h2 class="text-2xl font-black text-tntc-revenue"><span id="campaignTargetStat">0</span> <span class="text-sm text-tntc-textSecondary">km</span></h2>
                     </div>
                 </div>
             </div>
 
-            <!-- Routes Table -->
             <div class="bg-tntc-card rounded-xl border border-tntc-muted/30 shadow-xl overflow-hidden mb-6">
-                <div class="p-4 border-b border-tntc-muted/30 bg-[#0a0d14] flex justify-between items-center">
-                    <h3 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-tntc-accent"></i> Official Route Manifest</h3>
-                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse whitespace-nowrap">
                         <thead>
-                            <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tntc-muted/30">
+                            <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] font-semibold uppercase border-b border-tntc-muted/30">
                                 <th class="p-3 sm:p-4 w-12 text-center">No.</th>
                                 <th class="p-3 sm:p-4">Route Path</th>
                                 <th class="p-3 sm:p-4">Target Dist.</th>
@@ -423,25 +382,21 @@
                                 <th class="p-3 sm:p-4 text-right">Details</th>
                             </tr>
                         </thead>
-                        <tbody id="campaignTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium">
-                            <!-- JS injects rows here -->
-                        </tbody>
+                        <tbody id="campaignTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 5: LIVE RIDERS                         -->
-    <!-- ========================================== -->
+    <!-- TAB 5: LIVE RIDERS -->
     <div id="tab-liveriders" class="hidden">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <div>
                 <h2 class="text-2xl md:text-3xl font-black text-tntc-textPrimary uppercase tracking-tight flex items-center gap-3">
                     <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                     </span>
                     Live Division Riders
                 </h2>
@@ -458,20 +413,22 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODALS (EVENT & CAMPAIGN)                  -->
-    <!-- ========================================== -->
+    <!-- MODALS (EVENT & CAMPAIGN) -->
     
     <!-- EVENT MODAL -->
     <div id="eventModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-closed">
-        <div class="custom-modal-content bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden">
-            <div id="modalImageContainer" class="w-full h-40 sm:h-48 bg-tntc-main relative bg-cover bg-center border-b border-tntc-muted/30">
+        <div class="custom-modal-content bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <!-- TOP: Dynamic Cover Image (from Cover Image Sheet based on Month) -->
+            <div id="modalImageContainer" class="w-full h-40 sm:h-48 shrink-0 bg-tntc-main relative bg-cover bg-center border-b border-tntc-muted/30">
                 <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
-                <button onclick="closeModal('eventModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors">
+                <button onclick="closeModal('eventModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="p-5 sm:p-7 -mt-10 relative z-10">
+            
+            <!-- CONTENT: Scrollable Area -->
+            <div class="p-5 sm:p-7 -mt-10 relative z-10 overflow-y-auto custom-scrollbar flex-1">
                 <span id="modalCategory" class="inline-block px-2.5 py-1 bg-tntc-accent/20 text-tntc-accent border border-tntc-accent/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
                 <h2 id="modalEventName" class="text-xl sm:text-2xl font-black text-tntc-textPrimary leading-tight mb-2">Event Name Here</h2>
                 <p class="text-tntc-textSecondary text-sm flex items-center gap-2 mb-6 font-medium">
@@ -483,9 +440,14 @@
                 </h3>
                 <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2"></div>
 
-                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:opacity-90 text-tntc-main font-bold py-3 rounded-lg transition-colors shadow-lg">
+                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:opacity-90 text-tntc-main font-bold py-3 rounded-lg transition-colors shadow-lg mb-4">
                     View on TruckersMP <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i>
                 </a>
+
+                <!-- BOTTOM: Entry Sheet Image (from Column F) -->
+                <div id="modalEntryImageContainer" class="hidden rounded-xl overflow-hidden border border-tntc-muted/30 shadow-md">
+                    <img id="modalEntryImage" src="" alt="Event Entry Details" class="w-full h-auto object-contain">
+                </div>
             </div>
         </div>
     </div>
@@ -522,1045 +484,17 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SCRIPTS                                    -->
+    <!-- LINKED SCRIPTS -->
     <!-- ========================================== -->
+    <script src="core.js"></script>
+    <script src="api.js"></script>
+    <script src="overview.js"></script>
+    <script src="logs_events.js"></script>
+    <script src="tour.js"></script>
+    <script src="liveriders.js"></script>
+    <script src="init.js"></script>
     <script>
         lucide.createIcons();
-
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
-        const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
-        const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; 
-        const LIVE_RIDERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=398596081&single=true&output=csv";
-
-        let kmChartInstance = null;
-        let eventChartInstance = null;
-        let globalJobData = []; 
-        let globalEventData = { headers: [], rows: [] }; 
-        
-        let globalTourData = { headers: [], rows: [] }; 
-        let currentProcessedRoutes = []; 
-        let dynamicTotalTargetDist = 0; 
-        let validCampaignDrivers = new Set(); 
-
-        // NEW: Smart DOM Cache to stop table flickering!
-        let domCache = {};
-        function updateDOMIfChanged(elementId, newHTML) {
-            if (domCache[elementId] !== newHTML) {
-                domCache[elementId] = newHTML;
-                let el = document.getElementById(elementId);
-                if (el) {
-                    el.innerHTML = newHTML;
-                    lucide.createIcons({ root: el }); // Only redraw icons in the changed area
-                }
-            }
-        }
-
-        function toggleCampaign(id) {
-            let content = document.getElementById(id + '-content');
-            let icon = document.getElementById(id + '-chevron');
-            let text = document.getElementById(id + '-toggle-text');
-            if(content.classList.contains('expanded')) {
-                content.classList.remove('expanded');
-                icon.style.transform = 'rotate(0deg)';
-                text.innerText = 'View Manifest';
-            } else {
-                content.classList.add('expanded');
-                icon.style.transform = 'rotate(180deg)';
-                text.innerText = 'Hide Manifest';
-            }
-        }
-
-        function animateValue(id, start, end, duration) {
-            let obj = document.getElementById(id);
-            if (!obj) return;
-            let current = parseInt(obj.innerText.replace(/,/g, '')) || 0;
-            if (current === end) return;
-            let range = end - current;
-            let stepTime = Math.max(Math.abs(Math.floor(duration / range)), 50);
-            let startTime = new Date().getTime();
-            let endTime = startTime + duration;
-            let timer;
-            function run() {
-                let now = new Date().getTime();
-                let remaining = Math.max((endTime - now) / duration, 0);
-                let value = Math.round(end - (remaining * range));
-                obj.innerHTML = value.toLocaleString();
-                if (value == end) clearInterval(timer);
-            }
-            timer = setInterval(run, stepTime);
-            run();
-        }
-
-        function cleanNumber(str) {
-            if (!str) return 0;
-            let sanitized = str.toString().replace(/[^0-9.-]/g, '');
-            return parseFloat(sanitized) || 0;
-        }
-
-        function handleTimeChange(selectId, datePickerId, applyFuncName) {
-            let val = document.getElementById(selectId).value;
-            let dp = document.getElementById(datePickerId);
-            if (val === 'CUSTOM') dp.classList.remove('hidden');
-            else dp.classList.add('hidden');
-            window[applyFuncName](); 
-        }
-
-        function checkDateFilter(timeStr, filterType, customDateStr) {
-            if (filterType === 'ALL') return true;
-            if (!timeStr) return false;
-            let now = new Date();
-            let cleanStr = timeStr.replace(/-/g, ' ');
-            let rowDate = new Date(cleanStr);
-            if (isNaN(rowDate)) return filterType === 'ALL';
-
-            if (filterType === 'TODAY') {
-                return rowDate.toDateString() === now.toDateString();
-            } else if (filterType === 'WEEK') {
-                let startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - now.getDay());
-                startOfWeek.setHours(0,0,0,0);
-                let endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6);
-                endOfWeek.setHours(23,59,59,999);
-                return rowDate >= startOfWeek && rowDate <= endOfWeek;
-            } else if (filterType === 'MONTH') {
-                return rowDate.getMonth() === now.getMonth() && rowDate.getFullYear() === now.getFullYear();
-            } else if (filterType === 'CUSTOM') {
-                if (!customDateStr) return true; 
-                let selectedDate = new Date(customDateStr);
-                return rowDate.toDateString() === selectedDate.toDateString();
-            }
-            return true;
-        }
-
-        function switchTab(tabName) {
-            const tabs = ['overview', 'logs', 'events', 'campaign', 'liveriders'];
-            tabs.forEach(t => {
-                const tabEl = document.getElementById(`tab-${t}`);
-                const btnEl = document.getElementById(`btn-${t}`);
-                if (t === tabName) {
-                    tabEl.classList.remove('hidden');
-                    btnEl.classList.add('tab-active');
-                    btnEl.classList.remove('tab-inactive');
-                } else {
-                    tabEl.classList.add('hidden');
-                    btnEl.classList.remove('tab-active');
-                    btnEl.classList.add('tab-inactive');
-                }
-            });
-            refreshActiveTab();
-        }
-
-        function fetchData(isInitialLoad = false) {
-            if (isInitialLoad) {
-                document.getElementById('syncStatus').innerText = "Syncing with Cloud...";
-                let mobileSync = document.getElementById('syncStatusMobile');
-                if (mobileSync) mobileSync.innerText = "Syncing...";
-            }
-            
-            let timeParam = "t=" + new Date().getTime();
-            let fetchCount = 0;
-            const checkSyncDone = () => {
-                fetchCount++;
-                if(fetchCount >= 3) { 
-                    if (isInitialLoad) {
-                        document.getElementById('syncStatus').innerText = "Live Cloud Sync Active";
-                        let mobileSync = document.getElementById('syncStatusMobile');
-                        if (mobileSync) mobileSync.innerText = "Sync Active";
-                    }
-                    refreshActiveTab();
-                }
-            };
-
-            // 1. Jobs Fetch
-            let jobUrl = GOOGLE_SHEET_CSV_URL + (GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-            Papa.parse(jobUrl, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        const headers = results.data[0];
-                        globalJobData = results.data.slice(1).map(row => {
-                            let obj = {};
-                            headers.forEach((h, i) => { obj[i] = row[i] || ''; });
-                            return obj;
-                        });
-                        populateDriverDropdown(globalJobData);
-                    }
-                    checkSyncDone();
-                }
-            });
-
-            // 2. Events Fetch
-            let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-            Papa.parse(eventUrl, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        let headerIndex = -1;
-                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
-                            let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("EVENT NAME") && (rowStr.includes("CATEGORY") || rowStr.includes("DATE"))) {
-                                headerIndex = i; break;
-                            }
-                        }
-                        if (headerIndex !== -1) {
-                            globalEventData.headers = results.data[headerIndex];
-                            globalEventData.rows = results.data.slice(headerIndex + 1);
-                            populateEventCategoryDropdown();
-                            populateEventDriverDropdown();
-                        }
-                    }
-                    checkSyncDone();
-                }
-            });
-
-            // 3. Campaign (Tour) Fetch
-            let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-            Papa.parse(tourUrl, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        let headerIndex = -1;
-                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
-                            let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
-                                headerIndex = i; break;
-                            }
-                        }
-                        if (headerIndex !== -1) {
-                            globalTourData.headers = results.data[headerIndex];
-                            globalTourData.rows = results.data.slice(headerIndex + 1);
-                        }
-                    }
-                    checkSyncDone();
-                }
-            });
-
-            // 4. Live Riders Fetch
-            if (LIVE_RIDERS_CSV_URL && !LIVE_RIDERS_CSV_URL.includes("🔴")) {
-                let liveUrl = LIVE_RIDERS_CSV_URL + (LIVE_RIDERS_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-                Papa.parse(liveUrl, {
-                    download: true, header: false, skipEmptyLines: true,
-                    complete: function(results) {
-                        renderLiveRiders(results.data);
-                    }
-                });
-            }
-        }
-
-        function refreshActiveTab() {
-            if(!document.getElementById('tab-overview').classList.contains('hidden')) applyOverviewFilter();
-            else if(!document.getElementById('tab-logs').classList.contains('hidden')) applyLogFilters();
-            else if(!document.getElementById('tab-events').classList.contains('hidden')) applyEventFilters();
-            else if(!document.getElementById('tab-campaign').classList.contains('hidden')) processCampaignData();
-        }
-
-        // ==========================================
-        // LIVE RIDERS LOGIC ENGINE
-        // ==========================================
-        function renderLiveRiders(data) {
-            let grid = document.getElementById('liveRidersGrid');
-            if(!grid) return;
-            
-            let validRows = [];
-            data.forEach(row => {
-                // Ignore empty rows or the header row
-                if(row[0] && row[0].toUpperCase() !== 'DRIVER' && row[0].trim() !== '') {
-                    validRows.push(row);
-                }
-            });
-            
-            document.getElementById('activeRiderCount').innerText = validRows.length;
-            
-            if(validRows.length === 0) {
-                updateDOMIfChanged('liveRidersGrid', `
-                <div class="col-span-full bg-tntc-card border border-tntc-muted/30 p-12 rounded-xl text-center shadow-xl flex flex-col items-center justify-center">
-                    <div class="p-4 bg-tntc-main rounded-full border border-tntc-muted/20 mb-4 shadow-inner">
-                        <i data-lucide="coffee" class="w-10 h-10 text-tntc-textSecondary"></i>
-                    </div>
-                    <h3 class="text-xl font-black text-tntc-textPrimary uppercase tracking-wide">No Active Deliveries</h3>
-                    <p class="text-tntc-textSecondary text-sm mt-2 max-w-sm">All division drivers are currently off duty or in deep sleep. Waiting for telemetry link...</p>
-                </div>`);
-                return;
-            }
-            
-            let html = "";
-            validRows.forEach(row => {
-                // Map the 8 columns exact to the python script output
-                let driver = row[0] || 'Unknown';
-                let source_city = row[1] || 'Unknown';
-                let source_company = row[2] || 'Unknown';
-                let dest_city = row[3] || 'Unknown';
-                let dest_company = row[4] || 'Unknown';
-                let cargo = row[5] || 'Unknown';
-                let dist = row[6] || '0 km';
-                let time = row[7] || '';
-                
-                html += `
-                <div class="bg-tntc-card border border-tntc-muted/40 rounded-xl overflow-hidden shadow-xl hover:border-tntc-accent/50 transition-colors group relative flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-tntc-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                    
-                    <div class="p-5 border-b border-tntc-muted/20 bg-[#0a0d14] flex justify-between items-center relative z-10 shrink-0">
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-10 h-10 rounded-full bg-tntc-accent/20 border border-tntc-accent/50 flex items-center justify-center shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                                <i data-lucide="user" class="w-5 h-5 text-tntc-accent"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-black text-tntc-textPrimary uppercase tracking-wide leading-tight">${driver}</h3>
-                                <p class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-wider flex items-center gap-1 mt-0.5">
-                                    <i data-lucide="clock" class="w-3 h-3"></i> Started at ${time}
-                                </p>
-                            </div>
-                        </div>
-                        <span class="flex h-3 w-3 relative ml-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
-                        </span>
-                    </div>
-                    
-                    <div class="p-6 relative z-10 flex-1 flex flex-col justify-between">
-                        <div class="flex flex-col gap-4 mb-6">
-                            <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 rounded-full bg-tntc-main border border-tntc-muted/40 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                                    <i data-lucide="map-pin" class="w-3 h-3 text-tntc-textSecondary"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-wider mb-1">Source</p>
-                                    <p class="text-sm font-bold text-tntc-textPrimary leading-tight">${source_city}</p>
-                                    <p class="text-[10px] font-semibold text-tntc-textSecondary mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-0.5"></i> ${source_company}</p>
-                                </div>
-                            </div>
-                            
-                            <div class="ml-3 border-l-2 border-dashed border-tntc-muted/30 h-6 my-[-16px]"></div>
-                            
-                            <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 rounded-full bg-tntc-distance/20 border border-tntc-distance/50 flex items-center justify-center shrink-0 mt-0.5 shadow-sm shadow-tntc-distance/20">
-                                    <i data-lucide="map-pin" class="w-3 h-3 text-tntc-distance"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] text-tntc-distance font-black uppercase tracking-wider mb-1">Destination</p>
-                                    <p class="text-sm font-bold text-tntc-textPrimary leading-tight">${dest_city}</p>
-                                    <p class="text-[10px] font-semibold text-tntc-textSecondary mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-0.5"></i> ${dest_company}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3 p-3.5 bg-tntc-main rounded-xl border border-tntc-muted/20 shadow-inner">
-                            <div>
-                                <p class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i data-lucide="package" class="w-3 h-3"></i> Cargo</p>
-                                <p class="text-xs font-bold text-tntc-textPrimary truncate" title="${cargo}">${cargo}</p>
-                            </div>
-                            <div class="border-l border-tntc-muted/20 pl-3">
-                                <p class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><i data-lucide="milestone" class="w-3 h-3"></i> Distance</p>
-                                <p class="text-xs font-mono font-bold text-tntc-accent">${dist}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            
-            updateDOMIfChanged('liveRidersGrid', html);
-        }
-
-        // ==========================================
-        // CAMPAIGN LOGIC ENGINE
-        // ==========================================
-        function processCampaignData() {
-            if(!globalTourData.rows || globalTourData.rows.length === 0) {
-                document.getElementById('campaignTableBody').innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Loading Tour Data...</td></tr>`;
-                return;
-            }
-
-            // --- FRONTEND SECURITY LOCK ---
-            let tourStartDate = new Date('2026-08-01T00:00:00');
-            let now = new Date();
-            let isLive = now >= tourStartDate;
-            
-            let badge = document.getElementById('campaignStatusBadge');
-            
-            if (!isLive) {
-                document.getElementById('campaignUpcomingBanner').classList.remove('hidden');
-                document.getElementById('campaignUpcomingBanner').classList.add('flex');
-                if (badge) {
-                    badge.innerText = "COMING SOON";
-                    badge.className = "bg-tntc-revenue text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(250,204,21,0.5)] mb-3 inline-block transition-colors";
-                }
-            } else {
-                document.getElementById('campaignUpcomingBanner').classList.add('hidden');
-                document.getElementById('campaignUpcomingBanner').classList.remove('flex');
-                if (badge) {
-                    badge.innerText = "LIVE CAMPAIGN";
-                    badge.className = "bg-tntc-accent text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(56,189,248,0.5)] mb-3 inline-block transition-colors";
-                }
-            }
-
-            currentProcessedRoutes = [];
-            validCampaignDrivers = new Set();
-            dynamicTotalTargetDist = 0;
-
-            // 1. Identify all valid drivers from the Tour Sheet Header (Starting at Col H / Index 7)
-            for(let i = 7; i < globalTourData.headers.length; i++) {
-                let dName = globalTourData.headers[i];
-                if(dName && dName.trim() !== '') validCampaignDrivers.add(dName.trim());
-            }
-
-            // 2. Process Routes
-            globalTourData.rows.forEach(tourRow => {
-                let id = parseInt(tourRow[0]); 
-                if (isNaN(id) || id <= 0) return;
-
-                let source = (tourRow[1] || '').toString().trim();
-                let dest = (tourRow[3] || '').toString().trim();
-                let dist = cleanNumber(tourRow[5] || '0');
-                let imageLink = (tourRow[6] || '').toString().trim(); 
-
-                dynamicTotalTargetDist += dist; 
-
-                let completedBy = new Set();
-                
-                // Read checkboxes if the tour is live
-                for(let i = 7; i < globalTourData.headers.length; i++) {
-                    let dName = globalTourData.headers[i];
-                    if(!dName || dName.trim() === '') continue;
-                    
-                    let val = (tourRow[i] || '').toString().trim().toUpperCase();
-                    if(val === 'TRUE' || val === '1' || val === 'YES' || val === '✓') {
-                        // 🔒 THE FRONTEND LOCK: Ignore the sheet if it's before Aug 1st!
-                        if (isLive) {
-                            completedBy.add(dName.trim());
-                        }
-                    }
-                }
-
-                currentProcessedRoutes.push({
-                    id: id,
-                    source: source,
-                    dest: dest,
-                    dist: dist,
-                    image: imageLink,
-                    drivers: Array.from(completedBy).sort()
-                });
-            });
-
-            document.getElementById('filterCampaignDriver').innerHTML = '<option value="ALL">All Drivers (Global Progress)</option>';
-            Array.from(validCampaignDrivers).sort().forEach(d => { 
-                document.getElementById('filterCampaignDriver').innerHTML += `<option value="${d}">${d}</option>`; 
-            });
-
-            applyCampaignFilter();
-        }
-
-        function applyCampaignFilter() {
-            let selectedDriver = document.getElementById('filterCampaignDriver').value;
-            let activeDriverCount = validCampaignDrivers.size || 1; 
-            
-            let dispDist = 0;
-            let dispRoutes = 0;
-            let targetDist = 0;
-            let targetRoutes = 0;
-
-            let displayRoutes = [...currentProcessedRoutes];
-
-            currentProcessedRoutes.forEach(r => {
-                let driverCompletes = r.drivers.length;
-                
-                if (selectedDriver === 'ALL') {
-                    // NEW MATH: Multiply distance directly. (e.g. 700km x 3 drivers = 2100km total)
-                    dispDist += (r.dist * driverCompletes);
-                    dispRoutes += driverCompletes;
-                } else {
-                    if (r.drivers.includes(selectedDriver)) {
-                        dispDist += r.dist;
-                        dispRoutes += 1;
-                    }
-                }
-            });
-
-            if (selectedDriver === 'ALL') {
-                // Global Scale Target: Max Dist x Total Drivers
-                targetDist = dynamicTotalTargetDist * activeDriverCount;
-                targetRoutes = currentProcessedRoutes.length * activeDriverCount;
-            } else {
-                targetDist = dynamicTotalTargetDist;
-                targetRoutes = currentProcessedRoutes.length;
-            }
-
-            displayRoutes.sort((a, b) => {
-                let aCompleted = selectedDriver === 'ALL' ? a.drivers.length > 0 : a.drivers.includes(selectedDriver);
-                let bCompleted = selectedDriver === 'ALL' ? b.drivers.length > 0 : b.drivers.includes(selectedDriver);
-                if (aCompleted && !bCompleted) return -1;
-                if (!aCompleted && bCompleted) return 1;
-                return a.id - b.id; 
-            });
-
-            let tableHTML = "";
-            displayRoutes.forEach((route) => {
-                let realIndex = currentProcessedRoutes.findIndex(r => r.id === route.id);
-                let driverCount = route.drivers.length;
-                let isVisuallyCompleted = selectedDriver === 'ALL' ? driverCount > 0 : route.drivers.includes(selectedDriver);
-
-                if (isVisuallyCompleted) {
-                    let statusBadgeHTML = "";
-                    if (selectedDriver === 'ALL') {
-                        statusBadgeHTML = `
-                            <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-tntc-accent/10 text-tntc-accent text-[10px] font-black tracking-widest uppercase rounded border border-tntc-accent/20">
-                                <i data-lucide="users" class="w-3 h-3"></i> ${driverCount} / ${activeDriverCount}
-                            </span>`;
-                    } else {
-                        statusBadgeHTML = `
-                            <span class="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 bg-[#166534]/40 text-tntc-distance text-[10px] font-black tracking-widest uppercase rounded border border-tntc-distance/30">
-                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Verified
-                            </span>`;
-                    }
-
-                    tableHTML += `
-                    <tr class="bg-[#166534]/10 border-l-4 border-tntc-distance transition-colors">
-                        <td class="p-3 sm:p-4 text-tntc-textPrimary font-black text-center">${route.id}</td>
-                        <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold opacity-90"><span class="text-tntc-textSecondary font-normal text-[10px] uppercase block mb-0.5">Route</span>${route.source} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-distance mx-1"></i> ${route.dest}</td>
-                        <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-xs">${route.dist.toLocaleString()} km</td>
-                        <td class="p-3 sm:p-4 text-center">${statusBadgeHTML}</td>
-                        <td class="p-3 sm:p-4 text-right">
-                            <button onclick="openCampaignModal(${realIndex})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-[#166534]/40 hover:border-tntc-distance/50 rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
-                                <i data-lucide="eye" class="w-3 h-3 text-tntc-distance"></i> View
-                            </button>
-                        </td>
-                    </tr>`;
-                } else {
-                    let pendingBadgeHTML = selectedDriver === 'ALL' ? `<span class="text-tntc-textSecondary/40 text-[10px] font-bold">0 / ${activeDriverCount}</span>` : `<span class="inline-flex items-center justify-center px-2 py-1 bg-tntc-muted/10 text-tntc-textSecondary text-[10px] font-bold tracking-wider rounded border border-tntc-muted/20">PENDING</span>`;
-
-                    tableHTML += `
-                    <tr class="hover:bg-tntc-hover transition-colors border-l-4 border-transparent opacity-60 hover:opacity-100">
-                        <td class="p-3 sm:p-4 text-tntc-textSecondary font-bold text-center">${route.id}</td>
-                        <td class="p-3 sm:p-4 text-tntc-textSecondary font-bold"><span class="text-tntc-textSecondary/50 font-normal text-[10px] uppercase block mb-0.5">Route</span>${route.source} <i data-lucide="arrow-right" class="w-3 h-3 inline opacity-50 mx-1"></i> ${route.dest}</td>
-                        <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-xs">${route.dist.toLocaleString()} km</td>
-                        <td class="p-3 sm:p-4 text-center">${pendingBadgeHTML}</td>
-                        <td class="p-3 sm:p-4 text-right">
-                            <button onclick="openCampaignModal(${realIndex})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
-                                <i data-lucide="eye" class="w-3 h-3 text-tntc-accent"></i> View
-                            </button>
-                        </td>
-                    </tr>`;
-                }
-            });
-
-            updateDOMIfChanged('campaignTableBody', tableHTML);
-
-            document.getElementById('campaignTotalRoutesSpan').innerText = targetRoutes;
-            document.getElementById('campaignRoutesStat').innerText = dispRoutes;
-            document.getElementById('campaignTargetStat').innerText = targetDist.toLocaleString();
-            
-            animateValue("campaignDistStat", parseInt(document.getElementById('campaignDistStat').innerText.replace(/,/g, '')) || 0, dispDist, 800);
-            
-            let globalPercent = targetDist > 0 ? ((dispDist / targetDist) * 100).toFixed(1) : 0;
-            
-            if(selectedDriver !== 'ALL') {
-                document.getElementById('statBoxRoutes').classList.add('border-tntc-accent/50', 'bg-tntc-accent/5');
-                document.getElementById('statBoxDist').classList.add('border-tntc-accent/50', 'bg-tntc-accent/5');
-            } else {
-                document.getElementById('statBoxRoutes').classList.remove('border-tntc-accent/50', 'bg-tntc-accent/5');
-                document.getElementById('statBoxDist').classList.remove('border-tntc-accent/50', 'bg-tntc-accent/5');
-            }
-
-            setTimeout(() => {
-                let pBar2 = document.getElementById('campaignCardProgressBar');
-                let pText2 = document.getElementById('campaignCardPercent');
-                if(pBar2) pBar2.style.width = globalPercent + "%";
-                if(pText2) pText2.innerText = globalPercent + "%";
-            }, 50);
-
-            lucide.createIcons();
-        }
-
-        function applyOverviewFilter() {
-            let timeFilter = document.getElementById('overviewTimeFilter').value;
-            let customDate = document.getElementById('overviewDatePicker').value;
-            let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter, customDate));
-            
-            let thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            let driverLastJobDate = {};
-            let originalDriverNames = {}; 
-            
-            globalJobData.forEach(row => {
-                let driverOrig = (row[2] || '').trim();
-                // STRICT UNKNOWN CHECK
-                if (!driverOrig || driverOrig.toUpperCase() === 'UNKNOWN' || driverOrig === '') return;
-
-                let driverKey = driverOrig.toUpperCase(); 
-                let dateStr = row[0] || '';
-                
-                if (!driverKey || !dateStr) return;
-                originalDriverNames[driverKey] = driverOrig;
-                
-                let jobDate = new Date(dateStr.replace(/-/g, ' '));
-                if (!isNaN(jobDate)) {
-                    if (!driverLastJobDate[driverKey] || jobDate > driverLastJobDate[driverKey]) {
-                        driverLastJobDate[driverKey] = jobDate;
-                    }
-                }
-            });
-
-            globalEventData.rows.forEach(row => {
-                for(let i = 6; i < globalEventData.headers.length; i++) {
-                    let origName = (globalEventData.headers[i] || '').trim();
-                    // STRICT UNKNOWN CHECK
-                    if (!origName || origName.toUpperCase() === 'UNKNOWN' || origName === '') continue;
-
-                    let dNameKey = origName.toUpperCase();
-                    let val = (row[i] || '').toString().trim().toUpperCase();
-                    
-                    if(dNameKey && !dNameKey.includes('ATTENDANCE') && val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                        if (!originalDriverNames[dNameKey]) originalDriverNames[dNameKey] = origName;
-                        if (!driverLastJobDate[dNameKey]) {
-                            driverLastJobDate[dNameKey] = new Date(0); 
-                        }
-                    }
-                }
-            });
-
-            let activeDriversSet = new Set();
-            let pastDriversSet = new Set();
-
-            Object.keys(driverLastJobDate).forEach(driverKey => {
-                if (driverLastJobDate[driverKey] >= thirtyDaysAgo) {
-                    activeDriversSet.add(driverKey);
-                } else {
-                    pastDriversSet.add(driverKey);
-                }
-            });
-
-            animateValue("statDrivers", parseInt(document.getElementById('statDrivers').innerText) || 0, activeDriversSet.size, 500);
-
-            processTelemetryData(filteredJobs, activeDriversSet, pastDriversSet, originalDriverNames);
-            processEventData(timeFilter, customDate, activeDriversSet, pastDriversSet, originalDriverNames);
-        }
-
-        function processTelemetryData(rows, activeDriversSet, pastDriversSet, originalDriverNames) {
-            let totalKm = 0, totalRev = 0, totalJobs = rows.length;
-            let driverMap = {};
-            
-            rows.forEach((row) => {
-                let origName = (row[2] || '').trim();
-                if(!origName || origName.toUpperCase() === 'UNKNOWN' || origName === '') return;
-
-                let driverKey = origName.toUpperCase();
-                let drivenKm = cleanNumber(row[12]);
-                let revenue = cleanNumber(row[15]);
-                
-                totalKm += drivenKm; 
-                totalRev += revenue;
-                
-                if (!driverMap[driverKey]) driverMap[driverKey] = { km: 0, jobs: 0 };
-                driverMap[driverKey].km += drivenKm;
-                driverMap[driverKey].jobs += 1;
-            });
-
-            animateValue("statDistance", parseInt(document.getElementById('statDistance').innerText.replace(/,/g, '')) || 0, totalKm, 1000);
-            animateValue("statJobs", parseInt(document.getElementById('statJobs').innerText.replace(/,/g, '')) || 0, totalJobs, 800);
-            animateValue("statRevenue", parseInt(document.getElementById('statRevenue').innerText.replace(/,/g, '')) || 0, totalRev, 1000);
-
-            let activeKMDrivers = [];
-            let pastDriversStats = {};
-
-            Object.keys(driverMap).forEach(dKey => {
-                let displayName = originalDriverNames[dKey] || dKey;
-                if (activeDriversSet.has(dKey)) {
-                    activeKMDrivers.push({ name: displayName, km: driverMap[dKey].km, jobs: driverMap[dKey].jobs });
-                } else {
-                    pastDriversStats[dKey] = { name: displayName, km: driverMap[dKey].km, jobs: driverMap[dKey].jobs, events: 0 };
-                }
-            });
-
-            activeKMDrivers.sort((a, b) => b.km - a.km);
-
-            let leaderboardHTML = "";
-            if (activeKMDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No active logs found.</p>`;
-            else {
-                activeKMDrivers.forEach((d, rank) => {
-                    let badgeClass = rank === 0 ? 'text-tntc-revenue font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p><p class="text-[10px] text-tntc-textSecondary">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-tntc-distance">${d.km.toLocaleString()} km</p></div>`;
-                });
-            }
-            updateDOMIfChanged('kmLeaderboardList', leaderboardHTML);
-            renderKmChart(activeKMDrivers.slice(0, 8)); 
-            
-            window.tempPastDriversStats = pastDriversStats;
-        }
-
-        function processEventData(timeFilter, customDate, activeDriversSet, pastDriversSet, originalDriverNames) {
-            if(!globalEventData.rows.length) return;
-            let totalEvents = 0;
-            let driverEventMap = {};
-            let headers = globalEventData.headers;
-
-            globalEventData.rows.forEach(row => {
-                let dateStr = row[1] || ''; 
-                let nameStr = row[2] || '';
-                if (dateStr.trim() === '' || nameStr.toString().trim() === '') return; 
-
-                if(checkDateFilter(dateStr, timeFilter, customDate)) {
-                    totalEvents++; 
-                    for(let i = 6; i < headers.length; i++) { 
-                        let origName = (headers[i] || '').trim();
-                        if (!origName || origName.toUpperCase() === 'UNKNOWN' || origName === '') continue;
-
-                        let dNameKey = origName.toUpperCase();
-                        if(!dNameKey || dNameKey === '' || dNameKey.includes('ATTENDANCE')) continue;
-                        
-                        let val = (row[i] || '').toString().trim().toUpperCase();
-                        if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                            if(!driverEventMap[dNameKey]) driverEventMap[dNameKey] = 0;
-                            driverEventMap[dNameKey]++;
-                        }
-                    }
-                }
-            });
-
-            animateValue("statEvents", parseInt(document.getElementById('statEvents').innerText) || 0, totalEvents, 800);
-
-            let activeEventDrivers = [];
-            let pastStats = window.tempPastDriversStats || {};
-
-            Object.keys(driverEventMap).forEach(dKey => {
-                let displayName = originalDriverNames[dKey] || dKey;
-                if (activeDriversSet.has(dKey)) {
-                    activeEventDrivers.push({ name: displayName, events: driverEventMap[dKey] });
-                } else {
-                    if (!pastStats[dKey]) pastStats[dKey] = { name: displayName, km: 0, jobs: 0, events: 0 };
-                    pastStats[dKey].events = driverEventMap[dKey];
-                }
-            });
-
-            activeEventDrivers.sort((a, b) => b.events - a.events);
-
-            let leaderboardHTML = "";
-            if (activeEventDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No events found.</p>`;
-            else {
-                activeEventDrivers.forEach((d, rank) => {
-                    let badgeClass = rank === 0 ? 'text-tntc-accent font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-tntc-accent">${d.events} Convoys</p></div>`;
-                });
-            }
-            updateDOMIfChanged('eventLeaderboardList', leaderboardHTML);
-            renderEventChart(activeEventDrivers.slice(0, 8)); 
-            
-            renderPastDrivers(pastStats);
-        }
-
-        function renderPastDrivers(pastStats) {
-            let pastArray = Object.keys(pastStats).map(dKey => ({
-                name: pastStats[dKey].name || dKey,
-                km: pastStats[dKey].km || 0,
-                events: pastStats[dKey].events || 0
-            })).filter(d => d.name.toUpperCase() !== 'UNKNOWN' && d.name !== ''); // Final strict filter
-
-            pastArray.sort((a, b) => b.km - a.km);
-
-            let pastHTML = "";
-            if (pastArray.length === 0) {
-                pastHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No past members found.</p>`;
-            } else {
-                pastArray.forEach(d => {
-                    pastHTML += `
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/10 opacity-70 hover:opacity-100 transition-opacity">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="user-minus" class="w-4 h-4 text-tntc-textSecondary"></i>
-                            <div>
-                                <p class="text-xs font-bold text-tntc-textSecondary">${d.name}</p>
-                                <p class="text-[9px] text-tntc-textSecondary/60">${d.events} Events</p>
-                            </div>
-                        </div>
-                        <p class="text-xs font-mono font-semibold text-tntc-textSecondary">${d.km.toLocaleString()} km</p>
-                    </div>`;
-                });
-            }
-            updateDOMIfChanged('pastLeaderboardList', pastHTML);
-        }
-
-        function populateDriverDropdown(rows) {
-            let drivers = new Set();
-            rows.forEach(row => { 
-                let d = (row[2] || '').trim(); 
-                if(d && d.toUpperCase() !== 'UNKNOWN' && d !== '') drivers.add(d); 
-            });
-            let dropdown = document.getElementById('filterDriver');
-            let currentVal = dropdown.value; 
-            dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
-            Array.from(drivers).sort().forEach(d => { dropdown.innerHTML += `<option value="${d}">${d}</option>`; });
-            dropdown.value = currentVal || 'ALL';
-        }
-
-        function applyLogFilters() {
-            let driverFilter = document.getElementById('filterDriver').value;
-            let timeFilter = document.getElementById('filterTime').value;
-            let customDate = document.getElementById('jobDatePicker').value;
-            let filteredKm = 0;
-            let filteredJobs = [];
-            let recentRows = [...globalJobData].reverse(); 
-
-            recentRows.forEach(row => {
-                let dName = (row[2] || '').trim();
-                if(!dName || dName.toUpperCase() === 'UNKNOWN' || dName === '') return;
-                
-                let timeStr = row[0] || '';
-                let drivenKm = cleanNumber(row[12]);
-                if (driverFilter !== 'ALL' && dName !== driverFilter) return;
-                if (!checkDateFilter(timeStr, timeFilter, customDate)) return;
-                filteredKm += drivenKm;
-                filteredJobs.push(row);
-            });
-
-            document.getElementById('filteredTotalKm').innerText = filteredKm.toLocaleString() + " km";
-            let tableHTML = "";
-            if(filteredJobs.length === 0) tableHTML = `<tr><td colspan="6" class="p-6 text-center text-tntc-textSecondary">No jobs found.</td></tr>`;
-            else {
-                filteredJobs.slice(0, 100).forEach(row => {
-                    let dName = (row[2] || '').trim();
-                    tableHTML += `<tr class="hover:bg-tntc-hover transition-colors"><td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${dName}</td><td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-accent mx-1"></i> ${row[7] || '--'}</td><td class="p-3 sm:p-4 text-tntc-textSecondary text-xs">${row[3] || '--'}</td><td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td><td class="p-3 sm:p-4 text-tntc-revenue font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td></tr>`;
-                });
-            }
-            updateDOMIfChanged('filteredJobTableBody', tableHTML);
-        }
-
-        function populateEventCategoryDropdown() {
-            let categories = new Set();
-            globalEventData.rows.forEach(row => {
-                let dateStr = row[1] || ''; let nameStr = row[2] || '';
-                if (dateStr.trim() === '' || nameStr.toString().trim() === '') return;
-                let cat = row[4]; 
-                if(cat && cat.trim() !== '') categories.add(cat.trim().toUpperCase());
-            });
-            let dropdown = document.getElementById('filterEventCategory');
-            let currentVal = dropdown.value; 
-            dropdown.innerHTML = '<option value="ALL">All Categories</option>';
-            Array.from(categories).sort().forEach(c => { dropdown.innerHTML += `<option value="${c}">${c}</option>`; });
-            dropdown.value = currentVal || 'ALL';
-        }
-
-        function populateEventDriverDropdown() {
-            let drivers = new Set();
-            for(let i = 6; i < globalEventData.headers.length; i++) {
-                let dName = (globalEventData.headers[i] || '').trim();
-                if(dName && dName.toUpperCase() !== 'UNKNOWN' && dName !== '' && !dName.toUpperCase().includes('ATTENDANCE')) {
-                    drivers.add(dName);
-                }
-            }
-            let dropdown = document.getElementById('filterEventDriver');
-            let currentVal = dropdown.value; 
-            dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
-            Array.from(drivers).sort().forEach(d => { dropdown.innerHTML += `<option value="${d}">${d}</option>`; });
-            dropdown.value = currentVal || 'ALL';
-        }
-
-        function applyEventFilters() {
-            let catFilter = document.getElementById('filterEventCategory').value;
-            let driverFilter = document.getElementById('filterEventDriver').value;
-            let timeFilter = document.getElementById('filterEventTime').value;
-            let customDate = document.getElementById('eventDatePicker').value;
-            currentFilteredEvents = []; 
-
-            let recentEvents = [...globalEventData.rows].reverse();
-            let headers = globalEventData.headers;
-
-            recentEvents.forEach(row => {
-                let dateStr = row[1] || ''; 
-                let nameStr = row[2] || '';
-                if (dateStr.trim() === '' || nameStr.toString().trim() === '') return; 
-
-                let category = (row[4] || '').trim().toUpperCase(); 
-                if (catFilter !== 'ALL' && category !== catFilter) return;
-                if (!checkDateFilter(dateStr, timeFilter, customDate)) return;
-
-                if (driverFilter !== 'ALL') {
-                    let driverIdx = headers.indexOf(driverFilter);
-                    if (driverIdx === -1) return;
-                    let val = (row[driverIdx] || '').toString().trim().toUpperCase();
-                    if (val === '' || val === 'FALSE' || val === '0' || val === '☐' || val === 'NO') return; 
-                }
-
-                let driversAttended = [];
-                for(let i = 6; i < headers.length; i++) {
-                    let dName = (headers[i] || '').trim();
-                    if(!dName || dName.toUpperCase() === 'UNKNOWN' || dName === '' || dName.toUpperCase().includes('ATTENDANCE')) continue;
-                    let val = (row[i] || '').toString().trim().toUpperCase();
-                    if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                        driversAttended.push(dName);
-                    }
-                }
-
-                currentFilteredEvents.push({
-                    date: dateStr,
-                    name: row[2] || 'Unknown Event',
-                    link: row[3] || '#',
-                    category: category,
-                    image: row[5] || '', 
-                    attendance: driversAttended.length,
-                    drivers: driversAttended
-                });
-            });
-
-            document.getElementById('filteredTotalEvents').innerText = currentFilteredEvents.length;
-
-            let tableHTML = "";
-            if(currentFilteredEvents.length === 0) tableHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No events found.</td></tr>`;
-            else {
-                currentFilteredEvents.slice(0, 100).forEach((ev, index) => {
-                    let badgeColor = ev.category.includes('PRIVATE') ? 'bg-purple-900/30 text-purple-400 border border-purple-500/30' : 'bg-tntc-muted/20 text-tntc-accent border border-tntc-muted/30';
-                    tableHTML += `
-                    <tr class="hover:bg-tntc-hover transition-colors">
-                        <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${ev.date}</td>
-                        <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider ${badgeColor}">${ev.category}</span></td>
-                        <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold text-sm max-w-[200px] truncate" title="${ev.name}">${ev.name}</td>
-                        <td class="p-3 sm:p-4 text-center text-tntc-accent font-black">${ev.attendance} <i data-lucide="users" class="w-4 h-4 inline ml-1 opacity-70"></i></td>
-                        <td class="p-3 sm:p-4 text-right">
-                            <button onclick="openEventModal(${index})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
-                                <i data-lucide="eye" class="w-3 h-3 text-tntc-accent"></i> View
-                            </button>
-                        </td>
-                    </tr>`;
-                });
-            }
-            updateDOMIfChanged('filteredEventTableBody', tableHTML);
-        }
-
-        function closeModal(modalId) {
-            let modal = document.getElementById(modalId);
-            modal.classList.remove('modal-open');
-            modal.classList.add('modal-closed');
-        }
-
-        document.querySelectorAll('.custom-modal').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if(e.target === this) closeModal(this.id);
-            });
-        });
-
-        function openEventModal(index) {
-            let ev = currentFilteredEvents[index];
-            if(!ev) return;
-            try {
-                document.getElementById('modalEventName').textContent = ev.name || 'Unknown Event';
-                document.getElementById('modalDate').textContent = ev.date || 'No Date';
-                document.getElementById('modalCategory').textContent = ev.category || 'EVENT';
-                document.getElementById('modalAttendanceCount').textContent = ev.attendance || '0';
-
-                let imgContainer = document.getElementById('modalImageContainer');
-                if(ev.image && typeof ev.image === 'string' && ev.image.startsWith('http')) {
-                    imgContainer.style.backgroundImage = `url('${ev.image}')`;
-                } else {
-                    imgContainer.style.backgroundImage = `linear-gradient(to right, #05070a, #0c1017)`;
-                }
-
-                let linkBtn = document.getElementById('modalLinkBtn');
-                if(ev.link && ev.link !== '#' && ev.link.startsWith('http')) {
-                    linkBtn.href = ev.link;
-                    linkBtn.style.display = 'block';
-                } else {
-                    linkBtn.style.display = 'none';
-                }
-
-                let driversHTML = "";
-                if(ev.drivers && ev.drivers.length > 0) {
-                    ev.drivers.forEach(d => {
-                        driversHTML += `<span class="bg-tntc-main border border-tntc-muted/40 text-tntc-accent px-3 py-1.5 rounded-md text-xs font-bold tracking-wide shadow-sm">${d}</span>`;
-                    });
-                } else {
-                    driversHTML = `<p class="text-tntc-textSecondary text-xs italic w-full">No drivers logged for this event.</p>`;
-                }
-                document.getElementById('modalDriversList').innerHTML = driversHTML;
-
-                let modal = document.getElementById('eventModal');
-                modal.classList.remove('modal-closed');
-                modal.classList.add('modal-open');
-            } catch (err) { console.error("Modal Error:", err); }
-        }
-
-        function openCampaignModal(index) {
-            let route = currentProcessedRoutes[index];
-            if(!route) return;
-            try {
-                document.getElementById('campModalId').textContent = route.id;
-                document.getElementById('campModalSource').textContent = route.source;
-                document.getElementById('campModalDest').textContent = route.dest;
-                document.getElementById('campModalDist').textContent = route.dist.toLocaleString();
-                document.getElementById('campModalCount').textContent = route.drivers.length;
-                document.getElementById('campModalTotalDrivers').textContent = validCampaignDrivers.size;
-
-                let headerDiv = document.getElementById('campModalHeader');
-                if (route.image && route.image.startsWith('http')) {
-                    headerDiv.style.backgroundImage = `url('${route.image}')`;
-                    headerDiv.innerHTML = `
-                        <div class="absolute inset-0 bg-gradient-to-t from-tntc-card via-tntc-card/50 to-transparent z-0"></div>
-                        <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>`;
-                } else {
-                    headerDiv.style.backgroundImage = `url('https://i.postimg.cc/9F7K94r8/map-pattern.png')`;
-                    headerDiv.innerHTML = `
-                        <div class="absolute inset-0 opacity-20 bg-tntc-accent z-0"></div>
-                        <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>`;
-                }
-
-                let driversHTML = "";
-                if(route.drivers && route.drivers.length > 0) {
-                    route.drivers.forEach(d => {
-                        driversHTML += `<span class="bg-[#166534]/40 border border-tntc-distance/30 text-tntc-distance px-3 py-1.5 rounded-md text-xs font-bold tracking-wide shadow-sm flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3"></i> ${d}</span>`;
-                    });
-                } else {
-                    driversHTML = `<p class="text-tntc-textSecondary text-xs italic w-full">Nobody has completed this route yet.</p>`;
-                }
-                document.getElementById('campModalDriversList').innerHTML = driversHTML;
-                lucide.createIcons();
-
-                let modal = document.getElementById('campaignModal');
-                modal.classList.remove('modal-closed');
-                modal.classList.add('modal-open');
-            } catch (err) { console.error("Campaign Modal Error:", err); }
-        }
-
-        function renderKmChart(topDrivers) {
-            const labels = topDrivers.map(d => d.name);
-            const dataKm = topDrivers.map(d => d.km);
-            
-            // SMART FIX: Update existing chart instead of destroying it
-            if (kmChartInstance) {
-                kmChartInstance.data.labels = labels;
-                kmChartInstance.data.datasets[0].data = dataKm;
-                kmChartInstance.update(); 
-                return;
-            }
-
-            const ctx = document.getElementById('kmBarChart').getContext('2d');
-            let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(74, 222, 128, 0.8)'); 
-            gradient.addColorStop(1, 'rgba(74, 222, 128, 0.1)');
-            kmChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataKm, backgroundColor: gradient, borderColor: '#4ade80', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(2, 132, 199, 0.2)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
-        }
-
-        function renderEventChart(topEventDrivers) {
-            const labels = topEventDrivers.map(d => d.name);
-            const dataEvents = topEventDrivers.map(d => d.events);
-            
-            // SMART FIX: Update existing chart instead of destroying it
-            if (eventChartInstance) {
-                eventChartInstance.data.labels = labels;
-                eventChartInstance.data.datasets[0].data = dataEvents;
-                eventChartInstance.update();
-                return;
-            }
-
-            const ctx = document.getElementById('eventBarChart').getContext('2d');
-            let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(56, 189, 248, 0.8)'); 
-            gradient.addColorStop(1, 'rgba(56, 189, 248, 0.1)');
-            eventChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataEvents, backgroundColor: gradient, borderColor: '#38bdf8', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(2, 132, 199, 0.2)' }, ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
-        }
-
-        // Initialize with 'true' to show first load UI, then run silently every 15s
-        fetchData(true);
-        setInterval(() => fetchData(false), 15000); 
     </script>
 </body>
 </html>
