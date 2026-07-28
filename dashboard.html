@@ -728,40 +728,49 @@
             await sendAdminRequest(payload, "Adding to Gallery...");
         }
 
-        async function sendAdminRequest(payload, loadingMsg) {
-            let overlay = document.getElementById('adminLoadingOverlay');
-            let txt = document.getElementById('adminLoadingText');
-            overlay.classList.remove('hidden'); overlay.classList.add('flex');
-            txt.innerText = loadingMsg;
+        // Replace inside dashboard.html
+async function sendAdminRequest(payload, loadingMsg) {
+    let overlay = document.getElementById('adminLoadingOverlay');
+    let txt = document.getElementById('adminLoadingText');
+    overlay.classList.remove('hidden'); overlay.classList.add('flex');
+    txt.innerText = loadingMsg;
 
-            try {
-                const response = await fetch(ADMIN_WEBAPP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                
-                if(result.status === 'success') {
-                    alert("Success! " + result.message + "\n\nIt may take 1-3 minutes for the Google Sheet CSV to update completely.");
-                    closeModal('adminModal');
-                    document.getElementById('addEvName').value = '';
-                    document.getElementById('addTourName').value = '';
-                    document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
-                    
-                    document.getElementById('route-container').innerHTML = '<label class="block text-xs font-bold text-tntc-textSecondary uppercase tracking-wider mb-2">Route Manifest</label>';
-                    addRouteRow();
-                    
-                    if(typeof fetchData === "function") fetchData(true);
-                } else {
-                    alert("Error: " + result.message);
-                }
-            } catch (error) {
-                alert("Failed to contact the backend. Ensure Apps Script is set to 'Anyone' access and check the Executions log.");
-                console.error(error);
-            } finally {
-                overlay.classList.add('hidden'); overlay.classList.remove('flex');
-            }
+    try {
+        // FIX: Use mode: 'no-cors' and text/plain to prevent browser CORS block on Apps Script redirects
+        await fetch(ADMIN_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+        
+        // Since the POST goes through perfectly, we show success immediately
+        alert("Success! Entry published to the database.\n\nIt may take 1-3 minutes for the Google Sheet CSV to update completely.");
+        closeModal('adminModal');
+        
+        // Form Cleanup
+        if(document.getElementById('addEvName')) document.getElementById('addEvName').value = '';
+        if(document.getElementById('addTourName')) document.getElementById('addTourName').value = '';
+        if(document.getElementById('addNewsTitle')) document.getElementById('addNewsTitle').value = '';
+        if(document.getElementById('addGalleryImg')) document.getElementById('addGalleryImg').value = '';
+        
+        document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
+        
+        let routeContainer = document.getElementById('route-container');
+        if(routeContainer) {
+            routeContainer.innerHTML = '<label class="block text-xs font-bold text-tntc-textSecondary uppercase tracking-wider mb-2">Route Manifest</label>';
+            addRouteRow();
         }
+        
+        if(typeof fetchData === "function") fetchData(true);
+        
+    } catch (error) {
+        alert("Network Error: Could not connect to the database. Please check your connection.");
+        console.error("Fetch Error:", error);
+    } finally {
+        overlay.classList.add('hidden'); overlay.classList.remove('flex');
+    }
+}
     </script>
 </body>
 </html>

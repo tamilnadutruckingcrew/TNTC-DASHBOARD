@@ -18,12 +18,20 @@ async function fetchData(isInitialLoad = false) {
         syncEl.classList.add('text-tntc-textPrimary');
     }
 
+    let jobsLoaded = false;
+    let eventsLoaded = false;
+
+    function checkAndRenderOverview() {
+        if (jobsLoaded && eventsLoaded) {
+            if(typeof applyOverviewFilter === "function") applyOverviewFilter();
+        }
+    }
+
     try {
-        // 1. Fetch Event Covers for the Modals
         Papa.parse(EVENT_COVERS_CSV_URL, {
             download: true,
             header: true,
-            skipEmptyLines: true,
+            skipEmptyLines: 'greedy',
             complete: function(results) {
                 globalEventCovers = {};
                 results.data.forEach(row => {
@@ -34,40 +42,48 @@ async function fetchData(isInitialLoad = false) {
             }
         });
 
-        // 2. Fetch Event Data
         Papa.parse(EVENT_SHEET_CSV_URL, {
             download: true,
             header: false,
-            skipEmptyLines: true,
+            skipEmptyLines: 'greedy', 
             complete: function(results) {
-                if (results.data.length > 1) {
-                    globalEventData.headers = results.data[0];
-                    globalEventData.rows = results.data.slice(1);
+                if (results.data.length > 0) {
+                    let headerIndex = 0;
+                    for (let i = 0; i < Math.min(5, results.data.length); i++) {
+                        let colB = String(results.data[i][1]).toUpperCase();
+                        let colC = String(results.data[i][2]).toUpperCase();
+                        if (colB.includes('DATE') || colC.includes('EVENT')) {
+                            headerIndex = i;
+                            break;
+                        }
+                    }
+                    globalEventData.headers = results.data[headerIndex];
+                    globalEventData.rows = results.data.slice(headerIndex + 1);
                     
-                    // Trigger the dropdown builders, pagination renderers, and overview refresh
                     if(typeof populateEventCategoryDropdown === "function") populateEventCategoryDropdown();
                     if(typeof populateEventDriverDropdown === "function") populateEventDriverDropdown();
                     if(typeof applyEventFilters === "function") applyEventFilters(); 
-                    if(typeof applyOverviewFilter === "function") applyOverviewFilter(); // <--- ADD THIS LINE
                 }
+                eventsLoaded = true;
+                checkAndRenderOverview();
             }
         });
         
-        // 3. Fetch Job Logs
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true,
             header: false,
-            skipEmptyLines: true,
+            skipEmptyLines: 'greedy',
             complete: function(results) {
-                if (results.data.length > 1) {
-                    globalJobData = results.data.slice(1);
+                if (results.data.length > 0) {
+                    let startIdx = String(results.data[0][0]).toUpperCase().includes('TIME') ? 1 : 0;
+                    globalJobData = results.data.slice(startIdx);
                     
                     if(typeof populateDriverDropdowns === "function") populateDriverDropdowns();
-                    
-                    // Trigger pagination and the overview dashboard charts
                     if(typeof applyLogFilters === "function") applyLogFilters();
-                    if(typeof applyOverviewFilter === "function") applyOverviewFilter();
                 }
+                
+                jobsLoaded = true;
+                checkAndRenderOverview();
                 
                 if (syncEl) {
                     syncEl.innerText = "Database Synced";
@@ -77,6 +93,8 @@ async function fetchData(isInitialLoad = false) {
             },
             error: function(err) {
                 console.error("PapaParse Job Fetch Error:", err);
+                jobsLoaded = true;
+                checkAndRenderOverview();
                 if (syncEl) {
                     syncEl.innerText = "Sync Error";
                     syncEl.classList.replace('text-tntc-textPrimary', 'text-tntc-admin');
@@ -105,24 +123,21 @@ function populateDriverDropdowns() {
         }
     });
     
-    // Save current selection so it doesn't reset while polling
     let currentJobDriver = jobDriverFilter.value;
-    
     jobDriverFilter.innerHTML = '<option value="ALL">All Drivers</option>';
     Array.from(drivers).sort().forEach(d => { 
-        // We use the normalized key as value, and original format for display
         jobDriverFilter.innerHTML += `<option value="${d}">${d}</option>`; 
     });
-    
     jobDriverFilter.value = currentJobDriver || 'ALL';
 }
+
 function fetchLiveRidersOnly() {
     if (typeof LIVE_RIDERS_CSV_URL === 'undefined') return;
     
     Papa.parse(LIVE_RIDERS_CSV_URL, {
         download: true,
         header: false,
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
         complete: function(results) {
             if (results.data && typeof renderLiveRiders === "function") {
                 renderLiveRiders(results.data);

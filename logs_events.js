@@ -54,8 +54,6 @@ function applyLogFilters() {
     let customDate = jobDatePickerEl.value;
     
     let filteredKm = 0;
-    
-    // Reset global filtered array for pagination
     globalFilteredJobs = [];
     let recentRows = [...globalJobData].reverse(); 
 
@@ -77,7 +75,6 @@ function applyLogFilters() {
     let filteredTotalKmEl = document.getElementById('filteredTotalKm');
     if(filteredTotalKmEl) filteredTotalKmEl.innerText = filteredKm.toLocaleString() + " km";
     
-    // Start rendering at page 1 after filtering
     renderJobPage(1);
 }
 
@@ -148,7 +145,6 @@ function applyEventFilters() {
     let recentEvents = [...globalEventData.rows].reverse();
     let headers = globalEventData.headers;
 
-    // Safety check in case headers didn't load properly
     if (!headers || headers.length === 0) return;
 
     recentEvents.forEach(row => {
@@ -169,9 +165,8 @@ function applyEventFilters() {
             
             let driverAttended = false;
             matchingCols.forEach(colIdx => {
-                let val = String(row[colIdx] || '').trim().toUpperCase();
-                // Explicit check for checked box values
-                if(val === 'TRUE' || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
+                let val = String(row[colIdx] || '').replace(/["']/g, '').trim().toUpperCase();
+                if(val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
                     driverAttended = true;
                 }
             });
@@ -184,9 +179,8 @@ function applyEventFilters() {
             let normKey = normalizeKey(origName);
             if(!normKey || normKey === 'UNKNOWN' || normKey.includes('ATTENDANCE')) continue;
             
-            let val = String(row[i] || '').trim().toUpperCase();
-            // Explicit check for checked box values
-            if(val === 'TRUE' || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
+            let val = String(row[i] || '').replace(/["']/g, '').trim().toUpperCase();
+            if(val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
                 driversAttended.push(origName); 
             }
         }
@@ -205,7 +199,6 @@ function applyEventFilters() {
     let filteredTotalEventsEl = document.getElementById('filteredTotalEvents');
     if(filteredTotalEventsEl) filteredTotalEventsEl.innerText = window.currentFilteredEvents.length;
 
-    // Trigger pagination render starting at page 1
     renderEventPage(1);
 }
 

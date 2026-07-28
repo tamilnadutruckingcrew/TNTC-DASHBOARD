@@ -3,8 +3,8 @@
 // ==========================================
 
 const JOB_LOGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv"; 
-const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=0&single=true&output=csv"; 
-const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=323596247&single=true&output=csv";
+const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
+const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
 const APP_URL = "https://script.google.com/macros/s/AKfycbzvotvrNlRG82W5XIjfkyljzhhZ2508umguh2yLulnLcmXCEuLB2mhhokra6zfcJTQmaA/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function loadStatsAndMarquee() {
     let marqueeEl = document.getElementById('marqueeData');
-    if(!marqueeEl) return; // Skip if not on home page
+    if(!marqueeEl) return; 
 
     Papa.parse(JOB_LOGS_CSV_URL, {
         download: true,
         header: false,
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
         complete: function(results) {
             const rows = results.data;
             let totalDist = 0;
@@ -134,21 +134,21 @@ function drawOrbitCurve(progress) {
 }
 
 function loadNews() {
+    let container = document.getElementById('newsContainer');
+    if(!container) return; 
+
     if(NEWS_CSV_URL.includes("YOUR_")) return;
+    
     Papa.parse(NEWS_CSV_URL, { 
         download: true, 
         header: true, 
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
         complete: function(results) {
-            let container = document.getElementById('newsContainer');
-            if(!container) return; // Safe check for homepage container
-
             if(results.data && results.data.length > 0 && results.data[0].TITLE) {
                 let newsSection = document.getElementById('news');
                 if(newsSection) newsSection.classList.remove('hidden');
                 
                 let html = "";
-                // Show latest 3 items as preview on home page
                 let previewItems = results.data.slice(0, 3);
                 
                 previewItems.forEach(item => {
@@ -183,21 +183,21 @@ function loadNews() {
 }
 
 function loadGallery() {
+    let container = document.getElementById('galleryContainer');
+    if(!container) return; 
+
     if(GALLERY_CSV_URL.includes("YOUR_")) return;
+    
     Papa.parse(GALLERY_CSV_URL, { 
         download: true, 
         header: true, 
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
         complete: function(results) {
-            let container = document.getElementById('galleryContainer');
-            if(!container) return; // Safe check for homepage container
-
             if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
                 let gallerySection = document.getElementById('gallery');
                 if(gallerySection) gallerySection.classList.remove('hidden');
 
                 let html = "";
-                // Show latest 4 images as preview on home page
                 let previewImages = results.data.slice(0, 4);
 
                 previewImages.forEach(item => {
@@ -214,7 +214,6 @@ function loadGallery() {
     });
 }
 
-// --- SECURITY GATEWAY & DOWNLOAD LOGIN ---
 let redirectTarget = "dashboard.html"; 
 
 function secureDownloadLogin() {
@@ -281,6 +280,8 @@ async function submitApplication(e) {
     try {
         await fetch(APP_URL, {
             method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
         btn.innerText = "Application Sent!";

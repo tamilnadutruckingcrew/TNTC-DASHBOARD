@@ -181,8 +181,8 @@ function fetchSpecificTourData(tourObj) {
                 
                 let completedBy = [];
                 driverCols.forEach(dc => {
-                    let val = String(row[dc.index]).toUpperCase().trim();
-                    if(val === 'TRUE' || val === '✓' || val === 'YES') {
+                    let val = String(row[dc.index] || '').replace(/["']/g, '').trim().toUpperCase();
+                    if(val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
                         completedBy.push(dc.name);
                     }
                 });
