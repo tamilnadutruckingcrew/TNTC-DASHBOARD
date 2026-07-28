@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadStatsAndMarquee() {
+    let marqueeEl = document.getElementById('marqueeData');
+    if(!marqueeEl) return; // Skip if not on home page
+
     Papa.parse(JOB_LOGS_CSV_URL, {
         download: true,
         header: false,
@@ -27,7 +30,6 @@ function loadStatsAndMarquee() {
             let totalJobs = 0;
             let recentJobsList = [];
 
-            // Skip header row (i = 1) and calculate array indexes
             for(let i = 1; i < rows.length; i++) {
                 let row = rows[i];
                 let driverName = String(row[2] || '').trim();
@@ -46,7 +48,6 @@ function loadStatsAndMarquee() {
                 }
             }
             
-            // Build Marquee Content
             let marqueeHtml = "";
             let topRecent = recentJobsList.slice(-10).reverse(); 
             topRecent.forEach(job => {
@@ -60,8 +61,6 @@ function loadStatsAndMarquee() {
                 </span>`;
             });
 
-            // Update Marquee with seamless repeating block
-            let marqueeEl = document.getElementById('marqueeData');
             if (marqueeEl) {
                 if (marqueeHtml === "") marqueeHtml = `<span class="text-tntc-textSecondary">Waiting for new jobs...</span>`;
                 let repeatingBlock = `<span class="inline-flex items-center">${marqueeHtml}</span>`;
@@ -69,17 +68,14 @@ function loadStatsAndMarquee() {
                 if(typeof lucide !== 'undefined') lucide.createIcons({ root: marqueeEl });
             }
 
-            // Mathematical Orbits Calculation (Fixed to match 400x scale on the UI)
             const earthOrbitKm = 40075;
             const exactOrbits = totalDist / earthOrbitKm;
             const orbits = Math.floor(exactOrbits);
             const kmToNextOrbit = earthOrbitKm - (totalDist % earthOrbitKm);
             
-            // The SVG curve maps from 0 to 400 orbits. 
             let progressDecimal = exactOrbits / 400; 
             if (progressDecimal > 1) progressDecimal = 1; 
 
-            // Animate Numbers
             animateValue("statDistance", 0, totalDist, 2500);
             animateValue("statJobs", 0, totalJobs, 2500);
             animateValue("statOrbits", 0, orbits, 2500);
@@ -88,12 +84,11 @@ function loadStatsAndMarquee() {
             let orbitCountDisplay = document.getElementById('orbitCountDisplay');
             if(orbitCountDisplay) orbitCountDisplay.innerText = orbits;
 
-            // Draw SVG Curve Animation
             drawOrbitCurve(progressDecimal);
         },
         error: function(err) {
             console.error("PapaParse Network Error:", err);
-            document.getElementById('marqueeData').innerHTML = `<span class="text-red-500 font-bold">Error connecting to VTC Database.</span>`;
+            if(marqueeEl) marqueeEl.innerHTML = `<span class="text-red-500 font-bold">Error connecting to VTC Database.</span>`;
         }
     });
 }
@@ -107,7 +102,6 @@ function animateValue(id, start, end, duration) {
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
         let val = Math.floor(progress * (end - start) + start);
         
-        // Add K or M suffixes for cleaner numbers
         if (val >= 1000000) {
             obj.innerHTML = (val / 1000000).toFixed(1) + '<span class="text-3xl ml-1 font-bold">M</span>';
         } else if (val >= 1000 && id !== 'statOrbits') {
@@ -131,10 +125,7 @@ function drawOrbitCurve(progress) {
     path.style.strokeDashoffset = length;
     
     setTimeout(() => {
-        // Draw the line based on progress
         path.style.strokeDashoffset = length - (length * progress);
-        
-        // Move truck along path
         const point = path.getPointAtLength(length * progress);
         truck.style.left = `${(point.x / 1000) * 100}%`;
         truck.style.top = `${(point.y / 200) * 100}%`;
@@ -144,67 +135,103 @@ function drawOrbitCurve(progress) {
 
 function loadNews() {
     if(NEWS_CSV_URL.includes("YOUR_")) return;
-    Papa.parse(NEWS_CSV_URL, { download: true, header: true, complete: function(results) {
-        if(results.data && results.data.length > 0 && results.data[0].TITLE) {
-            document.getElementById('news').classList.remove('hidden');
-            let html = "";
-            results.data.forEach(item => {
-                if(item.TITLE) {
-                    html += `
-                    <div class="bg-tntc-card border border-tntc-muted/50 rounded-xl overflow-hidden hover:border-tntc-accent/50 transition-colors group">
-                        <img src="${item.IMAGE_URL}" class="w-full h-48 object-cover opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.src='https://placehold.co/600x400/0a0e14/06b6d4?text=TNTC+News'">
-                        <div class="p-6">
-                            <span class="text-[10px] text-tntc-accent font-bold uppercase tracking-widest">${item.CATEGORY}</span>
-                            <h3 class="text-xl font-bold text-white mt-2 mb-3">${item.TITLE}</h3>
-                            <p class="text-sm text-tntc-textSecondary mb-4">${item.DESCRIPTION}</p>
-                            <a href="${item.LINK}" class="text-xs font-bold text-white flex items-center gap-2 group-hover:text-tntc-accent transition-colors">READ MORE <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
-                        </div>
-                    </div>`;
-                }
-            });
-            document.getElementById('newsContainer').innerHTML = html;
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+    Papa.parse(NEWS_CSV_URL, { 
+        download: true, 
+        header: true, 
+        skipEmptyLines: true,
+        complete: function(results) {
+            let container = document.getElementById('newsContainer');
+            if(!container) return; // Safe check for homepage container
+
+            if(results.data && results.data.length > 0 && results.data[0].TITLE) {
+                let newsSection = document.getElementById('news');
+                if(newsSection) newsSection.classList.remove('hidden');
+                
+                let html = "";
+                // Show latest 3 items as preview on home page
+                let previewItems = results.data.slice(0, 3);
+                
+                previewItems.forEach(item => {
+                    if(item.TITLE) {
+                        let safeTitle = (item.TITLE || '').replace(/'/g, "\\'");
+                        let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'");
+                        let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'");
+                        let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
+                        let safeLink = (item.LINK || '').replace(/'/g, "\\'");
+
+                        html += `
+                        <div class="bg-tntc-card border border-tntc-muted/50 rounded-xl overflow-hidden hover:border-tntc-accent/50 transition-colors group flex flex-col justify-between">
+                            <div>
+                                <img src="${item.IMAGE_URL}" class="w-full h-48 object-cover opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.src='https://placehold.co/600x400/0a0e14/06b6d4?text=TNTC+News'">
+                                <div class="p-6">
+                                    <span class="text-[10px] text-tntc-accent font-bold uppercase tracking-widest">${item.CATEGORY}</span>
+                                    <h3 class="text-xl font-bold text-white mt-2 mb-3">${item.TITLE}</h3>
+                                    <p class="text-sm text-tntc-textSecondary mb-4 line-clamp-3">${item.DESCRIPTION}</p>
+                                </div>
+                            </div>
+                            <div class="px-6 pb-6">
+                                <button onclick="openNewsModal('${safeTitle}', '${safeCat}', '${safeImg}', '${safeDesc}', '${safeLink}')" class="text-xs font-bold text-white flex items-center gap-2 group-hover:text-tntc-accent transition-colors cursor-pointer">READ MORE <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+                            </div>
+                        </div>`;
+                    }
+                });
+                container.innerHTML = html;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
         }
-    }});
+    });
 }
 
 function loadGallery() {
     if(GALLERY_CSV_URL.includes("YOUR_")) return;
-    Papa.parse(GALLERY_CSV_URL, { download: true, header: true, complete: function(results) {
-        if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
-            document.getElementById('gallery').classList.remove('hidden');
-            let html = "";
-            results.data.forEach(item => {
-                if(item.IMAGE_URL) {
-                    html += `
-                    <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group">
-                        <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
-                    </div>`;
-                }
-            });
-            document.getElementById('galleryContainer').innerHTML = html;
+    Papa.parse(GALLERY_CSV_URL, { 
+        download: true, 
+        header: true, 
+        skipEmptyLines: true,
+        complete: function(results) {
+            let container = document.getElementById('galleryContainer');
+            if(!container) return; // Safe check for homepage container
+
+            if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
+                let gallerySection = document.getElementById('gallery');
+                if(gallerySection) gallerySection.classList.remove('hidden');
+
+                let html = "";
+                // Show latest 4 images as preview on home page
+                let previewImages = results.data.slice(0, 4);
+
+                previewImages.forEach(item => {
+                    if(item.IMAGE_URL) {
+                        html += `
+                        <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group">
+                            <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
+                        </div>`;
+                    }
+                });
+                container.innerHTML = html;
+            }
         }
-    }});
+    });
 }
 
-// --- 3. SECURITY GATEWAY & DOWNLOAD LOGIN ---
+// --- SECURITY GATEWAY & DOWNLOAD LOGIN ---
 let redirectTarget = "dashboard.html"; 
 
 function secureDownloadLogin() {
     redirectTarget = "dashboard.html?tab=overview"; 
-    document.getElementById('authModal').classList.remove('hidden');
-    document.getElementById('authModal').classList.add('flex');
+    let modal = document.getElementById('authModal');
+    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
 }
 
 function openAuthModal() {
     redirectTarget = "dashboard.html";
-    document.getElementById('authModal').classList.remove('hidden');
-    document.getElementById('authModal').classList.add('flex');
+    let modal = document.getElementById('authModal');
+    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
 }
 
 function closeAuthModal() {
-    document.getElementById('authModal').classList.remove('flex');
-    document.getElementById('authModal').classList.add('hidden');
+    let modal = document.getElementById('authModal');
+    if(modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
 }
 
 function checkPasscode() {
@@ -218,13 +245,13 @@ function checkPasscode() {
 }
 
 function openApplyModal() {
-    document.getElementById('applyModal').classList.remove('hidden');
-    document.getElementById('applyModal').classList.add('flex');
+    let modal = document.getElementById('applyModal');
+    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
 }
 
 function closeApplyModal() {
-    document.getElementById('applyModal').classList.remove('flex');
-    document.getElementById('applyModal').classList.add('hidden');
+    let modal = document.getElementById('applyModal');
+    if(modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
 }
 
 async function submitApplication(e) {
@@ -235,6 +262,8 @@ async function submitApplication(e) {
     }
 
     const btn = document.getElementById('btnSubmitApp');
+    if(!btn) return;
+
     btn.innerText = "Sending...";
     btn.disabled = true;
     
@@ -259,7 +288,8 @@ async function submitApplication(e) {
         btn.classList.remove('bg-yellow-500', 'text-black');
         setTimeout(() => {
             closeApplyModal();
-            document.getElementById('applicationForm').reset();
+            let form = document.getElementById('applicationForm');
+            if(form) form.reset();
             btn.innerText = "Submit Application";
             btn.classList.remove('bg-green-500', 'text-white');
             btn.classList.add('bg-yellow-500', 'text-black');

@@ -1,7 +1,12 @@
+// ==========================================
+// TNTC DYNAMIC MULTI-TOUR ENGINE
+// ==========================================
+
 let masterToursList = [];
+let loadedTourData = {}; 
 
 async function fetchTourData() {
-    if (typeof isTourDataFetched !== 'undefined' && isTourDataFetched) return;
+    if (isTourDataFetched) return;
     
     Papa.parse(TOUR_SHEET_CSV_URL, {
         download: true,
@@ -9,18 +14,27 @@ async function fetchTourData() {
         skipEmptyLines: true,
         complete: async function(results) {
             let rows = results.data;
-            if (rows.length <= 1) {
+            
+            // Error Handling: If the sheet is empty or we read the wrong tab
+            if (rows.length <= 1 || rows[0][0] !== "TOUR NAME") {
                 document.getElementById('dynamic-campaign-container').innerHTML = 
-                    `<div class="text-center p-10 text-tntc-textSecondary border border-tntc-muted/20 rounded-xl bg-tntc-card">No tours found in Master Index.</div>`;
+                    `<div class="text-center p-10 bg-tntc-admin/10 border border-tntc-admin/30 rounded-xl">
+                        <i data-lucide="alert-triangle" class="w-8 h-8 text-tntc-admin mx-auto mb-3"></i>
+                        <h3 class="text-tntc-admin font-bold text-lg mb-1">Database Connection Error</h3>
+                        <p class="text-tntc-textSecondary text-sm">The dashboard is reading the wrong Google Sheet tab. Please ensure the TOUR_SHEET_CSV_URL in core.js is pointing to the exact GID of the TOUR_MASTER tab.</p>
+                    </div>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
             }
 
             masterToursList = [];
+            // Parse Master Index (Skip Row 0 Headers)
             for(let i=1; i<rows.length; i++) {
+                if(!rows[i][0]) continue; // Skip truly empty rows
                 masterToursList.push({
                     name: rows[i][0] || "Unnamed Tour",
-                    startDate: rows[i][1] || "",
-                    endDate: rows[i][2] || "",
+                    startDate: rows[i][1] || "TBD",
+                    endDate: rows[i][2] || "Ongoing",
                     status: rows[i][3] || "LIVE",
                     reason: rows[i][4] || "",
                     banner: rows[i][5] || "https://images.unsplash.com/photo-1519003722824-194d4455a60c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
@@ -28,56 +42,46 @@ async function fetchTourData() {
                 });
             }
 
+            // Generate Shell UI
             generateTourShells();
             
-            // Fetch individual route data for each tour based on its GID
+            // Fetch individual route data for each tour concurrently
             for (let tour of masterToursList) {
                 if (tour.gid) {
-                    fetchSpecificTourData(tour);
+                    await fetchSpecificTourData(tour);
                 }
             }
             
-            window.isTourDataFetched = true;
+            isTourDataFetched = true;
         }
     });
 }
 
 function generateTourShells() {
     let container = document.getElementById('dynamic-campaign-container');
-    if(!container) return; // Safety check
-
     let html = "";
     
     masterToursList.forEach((tour, index) => {
         let safeId = "tour-" + index;
         
-        let isComingSoon = tour.startDate && (new Date(tour.startDate) > new Date());
-        let currentStatus = isComingSoon ? "COMING SOON" : tour.status;
-        
+        // Status Styling
         let statusBadge = "";
         let bannerOverlay = "";
-        let borderGlow = "border-tntc-muted/30 shadow-lg hover:border-tntc-muted";
         
-        if (currentStatus === "COMING SOON") {
-            statusBadge = `<span class="bg-purple-500 text-white px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(168,85,247,0.5)] mb-3 inline-block"><i data-lucide="lock" class="w-3 h-3 inline mr-1"></i> COMING SOON</span>`;
-            bannerOverlay = `<div class="bg-purple-500/10 border-l-4 border-purple-500 text-purple-400 p-4 rounded-r-xl text-sm font-bold flex items-center gap-3 shadow-lg mb-6"><i data-lucide="clock" class="w-5 h-5 shrink-0"></i><p>This tour unlocks on <span class="text-[#f8fafc] font-black">${new Date(tour.startDate).toLocaleDateString()}</span>.</p></div>`;
-            borderGlow = "border-purple-500/30 shadow-[0_10px_40px_-10px_rgba(168,85,247,0.15)] hover:border-purple-500/60";
-        } else if (currentStatus === "LIVE") {
+        if (tour.status === "LIVE") {
             statusBadge = `<span class="bg-tntc-active text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(34,197,94,0.5)] mb-3 inline-block">🟢 LIVE CAMPAIGN</span>`;
-            borderGlow = "border-tntc-active/30 shadow-[0_10px_40px_-10px_rgba(34,197,94,0.15)] hover:border-tntc-active";
-        } else if (currentStatus === "PAUSED") {
+        } else if (tour.status === "PAUSED") {
             statusBadge = `<span class="bg-tntc-revenue text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(250,204,21,0.5)] mb-3 inline-block animate-pulse">🟡 PAUSED</span>`;
             bannerOverlay = `<div class="bg-tntc-revenue/10 border-l-4 border-tntc-revenue text-tntc-revenue p-4 rounded-r-xl text-sm font-bold flex items-center gap-3 shadow-lg mb-6"><i data-lucide="alert-triangle" class="w-5 h-5 shrink-0"></i><p>Notice: <span class="text-[#f8fafc] font-normal">${tour.reason}</span></p></div>`;
-            borderGlow = "border-tntc-revenue/30 shadow-[0_10px_40px_-10px_rgba(250,204,21,0.15)] hover:border-tntc-revenue";
-        } else if (currentStatus === "ENDED") {
-            statusBadge = `<span class="bg-tntc-admin text-white px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(239,68,68,0.5)] mb-3 inline-block">🔴 ENDED</span>`;
-            bannerOverlay = `<div class="bg-tntc-admin/10 border-l-4 border-tntc-admin text-tntc-admin p-4 rounded-r-xl text-sm font-bold flex items-center gap-3 shadow-lg mb-6"><i data-lucide="flag" class="w-5 h-5 shrink-0"></i><p>This tour has concluded. ${tour.reason}</p></div>`;
+        } else if (tour.status === "ENDED") {
+            statusBadge = `<span class="bg-tntc-admin text-white px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(239,68,68,0.5)] mb-3 inline-block">🔴 CAMPAIGN ENDED</span>`;
+            bannerOverlay = `<div class="bg-tntc-admin/10 border-l-4 border-tntc-admin text-tntc-admin p-4 rounded-r-xl text-sm font-bold flex items-center gap-3 shadow-lg mb-6"><i data-lucide="flag" class="w-5 h-5 shrink-0"></i><p>This tour concluded on <span class="text-[#f8fafc] font-normal">${new Date(tour.endDate).toLocaleDateString()}</span>. ${tour.reason}</p></div>`;
         }
 
         html += `
         <div class="mb-10">
             <!-- Header Card -->
-            <div onclick="toggleCampaign('${safeId}')" class="cursor-pointer group relative bg-tntc-card border ${borderGlow} rounded-2xl overflow-hidden transition-all mb-6">
+            <div onclick="toggleCampaign('${safeId}')" class="cursor-pointer group relative bg-tntc-card border ${tour.status==='LIVE' ? 'border-tntc-active/30 shadow-[0_10px_40px_-10px_rgba(34,197,94,0.15)] hover:border-tntc-active' : 'border-tntc-muted/30 shadow-lg hover:border-tntc-muted'} rounded-2xl overflow-hidden transition-all mb-6">
                 <div class="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-500" style="background-image: url('${tour.banner}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-[#05070a]/90 to-transparent"></div>
                 
@@ -86,7 +90,7 @@ function generateTourShells() {
                         ${statusBadge}
                         <h2 class="text-3xl md:text-4xl font-black text-tntc-textPrimary uppercase tracking-tight mb-2">${tour.name}</h2>
                         <p class="text-tntc-textSecondary text-xs font-mono font-bold flex items-center gap-4">
-                            <span><i data-lucide="calendar" class="w-3 h-3 inline mr-1 text-tntc-accent"></i> ${tour.startDate ? new Date(tour.startDate).toLocaleDateString() : 'TBD'}</span>
+                            <span><i data-lucide="calendar" class="w-3 h-3 inline mr-1 text-tntc-accent"></i> ${new Date(tour.startDate).toLocaleDateString()}</span>
                             <span><i data-lucide="flag" class="w-3 h-3 inline mr-1 text-tntc-admin"></i> ${tour.endDate ? new Date(tour.endDate).toLocaleDateString() : 'Ongoing'}</span>
                         </p>
                     </div>
@@ -97,8 +101,8 @@ function generateTourShells() {
                 
                 <!-- Progress Bar Shell -->
                 <div class="px-6 md:px-8 pb-6 relative z-10">
-                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-1.5 uppercase tracking-wider"><span>Overall Division Progress</span><span id="prog-txt-${safeId}">0%</span></div>
-                    <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 overflow-hidden shadow-inner"><div id="prog-bar-${safeId}" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out ${isComingSoon ? 'grayscale opacity-30' : ''}" style="width: 0%;"></div></div>
+                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-1.5 uppercase tracking-wider"><span>Overall Division Progress</span><span id="prog-txt-${safeId}">Loading...</span></div>
+                    <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 overflow-hidden shadow-inner"><div id="prog-bar-${safeId}" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out" style="width: 0%;"></div></div>
                 </div>
             </div>
 
@@ -106,12 +110,14 @@ function generateTourShells() {
             <div id="${safeId}-content" class="collapse-content">
                 ${bannerOverlay}
                 
+                <!-- Stats Shell -->
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center"><p class="text-tntc-textSecondary text-[10px] font-bold uppercase mb-1">Routes Done</p><h2 class="text-2xl font-black text-tntc-textPrimary"><span id="stat-routes-${safeId}" class="text-tntc-accent">0</span> <span class="text-sm text-tntc-textSecondary">/ <span id="stat-tot-routes-${safeId}">0</span></span></h2></div>
                     <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center"><p class="text-tntc-textSecondary text-[10px] font-bold uppercase mb-1">Distance Covered</p><h2 class="text-2xl font-black text-tntc-distance"><span id="stat-dist-${safeId}">0</span> <span class="text-sm text-tntc-textSecondary">km</span></h2></div>
                     <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center col-span-2 md:col-span-1"><p class="text-tntc-textSecondary text-[10px] font-bold uppercase mb-1">Total Target</p><h2 class="text-2xl font-black text-tntc-revenue"><span id="stat-targ-${safeId}">0</span> <span class="text-sm text-tntc-textSecondary">km</span></h2></div>
                 </div>
 
+                <!-- Table Shell -->
                 <div class="bg-tntc-card rounded-xl border border-tntc-muted/30 shadow-xl overflow-hidden mb-6">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -125,7 +131,7 @@ function generateTourShells() {
                                 </tr>
                             </thead>
                             <tbody id="table-${safeId}" class="text-xs divide-y divide-tntc-muted/10 font-medium">
-                                <tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary"><div class="loader inline-block mr-2 relative top-2"></div> Fetching route data...</td></tr>
+                                <tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Fetching route data...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -141,6 +147,7 @@ function generateTourShells() {
 function fetchSpecificTourData(tourObj) {
     let index = masterToursList.indexOf(tourObj);
     let safeId = "tour-" + index;
+    // Inject the specific GID for this route tab
     let specificUrl = TOUR_SHEET_CSV_URL.replace(/gid=\d+/, 'gid=' + tourObj.gid);
 
     Papa.parse(specificUrl, {
@@ -166,12 +173,10 @@ function fetchSpecificTourData(tourObj) {
 
             for(let r=1; r<data.length; r++) {
                 let row = data[r];
-                if (row[1] === 'Start' || row[1] === 'Source' || !row[0]) continue;
+                if (row[1] === 'Start' || row[1] === 'Start City') continue;
 
                 let sNo = row[0]; let src = row[1]; let srcCo = row[2]; let dst = row[3]; let dstCo = row[4];
-                let dist = parseInt(String(row[5]).replace(/\D/g, '')) || 0; 
-                let imgLink = row[6] ? String(row[6]).trim() : '';
-                
+                let dist = cleanNumber(row[5]);
                 totalTargetDist += dist;
                 
                 let completedBy = [];
@@ -187,6 +192,9 @@ function fetchSpecificTourData(tourObj) {
                     routesCompleted++;
                     distanceCovered += dist;
                 }
+                
+                // Get Route Image (Column G) or fallback to Tour Banner
+                let routeImg = row[6] && String(row[6]).startsWith('http') ? row[6] : tourObj.banner;
 
                 let statusBadge = isCompleted 
                     ? `<span class="bg-tntc-distance/20 text-tntc-distance border border-tntc-distance/30 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider"><i data-lucide="check-circle-2" class="w-3 h-3 inline mr-1 relative -top-[1px]"></i> Cleared</span>` 
@@ -204,34 +212,22 @@ function fetchSpecificTourData(tourObj) {
                     <td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold">${dist.toLocaleString()} <span class="text-[10px] text-tntc-textSecondary">km</span></td>
                     <td class="p-3 sm:p-4 text-center">${statusBadge}</td>
                     <td class="p-3 sm:p-4 text-right">
-                        <button onclick="openCampModal('${tourObj.name.replace(/'/g, "\\'")}', ${sNo}, '${src.replace(/'/g, "\\'")}', '${srcCo.replace(/'/g, "\\'")}', '${dst.replace(/'/g, "\\'")}', '${dstCo.replace(/'/g, "\\'")}', ${dist}, '${imgLink.replace(/'/g, "\\'")}', ${JSON.stringify(completedBy).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary inline-flex items-center gap-1 transition-colors shadow-sm">
+                        <button onclick="openCampModal('${tourObj.name}', ${sNo}, '${src}', '${srcCo}', '${dst}', '${dstCo}', ${dist}, '${routeImg}', ${JSON.stringify(completedBy).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary inline-flex items-center gap-1 transition-colors shadow-sm">
                             <i data-lucide="eye" class="w-3 h-3 text-tntc-accent"></i> View
                         </button>
                     </td>
                 </tr>`;
             }
 
-            let tableElement = document.getElementById(`table-${safeId}`);
-            if(tableElement) tableElement.innerHTML = tableHtml;
-            
-            let statRoutes = document.getElementById(`stat-routes-${safeId}`);
-            if(statRoutes) statRoutes.innerText = routesCompleted;
-            
-            let statTotRoutes = document.getElementById(`stat-tot-routes-${safeId}`);
-            if(statTotRoutes) statTotRoutes.innerText = (data.length - 1);
-            
-            let statDist = document.getElementById(`stat-dist-${safeId}`);
-            if(statDist) statDist.innerText = distanceCovered.toLocaleString();
-            
-            let statTarg = document.getElementById(`stat-targ-${safeId}`);
-            if(statTarg) statTarg.innerText = totalTargetDist.toLocaleString();
+            document.getElementById(`table-${safeId}`).innerHTML = tableHtml;
+            document.getElementById(`stat-routes-${safeId}`).innerText = routesCompleted;
+            document.getElementById(`stat-tot-routes-${safeId}`).innerText = (data.length - 1);
+            document.getElementById(`stat-dist-${safeId}`).innerText = distanceCovered.toLocaleString();
+            document.getElementById(`stat-targ-${safeId}`).innerText = totalTargetDist.toLocaleString();
             
             let percent = totalTargetDist > 0 ? Math.min(100, Math.round((distanceCovered / totalTargetDist) * 100)) : 0;
-            let progTxt = document.getElementById(`prog-txt-${safeId}`);
-            if(progTxt) progTxt.innerText = percent + "%";
-            
-            let progBar = document.getElementById(`prog-bar-${safeId}`);
-            if(progBar) progBar.style.width = percent + "%";
+            document.getElementById(`prog-txt-${safeId}`).innerText = percent + "%";
+            document.getElementById(`prog-bar-${safeId}`).style.width = percent + "%";
 
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
@@ -255,6 +251,42 @@ function toggleCampaign(id) {
     }
 }
 
+function openCampModal(tourName, sNo, src, srcCo, dst, dstCo, dist, imgUrl, completedDriversArr) {
+    document.getElementById('campModalId').textContent = `#${sNo} - ${tourName}`;
+    document.getElementById('campModalSource').textContent = src;
+    document.getElementById('campModalDest').textContent = dst;
+    document.getElementById('campModalDist').textContent = dist.toLocaleString();
+    
+    // Populate the newly added elements
+    let srcCoEl = document.getElementById('campModalSrcCo');
+    if (srcCoEl) srcCoEl.textContent = srcCo;
+    
+    let dstCoEl = document.getElementById('campModalDstCo');
+    if (dstCoEl) dstCoEl.textContent = dstCo;
+    
+    let headerEl = document.getElementById('campModalHeader');
+    if (headerEl) headerEl.style.backgroundImage = `url('${imgUrl}')`;
+    
+    let html = "";
+    if (completedDriversArr.length > 0) {
+        completedDriversArr.forEach(d => {
+            html += `<span class="bg-tntc-main border border-tntc-distance/30 text-tntc-distance px-3 py-1.5 rounded-md text-xs font-bold tracking-wide shadow-[0_0_10px_rgba(74,222,128,0.1)] flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ${d}</span>`;
+        });
+    } else {
+        html = `<p class="text-tntc-textSecondary text-xs italic w-full p-2 bg-tntc-main rounded border border-tntc-muted/20">Awaiting completion by division members.</p>`;
+    }
+    
+    document.getElementById('campModalDriversList').innerHTML = html;
+    document.getElementById('campModalCount').textContent = completedDriversArr.length;
+    
+    let modal = document.getElementById('campaignModal');
+    if(modal) {
+        modal.classList.remove('modal-closed');
+        modal.classList.add('modal-open');
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 function populateManageToursDropdown() {
     let select = document.getElementById('manageTourSelect');
     if (!select) return;
@@ -266,69 +298,8 @@ function populateManageToursDropdown() {
     
     let html = '<option value="">-- Select a Tour --</option>';
     masterToursList.forEach(t => {
-        let emoji = t.status === 'LIVE' ? '🟢' : t.status === 'PAUSED' ? '🟡' : t.status === 'ENDED' ? '🔴' : '🟣';
-        html += `<option value="${t.name}">${emoji} ${t.name}</option>`;
+        let emoji = t.status === 'LIVE' ? '🟢' : t.status === 'PAUSED' ? '🟡' : '🔴';
+        html += `<option value="${t.name}">${emoji} ${t.name} (Started: ${new Date(t.startDate).toLocaleDateString()})</option>`;
     });
     select.innerHTML = html;
 }
-
-// ==========================================
-// CAMPAIGN MODAL LOGIC
-// ==========================================
-
-function openCampModal(tourName, routeNo, source, sourceCo, dest, destCo, dist, routeImage, completedDrivers) {
-    let tourData = masterToursList.find(t => t.name === tourName);
-    let fallbackBanner = tourData ? tourData.banner : 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';
-    let bannerBg = (routeImage && routeImage.trim() !== "") ? routeImage : fallbackBanner;
-
-    let header = document.getElementById('campModalHeader');
-    if (header) {
-        header.style.backgroundImage = `url('${bannerBg}')`;
-        header.innerHTML = `
-            <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
-            <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20 shadow-lg">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        `;
-    }
-
-    // Populate standard text fields
-    document.getElementById('campModalId').innerText = routeNo;
-    document.getElementById('campModalSource').innerText = source;
-    document.getElementById('campModalDest').innerText = dest;
-    document.getElementById('campModalDist').innerText = dist;
-    
-    // Populate the new Company text fields
-    document.getElementById('campModalSourceCo').innerText = sourceCo;
-    document.getElementById('campModalDestCo').innerText = destCo;
-    
-    document.getElementById('campModalCount').innerText = completedDrivers.length;
-    let totalDriversElement = document.getElementById('campModalTotalDrivers');
-    if(totalDriversElement) totalDriversElement.innerText = "All"; 
-
-    let listContainer = document.getElementById('campModalDriversList');
-    listContainer.innerHTML = ''; 
-
-    if (completedDrivers.length === 0) {
-        listContainer.innerHTML = '<p class="text-xs text-tntc-textSecondary italic py-3 w-full text-center border border-tntc-muted/20 rounded-lg bg-tntc-main mt-1">No drivers have completed this route yet.</p>';
-    } else {
-        completedDrivers.forEach(driver => {
-            listContainer.innerHTML += `
-                <span class="bg-tntc-hover text-tntc-textPrimary border border-tntc-muted/30 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 mt-1">
-                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-tntc-distance"></i> ${driver}
-                </span>
-            `;
-        });
-    }
-
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-
-    let modal = document.getElementById('campaignModal');
-    modal.classList.remove('modal-closed');
-    modal.classList.add('modal-open');
-}
-
-// Auto-trigger fetch when the script loads so it's ready!
-document.addEventListener("DOMContentLoaded", () => {
-    fetchTourData();
-});

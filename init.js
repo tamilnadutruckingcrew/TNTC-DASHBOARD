@@ -1,3 +1,7 @@
+// ==========================================
+// TNTC DASHBOARD INIT & ROUTING LOGIC
+// ==========================================
+
 function switchTab(tabName) {
     const tabs = ['overview', 'logs', 'events', 'campaign', 'liveriders'];
     tabs.forEach(t => {
@@ -16,7 +20,7 @@ function switchTab(tabName) {
         }
     });
 
-    // LAZY LOADING
+    // LAZY LOADING & REFRESH LOGIC
     if (tabName === 'campaign') {
         if (!isTourDataFetched && typeof fetchTourData === "function") fetchTourData();
         else if (typeof processCampaignData === "function") processCampaignData();
@@ -42,7 +46,7 @@ function logout() {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Role-Based Auth Check before showing anything
+    // 1. Role-Based Auth Check before showing anything
     const role = sessionStorage.getItem('tntc_role');
     if (!role) {
         // If accessed dashboard directly without auth, throw back to landing page
@@ -50,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Show Admin Tools if Logged in via Admin Passcode
+    // 2. Show Admin Tools if Logged in via Admin Passcode
     if (role === 'admin') {
         let adminBtn = document.getElementById('adminToolsBtn');
         if (adminBtn) {
@@ -59,33 +63,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 3. Modal Click-Outside-to-Close Logic
     document.querySelectorAll('.custom-modal').forEach(modal => {
         modal.addEventListener('click', function(e) { if(e.target === this) closeModal(this.id); });
     });
 
-    // Fetch initial data
+    // 4. Fetch initial data for dashboard metrics
     if (typeof fetchData === "function") fetchData(true);
     if (typeof fetchLiveRidersOnly === "function") fetchLiveRidersOnly();
 
-    // NEW: Check if redirected from Homepage "Download Tracker" button
+    // 5. URL Routing (Redirect from Homepage)
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
+    
     if(tabParam) {
+        // Switch to the requested tab
         switchTab(tabParam);
         
-        // If they came for the tracker, automatically scroll to the bottom of the overview page!
+        // If they clicked the Download Tracker button from the homepage, 
+        // they are routed to the overview tab. Automatically scroll to the bottom!
         if(tabParam === 'overview') {
             setTimeout(() => {
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 600);
+            }, 600); // Slight delay ensures DOM is fully rendered before scrolling
         }
     }
 
-    // Polling Intervals
+    // 6. Polling Intervals for Live Data
     if (typeof fetchLiveRidersOnly === "function") {
-        setInterval(fetchLiveRidersOnly, 10000); // Super fast 10-sec poll for telemetry
+        setInterval(fetchLiveRidersOnly, 10000); // Fast 10-sec poll for telemetry (Live Riders)
     }
     if (typeof fetchData === "function") {
-        setInterval(() => fetchData(false), 180000); // 3 min poll for static data
+        setInterval(() => fetchData(false), 180000); // 3 min poll for static data (Jobs, Events)
     }
 });

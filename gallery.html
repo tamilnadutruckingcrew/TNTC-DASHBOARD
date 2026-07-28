@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNTC - Fleet Gallery Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tntc: { main: '#05070a', card: '#0a0e14', distance: '#22c55e', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#334155' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>body { background-color: #05070a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }</style>
+</head>
+<body class="min-h-screen p-6 md:p-12">
+    <div class="max-w-6xl mx-auto mb-10 flex justify-between items-center border-b border-tntc-muted/30 pb-6">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Full Fleet Gallery</h1>
+            <p class="text-tntc-textSecondary text-sm mt-1">Snapshots from our convoys and travels on the road.</p>
+        </div>
+        <a href="index.html" class="px-4 py-2 bg-tntc-card border border-tntc-muted/50 hover:border-tntc-distance rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
+        </a>
+    </div>
+
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="allGalleryContainer">
+        <div class="col-span-full text-center py-20 text-tntc-textSecondary">Loading gallery...</div>
+    </div>
+
+    <script src="home.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            Papa.parse(GALLERY_CSV_URL, { 
+                download: true, 
+                header: true, 
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if(results.data && results.data.length > 0) {
+                        let html = "";
+                        results.data.forEach(item => {
+                            if(item.IMAGE_URL) {
+                                html += `
+                                <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group">
+                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
+                                </div>`;
+                            }
+                        });
+                        document.getElementById('allGalleryContainer').innerHTML = html || '<p class="col-span-full text-center text-tntc-textSecondary">No images found.</p>';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

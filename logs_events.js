@@ -1,3 +1,7 @@
+// ==========================================
+// JOB LOGS & EVENT RECORDS WITH PAGINATION
+// ==========================================
+
 function populateEventCategoryDropdown() {
     let dropdown = document.getElementById('filterEventCategory');
     if(!dropdown) return;
@@ -78,7 +82,8 @@ function applyLogFilters() {
 }
 
 function renderJobPage(page) {
-    const rowsPerPage = 25; 
+    let limitEl = document.getElementById('jobPageLimit');
+    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 25; 
     const totalPages = Math.ceil(globalFilteredJobs.length / rowsPerPage) || 1;
     
     if (page < 1) page = 1;
@@ -143,6 +148,9 @@ function applyEventFilters() {
     let recentEvents = [...globalEventData.rows].reverse();
     let headers = globalEventData.headers;
 
+    // Safety check in case headers didn't load properly
+    if (!headers || headers.length === 0) return;
+
     recentEvents.forEach(row => {
         let dateStr = String(row[1] || ''); 
         let nameStr = String(row[2] || '');
@@ -162,7 +170,10 @@ function applyEventFilters() {
             let driverAttended = false;
             matchingCols.forEach(colIdx => {
                 let val = String(row[colIdx] || '').trim().toUpperCase();
-                if (val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') driverAttended = true;
+                // Explicit check for checked box values
+                if(val === 'TRUE' || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
+                    driverAttended = true;
+                }
             });
             if (!driverAttended) return;
         }
@@ -174,7 +185,8 @@ function applyEventFilters() {
             if(!normKey || normKey === 'UNKNOWN' || normKey.includes('ATTENDANCE')) continue;
             
             let val = String(row[i] || '').trim().toUpperCase();
-            if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
+            // Explicit check for checked box values
+            if(val === 'TRUE' || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
                 driversAttended.push(origName); 
             }
         }
@@ -184,7 +196,7 @@ function applyEventFilters() {
             name: String(row[2] || 'Unknown Event'),
             link: String(row[3] || '#'),
             category: category,
-            image: String(row[5] || ''), // Entry Sheet Image (Column F)
+            image: String(row[5] || ''),
             attendance: driversAttended.length,
             drivers: driversAttended
         });
@@ -198,7 +210,8 @@ function applyEventFilters() {
 }
 
 function renderEventPage(page) {
-    const rowsPerPage = 25; 
+    let limitEl = document.getElementById('eventPageLimit');
+    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 25; 
     const totalPages = Math.ceil(window.currentFilteredEvents.length / rowsPerPage) || 1;
     
     if (page < 1) page = 1;
@@ -214,7 +227,6 @@ function renderEventPage(page) {
         tableHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No events found.</td></tr>`;
     } else {
         pageEvents.forEach((ev, index) => {
-            // Map local page index to the global array index so the Modal opens the correct event
             let realIndex = startIndex + index; 
             let badgeColor = ev.category.includes('PRIVATE') ? 'bg-purple-900/30 text-purple-400 border border-purple-500/30' : 'bg-tntc-muted/20 text-tntc-accent border border-tntc-muted/30';
             tableHTML += `
@@ -233,7 +245,6 @@ function renderEventPage(page) {
     }
     updateDOMIfChanged('filteredEventTableBody', tableHTML);
 
-    // Update Pagination UI
     let infoEl = document.getElementById('eventPageInfo');
     if (infoEl) infoEl.innerText = `Page ${page} of ${totalPages}`;
 
@@ -267,14 +278,13 @@ function openEventModal(index) {
         if(catEl) catEl.textContent = ev.category || 'EVENT';
         if(attEl) attEl.textContent = ev.attendance || '0';
 
-        // 1. TOP COVER IMAGE LOGIC (Smart Date Translation)
         let eventDate = new Date(ev.date.replace(/-/g, ' '));
         let monthYearKey = "";
         
         if (!isNaN(eventDate)) {
-            let monthName = eventDate.toLocaleString('en-US', { month: 'long' }); // Translates "07 Jun" to "June"
+            let monthName = eventDate.toLocaleString('en-US', { month: 'long' }); 
             let year = eventDate.getFullYear();
-            monthYearKey = `${monthName} ${year}`.toUpperCase(); // Becomes "JUNE 2026"
+            monthYearKey = `${monthName} ${year}`.toUpperCase(); 
         } else {
             monthYearKey = ev.date.toUpperCase();
         }
@@ -290,7 +300,6 @@ function openEventModal(index) {
             }
         }
 
-        // 2. BOTTOM ENTRY SHEET IMAGE LOGIC
         let entryContainer = document.getElementById('modalEntryImageContainer');
         let entryImage = document.getElementById('modalEntryImage');
         

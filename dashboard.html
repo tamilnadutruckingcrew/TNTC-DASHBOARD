@@ -56,14 +56,14 @@
 <body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
 
     <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-tntc-muted/20 bg-[#0a0d14] flex items-center justify-center gap-3 shadow-lg z-20 relative">
-        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-yellow-500 flex items-center justify-center text-black font-black text-sm shadow-[0_0_15px_rgba(250,204,21,0.2)]">A</div>
+        <img src="https://cdn.discordapp.com/attachments/1497198269120381021/1531694103857991750/TNL_logo.png?ex=6a6a24cb&is=6a68d34b&hm=d0f80f556b08217e00ce199cbfb1ea809e39e9be13baff35842a62c4e7ada586" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-yellow-500/50 object-cover shadow-[0_0_15px_rgba(250,204,21,0.2)]">
         <h1 class="text-lg md:text-xl font-black text-tntc-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
     </div>
 
     <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 pb-2 gap-6 md:gap-4">
         <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
             <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.2)] bg-tntc-accent/10 border border-tntc-accent/30">
-                <img src="https://images.unsplash.com/photo-1616423640778-28d1b53229bd?ixlib=rb-4.0.3&w=100&q=80" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
+                <img src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png?ex=6a69f2eb&is=6a68a16b&hm=1799fec0be913760da0d600e565ae743f726713d58ef67b61c3eb89d4c707d01" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
             </div>
             <div class="text-center md:text-left">
                 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-tntc-textPrimary uppercase">TAMILNADU TRUCKING CREW</h2>
@@ -119,6 +119,7 @@
             <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors"><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Active Drivers</p><h2 id="statDrivers" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">0</h2></div>
             <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-tntc-accent/50 transition-colors"><div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="calendar-check" class="w-20 h-20 text-tntc-textPrimary"></i></div><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1 relative z-10">Division Events</p><h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary relative z-10">0</h2></div>
         </div>
+        
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl"><h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="w-4 h-4 text-tntc-distance"></i> Distance Leaderboard (KM)</h3><div class="relative h-56 w-full"><canvas id="kmBarChart"></canvas></div></div>
             <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl"><h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-tntc-accent"></i> Event Attendance Chart</h3><div class="relative h-56 w-full"><canvas id="eventBarChart"></canvas></div></div>
@@ -133,12 +134,12 @@
         <div class="bg-tntc-card p-6 md:p-8 rounded-xl border border-tntc-accent/30 shadow-[0_0_20px_rgba(56,189,248,0.05)] mt-2 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-tntc-accent/5 rounded-full blur-3xl"></div>
             <div class="relative z-10 flex-1 text-center md:text-left">
-                <h3 class="text-xl md:text-2xl font-black text-white mb-2 flex items-center justify-center md:justify-start gap-2"><i data-lucide="satellite" class="w-6 h-6 text-tntc-accent"></i> Division Telemetry Tracker</h3>
+                <h3 class="text-xl md:text-2xl font-black text-white mb-2 flex items-center justify-center md:justify-start gap-2"><i data-lucide="satellite" class="w-6 h-6 text-tntc-accent"></i> Navixys Telemetry Tracker</h3>
                 <p class="text-sm text-tntc-textSecondary">Download the official TNTC division tracker application to automatically log your jobs, distance, and revenue to the live VTC database.</p>
             </div>
             <div class="relative z-10 shrink-0">
-                <!-- Replace # with your actual download link -->
-                <a href="#" target="_blank" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(56,189,248,0.3)] flex items-center justify-center gap-2">
+                <!-- IMPORTANT: Add your actual download URL inside the href attribute below -->
+                <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases" target="_blank" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(56,189,248,0.3)] flex items-center justify-center gap-2">
                     <i data-lucide="download" class="w-4 h-4"></i> Download App
                 </a>
             </div>
@@ -149,20 +150,29 @@
     <div id="tab-logs" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
             <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Select Driver</label>
                     <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Drivers</option></select>
                 </div>
-                <div>
+                <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Time Period</label>
                     <div class="flex gap-2">
                         <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Time</option><option value="TODAY">Today's Jobs</option><option value="WEEK">This Week</option><option value="MONTH">This Month</option><option value="CUSTOM">Select Date 🗓️</option></select>
                         <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 outline-none">
                     </div>
                 </div>
-                <div class="bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
-                    <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Filtered Distance</p>
+                <div class="col-span-1">
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Rows</label>
+                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
+                        <option value="10">10 / page</option>
+                        <option value="25" selected>25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+                <div class="col-span-1 bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
+                    <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Filtered Dist.</p>
                     <p id="filteredTotalKm" class="text-lg font-bold text-tntc-distance">0 km</p>
                 </div>
             </div>
@@ -195,24 +205,33 @@
     <div id="tab-events" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
             <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Event Records</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Event Category</label>
                     <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Categories</option></select>
                 </div>
-                <div>
+                <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Select Driver</label>
                     <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Drivers</option></select>
                 </div>
-                <div>
+                <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Time Period</label>
                     <div class="flex gap-2">
                         <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Time</option><option value="WEEK">This Week</option><option value="MONTH">This Month</option><option value="CUSTOM">Select Date 🗓️</option></select>
                         <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 outline-none">
                     </div>
                 </div>
-                <div class="bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
-                    <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Total Filtered Events</p>
+                <div class="col-span-1">
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Rows</label>
+                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
+                        <option value="10">10 / page</option>
+                        <option value="25" selected>25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+                <div class="col-span-1 bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
+                    <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Total Events</p>
                     <p id="filteredTotalEvents" class="text-lg font-bold text-tntc-accent">0</p>
                 </div>
             </div>
@@ -229,7 +248,9 @@
                             <th class="p-3 sm:p-4 text-right">Details</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium"></tbody>
+                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium">
+                        <tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Fetching event records...</td></tr>
+                    </tbody>
                 </table>
             </div>
             <div class="flex items-center justify-between p-4 bg-tntc-main border-t border-tntc-muted/30">
@@ -263,6 +284,7 @@
     </div>
 
     <!-- MODALS -->
+    
     <!-- EVENT MODAL -->
     <div id="eventModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-closed">
         <div class="custom-modal-content bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -287,10 +309,16 @@
     <!-- CAMPAIGN ROUTE MODAL -->
     <div id="campaignModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-closed">
         <div class="custom-modal-content bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden relative">
-            <div id="campModalHeader" class="w-full h-32 relative border-b border-tntc-muted/30 overflow-hidden bg-cover bg-center"></div>
+            <div id="campModalHeader" class="w-full h-32 relative border-b border-tntc-muted/30 overflow-hidden bg-cover bg-center">
+                <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
+                <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20 shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
             <div class="p-5 sm:p-7 -mt-12 relative z-10">
                 <span class="inline-block px-2.5 py-1 bg-tntc-distance text-[#05070a] text-[10px] font-black tracking-widest uppercase rounded shadow-[0_0_10px_rgba(74,222,128,0.4)] mb-2">TOUR ROUTE <span id="campModalId"></span></span>
-                <h2 class="text-xl sm:text-2xl font-black text-tntc-textPrimary leading-tight mb-2 flex items-center gap-2"><span id="campModalSource">Source</span> <i data-lucide="arrow-right" class="w-5 h-5 text-tntc-distance"></i> <span id="campModalDest">Dest</span></h2>
+                
+                <h2 class="text-xl sm:text-2xl font-black text-tntc-textPrimary leading-tight mb-1 flex items-center gap-2"><span id="campModalSource">Source</span> <i data-lucide="arrow-right" class="w-5 h-5 text-tntc-distance"></i> <span id="campModalDest">Dest</span></h2>
+                <p class="text-tntc-textSecondary text-xs mb-4 flex items-center gap-2"><span id="campModalSrcCo">Source Co</span> <i data-lucide="arrow-right" class="w-3 h-3 text-tntc-muted"></i> <span id="campModalDstCo">Dest Co</span></p>
+                
                 <p class="text-tntc-textSecondary text-sm flex items-center gap-2 mb-6 font-mono font-bold"><i data-lucide="milestone" class="w-4 h-4 text-tntc-textSecondary"></i> <span id="campModalDist">0</span> km Target</p>
                 <h3 class="text-xs font-bold text-tntc-textPrimary uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-tntc-muted/20 pb-2"><i data-lucide="users" class="w-4 h-4 text-tntc-distance"></i> Completed By (<span id="campModalCount">0</span> / <span id="campModalTotalDrivers">0</span>)</h3>
                 <div id="campModalDriversList" class="flex flex-wrap gap-2 mb-2 max-h-40 overflow-y-auto custom-scrollbar pr-2"></div>
@@ -479,13 +507,18 @@
     
     <!-- ADMIN LOGIC -->
     <script>
+        // THIS URL MUST MATCH THE APP_URL IN home.js
         const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzvotvrNlRG82W5XIjfkyljzhhZ2508umguh2yLulnLcmXCEuLB2mhhokra6zfcJTQmaA/exec";
 
         function openAdminModal() {
-            populateAdminDriverChecklist();
-            let modal = document.getElementById('adminModal');
-            modal.classList.remove('modal-closed');
-            modal.classList.add('modal-open');
+    // Fetch tour master index if not already loaded so admin can manage tours immediately
+    if (typeof fetchTourData === "function" && !isTourDataFetched) {
+        fetchTourData();
+    }
+    populateAdminDriverChecklist();
+    let modal = document.getElementById('adminModal');
+    modal.classList.remove('modal-closed');
+    modal.classList.add('modal-open');
         }
 
         function switchAdminTab(tab) {
