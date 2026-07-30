@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadStatsAndMarquee();
     loadNews();
     loadGallery();
+    initScrollReveal(); // Triggers the smooth scroll animations
 });
 
 function loadStatsAndMarquee() {
@@ -301,4 +302,28 @@ async function submitApplication(e) {
         btn.innerText = "Submit Application";
         btn.disabled = false;
     }
+}
+
+// ==========================================
+// SCROLL REVEAL ENGINE
+// ==========================================
+function initScrollReveal() {
+    const reveals = document.querySelectorAll('.reveal');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                // Unobserve so it only animates once per refresh
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.15, // Triggers when 15% of the element is visible
+        rootMargin: "0px 0px -50px 0px"
+    });
+
+    reveals.forEach(reveal => {
+        observer.observe(reveal);
+    });
 }

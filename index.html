@@ -21,15 +21,6 @@
                             textPrimary: '#f8fafc',
                             textSecondary: '#94a3b8'
                         }
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
                     }
                 }
             }
@@ -45,16 +36,43 @@
         .glass-nav { background: rgba(5, 7, 10, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
         
         /* Cinematic Hero Background */
-        .hero-bg {
-            background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.4), #05070a), url('https://cdn.discordapp.com/attachments/1494780521467875409/1531293122313846784/ets2_20260621_123639_00.png?ex=6a69581a&is=6a68069a&hm=9a1368d794b87f789581c8f0465ee68cc8c77bd602e1893f46ebcd17c3c04ff0');
-            background-size: cover;
-            background-position: center;
-        }
+     .hero-bg {
+             background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.4), #05070a), url("https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true");
+             background-size: cover;
+             background-position: center;
+  }
 
         /* Marquee Animation */
         .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-top: 1px solid rgba(51,65,85,0.3); border-bottom: 1px solid rgba(51,65,85,0.3); background: #0a0e14; padding: 12px 0; }
         .marquee-content { display: inline-block; animation: marquee 30s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+
+        /* SMOOTH SCROLL REVEAL ENGINE */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translate(0, 0);
+        }
+        
+        /* SIDE FLY-IN ANIMATIONS */
+        .reveal.from-left {
+            transform: translateX(-100px);
+        }
+        .reveal.from-right {
+            transform: translateX(100px);
+        }
+        .reveal.from-left.active, 
+        .reveal.from-right.active {
+            transform: translate(0, 0);
+        }
+
+        /* DELAYS */
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
     </style>
 </head>
 <body class="min-h-screen relative selection:bg-tntc-accent selection:text-[#05070a]">
@@ -120,8 +138,52 @@
         </div>
     </div>
 
+    <!-- WELCOME / ABOUT SECTION (NEW) -->
+    <section class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tntc-muted/20 overflow-hidden">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Header -->
+            <div class="text-center mb-16 reveal">
+                <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-[0.3em]">Welcome</span>
+                <h2 class="text-3xl md:text-5xl font-black text-white mt-3 tracking-tight">🚛 TNTC - Tamilnadu Trucking Crew</h2>
+                <div class="w-24 h-1 bg-yellow-500/50 mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
+                
+                <!-- English Side (Flies from Left) -->
+                <div class="space-y-6 reveal from-left delay-100">
+                    <h3 class="text-xl font-bold text-yellow-500 tracking-wider">English</h3>
+                    <ul class="space-y-4 text-tntc-textSecondary text-sm md:text-base">
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Official division of <strong class="text-white">Tamilnadu Logistics</strong>.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Unites virtual truckers across Tamil Nadu.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Focused on realistic trucking and organized convoys.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Promotes teamwork, discipline, and friendship.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Proud member of the Tamilnadu Logistics family.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Join us and drive with pride!</span></li>
+                    </ul>
+                </div>
+
+                <!-- Tamil Side (Flies from Right) -->
+                <div class="space-y-6 md:border-l border-tntc-muted/30 md:pl-16 relative reveal from-right delay-200">
+                    <h3 class="text-xl font-bold text-yellow-500 tracking-wider">தமிழ்</h3>
+                    <ul class="space-y-4 text-tntc-textSecondary text-sm md:text-base">
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span><strong class="text-white">தமிழ்நாடு லாஜிஸ்டிக்ஸ்</strong> நிறுவனத்தின் அதிகாரப்பூர்வ பிரிவு.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>தமிழ்நாட்டின் இணையவழி லாரி ஓட்டுநர்களை ஒன்றிணைக்கும் சமூகமாகும்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>உண்மையான டிரக்கிங் அனுபவம் மற்றும் ஒழுங்கமைக்கப்பட்ட Convoy-கள்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>ஒற்றுமை, கட்டுப்பாடு, மற்றும் சகோதரத்துவத்தை வளர்க்கும்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>தமிழ்நாடு லாஜிஸ்டிக்ஸ் குடும்பத்தின் பெருமைமிக்க அங்கம்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>எங்களுடன் இணைந்து பெருமையுடன் பயணியுங்கள்!</span></li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
     <!-- SVG CURVE STATS SECTION -->
-    <section id="stats" class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tntc-muted/20">
+    <section id="stats" class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tntc-muted/20 reveal">
         <div class="max-w-5xl mx-auto text-center">
             <p class="text-[10px] font-black text-tntc-textSecondary tracking-[0.3em] uppercase mb-4">The Distance Journey</p>
             <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight"><span id="orbitCountDisplay" class="text-tntc-accent">0</span> orbits around Earth.</h2>
@@ -130,13 +192,9 @@
             <!-- Orbit Curve Visual -->
             <div class="relative w-full max-w-4xl mx-auto h-32 md:h-48 mb-16 px-4">
                 <svg viewBox="0 0 1000 200" class="absolute w-full h-full overflow-visible left-0 top-0" preserveAspectRatio="none">
-                    <!-- Background track -->
                     <path d="M 50,180 Q 500,0 950,180" fill="none" stroke="#1e293b" stroke-width="6" stroke-dasharray="15 10" stroke-linecap="round"/>
-                    
-                    <!-- Glowing Progress Track -->
                     <path id="orbitProgressPath" d="M 50,180 Q 500,0 950,180" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round" class="transition-all duration-[2000ms] ease-out" stroke-dasharray="1200" stroke-dashoffset="1200"/>
                     
-                    <!-- Milestones -->
                     <circle id="node-100" cx="275" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
                     <text x="275" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">100×</text>
                     
@@ -150,7 +208,6 @@
                     <text x="950" y="152" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">400×</text>
                 </svg>
                 
-                <!-- Truck Icon on Path -->
                 <div id="truckIndicator" class="absolute w-8 h-8 bg-tntc-accent rounded-full flex items-center justify-center shadow-[0_0_20px_#06b6d4] transition-all duration-[2000ms] ease-out -translate-x-1/2 -translate-y-1/2 opacity-0 z-10">
                     <i data-lucide="truck" class="w-4 h-4 text-[#05070a]"></i>
                 </div>
@@ -178,8 +235,32 @@
         </div>
     </section>
 
+    <!-- BEHIND THE WHEEL / YOUTUBE SECTION -->
+    <section class="max-w-6xl mx-auto px-6 py-24 reveal">
+        <div class="text-center mb-10">
+            <span class="text-[10px] text-tntc-accent font-bold uppercase tracking-widest">Behind The Wheel</span>
+            <h2 class="text-3xl md:text-4xl font-black text-white mt-2 uppercase tracking-tight">See the fleet in motion</h2>
+            <p class="text-sm text-tntc-textSecondary mt-3 max-w-2xl mx-auto">A glimpse of how Tamilnadu Trucking Crew takes on the asphalt — convoys, events, and the rhythm of the road.</p>
+        </div>
+        
+        <!-- Video Container with Glowing Cyan Accent -->
+        <div class="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-tntc-muted/30 shadow-[0_0_30px_rgba(6,182,212,0.1)] bg-tntc-card p-2 md:p-3 reveal delay-100">
+            <div class="aspect-video w-full rounded-xl overflow-hidden relative bg-tntc-main border border-tntc-muted/20">
+                <!-- IMPORTANT: Replace YOUR_VIDEO_ID with the actual YouTube Video ID from Timeless Gamer -->
+                <iframe 
+                    class="absolute top-0 left-0 w-full h-full"
+                    src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=0&rel=0&modestbranding=1" 
+                    title="TNTC Fleet in Motion" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
     <!-- JOIN THE FLEET -->
-    <section class="py-24 px-6 bg-tntc-main border-b border-tntc-muted/20">
+    <section class="py-24 px-6 bg-tntc-main border-y border-tntc-muted/20 reveal">
         <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
             <div>
                 <p class="text-[10px] font-black text-yellow-500 tracking-[0.2em] uppercase mb-4">Join The Fleet</p>
@@ -204,7 +285,7 @@
             </div>
 
             <!-- Features Box -->
-            <div class="bg-[#0a0e14] border border-tntc-muted/30 p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden">
+            <div class="bg-[#0a0e14] border border-tntc-muted/30 p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden reveal delay-100">
                 <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500/5 rounded-full blur-3xl"></div>
                 <div class="relative z-10">
                     <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Fast approval</h4>
@@ -225,7 +306,7 @@
     </section>
 
     <!-- NEWS SECTION WITH VIEW ALL LINK -->
-    <section id="news" class="py-24 px-6 bg-[#030407] hidden border-b border-tntc-muted/20">
+    <section id="news" class="py-24 px-6 bg-[#030407] hidden border-b border-tntc-muted/20 reveal">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                 <div>
@@ -241,7 +322,7 @@
     </section>
 
     <!-- GALLERY SECTION WITH VIEW ALL LINK -->
-    <section id="gallery" class="py-24 px-6 bg-tntc-main hidden border-b border-tntc-muted/20">
+    <section id="gallery" class="py-24 px-6 bg-tntc-main hidden border-b border-tntc-muted/20 reveal">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                 <div>
