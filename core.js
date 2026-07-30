@@ -1,9 +1,20 @@
-const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv";
+// ==========================================
+// CORE.JS - Global State & Authentication
+// ==========================================
+
+// Add all your Job Log CSV URLs here inside the array for the Dashboard
+const DASHBOARD_JOB_URLS = [
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
+    // "YOUR_OLD_DRIVER_1_URL_HERE",
+    // "YOUR_OLD_DRIVER_2_URL_HERE"
+];
+
 const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
 const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=1843886913&single=true&output=csv"; 
 const LIVE_RIDERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=398596081&single=true&output=csv";
 const EVENT_COVERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=1086258292&single=true&output=csv";
 
+// Global Dashboard Data Arrays & Variables
 let kmChartInstance = null;
 let eventChartInstance = null;
 let globalJobData = []; 
@@ -16,12 +27,44 @@ let dynamicTotalTargetDist = 0;
 let validCampaignDrivers = new Map(); 
 let isTourDataFetched = false;
 
-// NEW: Global Pagination States
+// Global Pagination States
 let currentJobPage = 1;
 let globalFilteredJobs = [];
 let currentEventPage = 1;
 
 let domCache = {};
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Authentication Check
+    const role = sessionStorage.getItem('tntc_role');
+    if (!role) {
+        window.location.href = 'index.html'; // Kick to home if not logged in
+        return; 
+    }
+
+    // 2. Initialize Icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // 3. Setup Tab Navigation
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab') || 'overview';
+    switchTab(activeTab);
+
+    // 4. Update UI based on Role
+    setupRoleUI(role);
+
+    // 5. Start fetching Data (This triggers api.js)
+    if(typeof fetchVTCData === 'function') {
+        fetchVTCData();
+    }
+});
+
+// ==========================================
+// HELPER FUNCTIONS
+// ==========================================
+
 function updateDOMIfChanged(elementId, newHTML) {
     if (domCache[elementId] !== newHTML) {
         domCache[elementId] = newHTML;
@@ -103,4 +146,53 @@ function closeModal(modalId) {
         modal.classList.remove('modal-open');
         modal.classList.add('modal-closed');
     }
+}
+
+// ==========================================
+// UI / NAVIGATION FUNCTIONS
+// ==========================================
+
+function setupRoleUI(role) {
+    if (role === 'admin') {
+        document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+    } else {
+        document.querySelectorAll('.admin-only').forEach(el => el.remove());
+    }
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.nav-btn').forEach(el => {
+        el.classList.remove('bg-tntc-accent/10', 'text-tntc-accent', 'border-r-2', 'border-tntc-accent');
+        el.classList.add('text-tntc-textSecondary');
+    });
+
+    const activeContent = document.getElementById(tabId);
+    if (activeContent) activeContent.classList.remove('hidden');
+
+    const activeBtn = document.querySelector(`.nav-btn[onclick="switchTab('${tabId}')"]`);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-tntc-textSecondary');
+        activeBtn.classList.add('bg-tntc-accent/10', 'text-tntc-accent', 'border-r-2', 'border-tntc-accent');
+    }
+
+    if (window.innerWidth < 1024) toggleSidebar(); 
+    
+    // Call UI update functions based on the tab
+    if (tabId === 'overview' && typeof updateOverviewTab === 'function') updateOverviewTab();
+    if (tabId === 'joblogs' && typeof updateJobLogsTab === 'function') updateJobLogsTab();
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if(!sidebar || !overlay) return;
+    
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+}
+
+function logout() {
+    sessionStorage.removeItem('tntc_role');
+    window.location.href = 'index.html';
 }

@@ -2,7 +2,13 @@
 // TNTC HOMEPAGE ENGINE
 // ==========================================
 
-const JOB_LOGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv"; 
+// Add all your CSV URLs here inside the array
+const JOB_LOGS_URLS = [
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
+    // "YOUR_OLD_DRIVER_1_URL_HERE",
+    // "YOUR_OLD_DRIVER_2_URL_HERE"
+];
+
 const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
 const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
 const APP_URL = "https://script.google.com/macros/s/AKfycbzvotvrNlRG82W5XIjfkyljzhhZ2508umguh2yLulnLcmXCEuLB2mhhokra6zfcJTQmaA/exec"; 
@@ -14,83 +20,112 @@ document.addEventListener("DOMContentLoaded", () => {
     loadStatsAndMarquee();
     loadNews();
     loadGallery();
-    initScrollReveal(); // Triggers the smooth scroll animations
+    initScrollReveal();
 });
 
 function loadStatsAndMarquee() {
     let marqueeEl = document.getElementById('marqueeData');
     if(!marqueeEl) return; 
 
-    Papa.parse(JOB_LOGS_CSV_URL, {
-        download: true,
-        header: false,
-        skipEmptyLines: 'greedy',
-        complete: function(results) {
-            const rows = results.data;
-            let totalDist = 0;
-            let totalJobs = 0;
-            let recentJobsList = [];
-
-            for(let i = 1; i < rows.length; i++) {
-                let row = rows[i];
-                let driverName = String(row[2] || '').trim();
-                
-                if(!driverName || driverName.toUpperCase() === 'UNKNOWN') continue;
-
-                let source = String(row[5] || 'Unknown');
-                let dest = String(row[7] || 'Unknown');
-                let distStr = String(row[12] || '0').replace(/[^0-9.-]/g, '');
-                let dist = parseFloat(distStr) || 0;
-
-                if (dist > 0) {
-                    totalDist += dist;
-                    totalJobs++;
-                    recentJobsList.push({ driver: driverName, source: source, dest: dest, dist: dist });
+    // Create an array to hold all the download tasks (Promises)
+    let fetchPromises = JOB_LOGS_URLS.map(url => {
+        return new Promise((resolve, reject) => {
+            Papa.parse(url, {
+                download: true,
+                header: false,
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    // Skip the header row from every sheet to avoid errors
+                    let dataRows = results.data.slice(1); 
+                    resolve(dataRows);
+                },
+                error: function(err) {
+                    console.error("Error fetching URL:", url, err);
+                    resolve([]); // If one sheet fails, continue with others
                 }
-            }
-            
-            let marqueeHtml = "";
-            let topRecent = recentJobsList.slice(-10).reverse(); 
-            topRecent.forEach(job => {
-                marqueeHtml += `
-                <span class="mx-6 flex items-center gap-2 inline-flex">
-                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-tntc-distance"></i> 
-                    JOB DELIVERED: <span class="text-white">${job.driver}</span> 
-                    <span class="text-tntc-muted mx-2">|</span> 
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-tntc-accent"></i>
-                    <span class="text-tntc-accent">${job.source} ➔ ${job.dest}</span> (${job.dist}km)
-                </span>`;
             });
+        });
+    });
 
-            if (marqueeEl) {
-                if (marqueeHtml === "") marqueeHtml = `<span class="text-tntc-textSecondary">Waiting for new jobs...</span>`;
-                let repeatingBlock = `<span class="inline-flex items-center">${marqueeHtml}</span>`;
-                marqueeEl.innerHTML = repeatingBlock + repeatingBlock;
-                if(typeof lucide !== 'undefined') lucide.createIcons({ root: marqueeEl });
+    // Run all downloads at the SAME TIME
+    Promise.all(fetchPromises).then(allResults => {
+        let combinedRows = [];
+        
+        // Combine all sheets data into one big list
+        allResults.forEach(rows => {
+            combinedRows = combinedRows.concat(rows);
+        });
+
+        // DATE SORTING LOGIC: Sorts the combined rows from Oldest to Newest
+        combinedRows.sort((a, b) => {
+            let dateA = new Date(a[0]).getTime() || 0; 
+            let dateB = new Date(b[0]).getTime() || 0;
+            return dateA - dateB;
+        });
+
+        let totalDist = 0;
+        let totalJobs = 0;
+        let recentJobsList = [];
+
+        for(let i = 0; i < combinedRows.length; i++) {
+            let row = combinedRows[i];
+            let driverName = String(row[2] || '').trim();
+            
+            if(!driverName || driverName.toUpperCase() === 'UNKNOWN') continue;
+
+            let source = String(row[5] || 'Unknown');
+            let dest = String(row[7] || 'Unknown');
+            let distStr = String(row[12] || '0').replace(/[^0-9.-]/g, '');
+            let dist = parseFloat(distStr) || 0;
+
+            if (dist > 0) {
+                totalDist += dist;
+                totalJobs++;
+                recentJobsList.push({ driver: driverName, source: source, dest: dest, dist: dist });
             }
-
-            const earthOrbitKm = 40075;
-            const exactOrbits = totalDist / earthOrbitKm;
-            const orbits = Math.floor(exactOrbits);
-            const kmToNextOrbit = earthOrbitKm - (totalDist % earthOrbitKm);
-            
-            let progressDecimal = exactOrbits / 400; 
-            if (progressDecimal > 1) progressDecimal = 1; 
-
-            animateValue("statDistance", 0, totalDist, 2500);
-            animateValue("statJobs", 0, totalJobs, 2500);
-            animateValue("statOrbits", 0, orbits, 2500);
-            animateValue("statNextOrbit", 0, kmToNextOrbit, 2500);
-            
-            let orbitCountDisplay = document.getElementById('orbitCountDisplay');
-            if(orbitCountDisplay) orbitCountDisplay.innerText = orbits;
-
-            drawOrbitCurve(progressDecimal);
-        },
-        error: function(err) {
-            console.error("PapaParse Network Error:", err);
-            if(marqueeEl) marqueeEl.innerHTML = `<span class="text-red-500 font-bold">Error connecting to VTC Database.</span>`;
         }
+        
+        let marqueeHtml = "";
+        let topRecent = recentJobsList.slice(-10).reverse(); 
+        topRecent.forEach(job => {
+            marqueeHtml += `
+            <span class="mx-6 flex items-center gap-2 inline-flex">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-tntc-distance"></i> 
+                JOB DELIVERED: <span class="text-white">${job.driver}</span> 
+                <span class="text-tntc-muted mx-2">|</span> 
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-tntc-accent"></i>
+                <span class="text-tntc-accent">${job.source} ➔ ${job.dest}</span> (${job.dist}km)
+            </span>`;
+        });
+
+        if (marqueeEl) {
+            if (marqueeHtml === "") marqueeHtml = `<span class="text-tntc-textSecondary">Waiting for new jobs...</span>`;
+            let repeatingBlock = `<span class="inline-flex items-center">${marqueeHtml}</span>`;
+            marqueeEl.innerHTML = repeatingBlock + repeatingBlock;
+            if(typeof lucide !== 'undefined') lucide.createIcons({ root: marqueeEl });
+        }
+
+        const earthOrbitKm = 40075;
+        const exactOrbits = totalDist / earthOrbitKm;
+        const orbits = Math.floor(exactOrbits);
+        const kmToNextOrbit = earthOrbitKm - (totalDist % earthOrbitKm);
+        
+        let progressDecimal = exactOrbits / 400; 
+        if (progressDecimal > 1) progressDecimal = 1; 
+
+        animateValue("statDistance", 0, totalDist, 2500);
+        animateValue("statJobs", 0, totalJobs, 2500);
+        animateValue("statOrbits", 0, orbits, 2500);
+        animateValue("statNextOrbit", 0, kmToNextOrbit, 2500);
+        
+        let orbitCountDisplay = document.getElementById('orbitCountDisplay');
+        if(orbitCountDisplay) orbitCountDisplay.innerText = orbits;
+
+        drawOrbitCurve(progressDecimal);
+
+    }).catch(err => {
+        console.error("Promise Array Error:", err);
+        if(marqueeEl) marqueeEl.innerHTML = `<span class="text-red-500 font-bold">Error combining VTC Databases.</span>`;
     });
 }
 
@@ -314,12 +349,11 @@ function initScrollReveal() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                // Unobserve so it only animates once per refresh
                 observer.unobserve(entry.target);
             }
         });
     }, {
-        threshold: 0.15, // Triggers when 15% of the element is visible
+        threshold: 0.15,
         rootMargin: "0px 0px -50px 0px"
     });
 

@@ -2,7 +2,7 @@
 // DATA FETCHING & API ROUTING (api.js)
 // ==========================================
 
-async function fetchData(isInitialLoad = false) {
+async function fetchVTCData(isInitialLoad = false) {
     if(isInitialLoad) {
         let jobBody = document.getElementById('filteredJobTableBody');
         let eventBody = document.getElementById('filteredEventTableBody');
@@ -24,6 +24,9 @@ async function fetchData(isInitialLoad = false) {
     function checkAndRenderOverview() {
         if (jobsLoaded && eventsLoaded) {
             if(typeof applyOverviewFilter === "function") applyOverviewFilter();
+            // Dashboard UI refresh after data is ready
+            if(typeof updateOverviewTab === 'function') updateOverviewTab();
+            if(typeof updateJobLogsTab === 'function') updateJobLogsTab();
         }
     }
 
@@ -69,36 +72,60 @@ async function fetchData(isInitialLoad = false) {
             }
         });
         
-        Papa.parse(GOOGLE_SHEET_CSV_URL, {
-            download: true,
-            header: false,
-            skipEmptyLines: 'greedy',
-            complete: function(results) {
-                if (results.data.length > 0) {
-                    let startIdx = String(results.data[0][0]).toUpperCase().includes('TIME') ? 1 : 0;
-                    globalJobData = results.data.slice(startIdx);
-                    
-                    if(typeof populateDriverDropdowns === "function") populateDriverDropdowns();
-                    if(typeof applyLogFilters === "function") applyLogFilters();
-                }
-                
-                jobsLoaded = true;
-                checkAndRenderOverview();
-                
-                if (syncEl) {
-                    syncEl.innerText = "Database Synced";
-                    syncEl.classList.remove('animate-pulse');
-                    setTimeout(() => { syncEl.innerText = "Live Connected"; }, 3000);
-                }
-            },
-            error: function(err) {
-                console.error("PapaParse Job Fetch Error:", err);
-                jobsLoaded = true;
-                checkAndRenderOverview();
-                if (syncEl) {
-                    syncEl.innerText = "Sync Error";
-                    syncEl.classList.replace('text-tntc-textPrimary', 'text-tntc-admin');
-                }
+        let fetchPromises = DASHBOARD_JOB_URLS.map(url => {
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: false,
+                    skipEmptyLines: 'greedy',
+                    complete: function(results) {
+                        // Skip header row for merge safety
+                        let startIdx = String(results.data[0][0]).toUpperCase().includes('TIME') ? 1 : 0;
+                        if(startIdx === 0 && String(results.data[0][1]).toUpperCase().includes('DATE')) startIdx = 1; 
+                        
+                        resolve(results.data.slice(startIdx));
+                    },
+                    error: function(err) {
+                        console.error("PapaParse Job Fetch Error for URL:", url, err);
+                        resolve([]); // Prevent crash if one sheet fails
+                    }
+                });
+            });
+        });
+
+        Promise.all(fetchPromises).then(allResults => {
+            let combinedRows = [];
+            allResults.forEach(rows => {
+                combinedRows = combinedRows.concat(rows);
+            });
+
+            // SORT BY DATE (Oldest to Newest)
+            combinedRows.sort((a, b) => {
+                let dateA = new Date(a[0]).getTime() || 0; 
+                let dateB = new Date(b[0]).getTime() || 0;
+                return dateA - dateB;
+            });
+
+            globalJobData = combinedRows;
+            
+            if(typeof populateDriverDropdowns === "function") populateDriverDropdowns();
+            if(typeof applyLogFilters === "function") applyLogFilters();
+            
+            jobsLoaded = true;
+            checkAndRenderOverview();
+            
+            if (syncEl) {
+                syncEl.innerText = "Database Synced";
+                syncEl.classList.remove('animate-pulse');
+                setTimeout(() => { syncEl.innerText = "Live Connected"; }, 3000);
+            }
+        }).catch(err => {
+            console.error("Dashboard Promise Array Error:", err);
+            jobsLoaded = true;
+            checkAndRenderOverview();
+            if (syncEl) {
+                syncEl.innerText = "Sync Error";
+                syncEl.classList.replace('text-tntc-textPrimary', 'text-tntc-admin');
             }
         });
 
