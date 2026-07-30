@@ -1,4 +1,4 @@
-# 🚛 TNTC Telemetry Engine & Live Dashboard
+# 🚛 TNTC Telemetry Engine & Live Dashboard https://tamilnadutruckingcrew.github.io/TNTC-DASHBOARD/
 
 ![TNTC Logo](https://files.catbox.moe/ujn8ng.png)
 
