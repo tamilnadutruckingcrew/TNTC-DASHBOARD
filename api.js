@@ -206,25 +206,29 @@ function applyDynamicAssets() {
         }
     });
 
-    // 3. Update YouTube Promo Video iframe securely
+    // 3. Update YouTube Promo Video iframe (Professional Mode)
     document.querySelectorAll('iframe[data-video-asset]').forEach(iframe => {
         let key = iframe.getAttribute('data-video-asset').toUpperCase();
         let rawUrl = globalSiteAssets[key];
         
         if (rawUrl) {
             let videoId = "";
-            // Smart Extractor: Handles standard links, short links, and embed links
             if (rawUrl.includes("youtu.be/")) {
                 videoId = rawUrl.split("youtu.be/")[1].split("?")[0];
-            } else if (rawUrl.includes("youtube.com/watch?v=")) {
-                videoId = rawUrl.split("v=")[1].split("&")[0];
-            } else if (rawUrl.includes("youtube.com/embed/")) {
+            } else if (rawUrl.includes("youtube.com/shorts/")) {
+                videoId = rawUrl.split("shorts/")[1].split("?")[0];
+            } else if (rawUrl.includes("watch?v=")) {
+                videoId = rawUrl.split("watch?v=")[1].split("&")[0];
+            } else if (rawUrl.includes("embed/")) {
                 videoId = rawUrl.split("embed/")[1].split("?")[0];
             }
 
             if (videoId) {
-                // Ensure it plays securely with proper parameters
-                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
+                // PROFESSIONAL CONFIGURATION:
+                // rel=0 -> Suggests only YOUR channel videos.
+                // iv_load_policy=3 -> No annotations.
+                // modestbranding=1 -> Minimal YouTube logo.
+                iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1`;
             }
         }
     });

@@ -9,7 +9,7 @@ const JOB_LOGS_URLS = [
 
 const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
 const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
-const APP_URL = "https://script.google.com/macros/s/AKfycbzvotvrNlRG82W5XIjfkyljzhhZ2508umguh2yLulnLcmXCEuLB2mhhokra6zfcJTQmaA/exec"; 
+const APP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof lucide !== 'undefined') {
@@ -269,11 +269,11 @@ function authenticateCrew() {
     let role = '';
     
     // 3 Tier Verification
-    if (pass === 'TNTC2026L') {
+    if (pass === 'TNTC@LEADER') {
         role = 'leader';
-    } else if (pass === 'TNTC2026A') {
+    } else if (pass === 'TNTC@ADMIN') {
         role = 'admin';
-    } else if (pass === 'TNTC2026') {
+    } else if (pass === 'TNTC@RIDER') {
         role = 'driver';
     }
     
