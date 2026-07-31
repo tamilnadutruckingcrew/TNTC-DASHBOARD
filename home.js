@@ -5,8 +5,6 @@
 // Add all your CSV URLs here inside the array
 const JOB_LOGS_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
-    // "YOUR_OLD_DRIVER_1_URL_HERE",
-    // "YOUR_OLD_DRIVER_2_URL_HERE"
 ];
 
 const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
@@ -27,7 +25,6 @@ function loadStatsAndMarquee() {
     let marqueeEl = document.getElementById('marqueeData');
     if(!marqueeEl) return; 
 
-    // Create an array to hold all the download tasks (Promises)
     let fetchPromises = JOB_LOGS_URLS.map(url => {
         return new Promise((resolve, reject) => {
             Papa.parse(url, {
@@ -35,28 +32,24 @@ function loadStatsAndMarquee() {
                 header: false,
                 skipEmptyLines: 'greedy',
                 complete: function(results) {
-                    // Skip the header row from every sheet to avoid errors
                     let dataRows = results.data.slice(1); 
                     resolve(dataRows);
                 },
                 error: function(err) {
                     console.error("Error fetching URL:", url, err);
-                    resolve([]); // If one sheet fails, continue with others
+                    resolve([]); 
                 }
             });
         });
     });
 
-    // Run all downloads at the SAME TIME
     Promise.all(fetchPromises).then(allResults => {
         let combinedRows = [];
         
-        // Combine all sheets data into one big list
         allResults.forEach(rows => {
             combinedRows = combinedRows.concat(rows);
         });
 
-        // DATE SORTING LOGIC: Sorts the combined rows from Oldest to Newest
         combinedRows.sort((a, b) => {
             let dateA = new Date(a[0]).getTime() || 0; 
             let dateB = new Date(b[0]).getTime() || 0;
@@ -269,13 +262,31 @@ function closeAuthModal() {
     if(modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
 }
 
-function checkPasscode() {
-    const code = document.getElementById('passcode').value;
-    if (code === 'TNTC2024' || code === 'ADMIN007') {
-        sessionStorage.setItem('tntc_role', code === 'ADMIN007' ? 'admin' : 'driver');
+// THE NEW 3-TIER AUTHENTICATION ENGINE
+function authenticateCrew() {
+    const pass = document.getElementById('passcode').value.trim();
+    const errorMsg = document.getElementById('loginErrorMsg');
+    let role = '';
+    
+    // 3 Tier Verification
+    if (pass === 'TNTC2026L') {
+        role = 'leader';
+    } else if (pass === 'TNTC2026A') {
+        role = 'admin';
+    } else if (pass === 'TNTC2026') {
+        role = 'driver';
+    }
+    
+    if (role) {
+        if(errorMsg) errorMsg.classList.add('hidden');
+        sessionStorage.setItem('tntc_role', role);
         window.location.href = redirectTarget; 
     } else {
-        alert('Invalid Passcode!');
+        if(errorMsg) {
+            errorMsg.classList.remove('hidden');
+        } else {
+            alert('Invalid Passcode!');
+        }
     }
 }
 

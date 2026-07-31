@@ -35,12 +35,12 @@
         body { background-color: #05070a; color: #f8fafc; overflow-x: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .glass-nav { background: rgba(5, 7, 10, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
         
-        /* Cinematic Hero Background */
-     .hero-bg {
+        /* Cinematic Hero Background - Fallback Image inside URL */
+        .hero-bg {
              background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.4), #05070a), url("https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true");
              background-size: cover;
              background-position: center;
-  }
+        }
 
         /* Marquee Animation */
         .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-top: 1px solid rgba(51,65,85,0.3); border-bottom: 1px solid rgba(51,65,85,0.3); background: #0a0e14; padding: 12px 0; }
@@ -48,29 +48,11 @@
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
 
         /* SMOOTH SCROLL REVEAL ENGINE */
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translate(0, 0);
-        }
-        
-        /* SIDE FLY-IN ANIMATIONS */
-        .reveal.from-left {
-            transform: translateX(-100px);
-        }
-        .reveal.from-right {
-            transform: translateX(100px);
-        }
-        .reveal.from-left.active, 
-        .reveal.from-right.active {
-            transform: translate(0, 0);
-        }
-
-        /* DELAYS */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal.active { opacity: 1; transform: translate(0, 0); }
+        .reveal.from-left { transform: translateX(-100px); }
+        .reveal.from-right { transform: translateX(100px); }
+        .reveal.from-left.active, .reveal.from-right.active { transform: translate(0, 0); }
         .delay-100 { transition-delay: 100ms; }
         .delay-200 { transition-delay: 200ms; }
     </style>
@@ -83,7 +65,8 @@
             <!-- Big TNTC Branding -->
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-tntc-main border-2 border-tntc-accent shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center justify-center overflow-hidden p-1">
-                    <img src="https://files.catbox.moe/ujn8ng.png" alt="TNTC" class="w-full h-full object-contain">
+                    <!-- Dynamic Asset Tag Added Here -->
+                    <img data-asset="TNTC_LOGO" src="https://files.catbox.moe/ujn8ng.png" alt="TNTC" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <h1 class="text-2xl font-black tracking-widest text-white leading-none">TNTC</h1>
@@ -105,8 +88,8 @@
         </div>
     </nav>
 
-    <!-- CINEMATIC HERO -->
-    <main class="hero-bg pt-40 pb-20 px-6 min-h-[85vh] flex flex-col justify-center items-center text-center relative z-10">
+    <!-- CINEMATIC HERO (Added data-bg-asset) -->
+    <main data-bg-asset="HOME_BG" class="hero-bg pt-40 pb-20 px-6 min-h-[85vh] flex flex-col justify-center items-center text-center relative z-10">
         
         <div class="inline-flex items-center gap-3 px-5 py-2 border-2 border-yellow-500/40 bg-yellow-500/10 rounded-full mb-8 shadow-[0_0_20px_rgba(234,179,8,0.15)]">
             <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL" class="w-6 h-6 rounded-full border border-yellow-500">
@@ -138,21 +121,15 @@
         </div>
     </div>
 
-    <!-- WELCOME / ABOUT SECTION (NEW) -->
+    <!-- WELCOME / ABOUT SECTION -->
     <section class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tntc-muted/20 overflow-hidden">
         <div class="max-w-6xl mx-auto">
-            
-            <!-- Header -->
             <div class="text-center mb-16 reveal">
                 <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-[0.3em]">Welcome</span>
                 <h2 class="text-3xl md:text-5xl font-black text-white mt-3 tracking-tight">🚛 TNTC - Tamilnadu Trucking Crew</h2>
                 <div class="w-24 h-1 bg-yellow-500/50 mx-auto mt-6 rounded-full"></div>
             </div>
-
-            <!-- Content Grid -->
             <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
-                
-                <!-- English Side (Flies from Left) -->
                 <div class="space-y-6 reveal from-left delay-100">
                     <h3 class="text-xl font-bold text-yellow-500 tracking-wider">English</h3>
                     <ul class="space-y-4 text-tntc-textSecondary text-sm md:text-base">
@@ -164,8 +141,6 @@
                         <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Join us and drive with pride!</span></li>
                     </ul>
                 </div>
-
-                <!-- Tamil Side (Flies from Right) -->
                 <div class="space-y-6 md:border-l border-tntc-muted/30 md:pl-16 relative reveal from-right delay-200">
                     <h3 class="text-xl font-bold text-yellow-500 tracking-wider">தமிழ்</h3>
                     <ul class="space-y-4 text-tntc-textSecondary text-sm md:text-base">
@@ -177,7 +152,6 @@
                         <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>எங்களுடன் இணைந்து பெருமையுடன் பயணியுங்கள்!</span></li>
                     </ul>
                 </div>
-                
             </div>
         </div>
     </section>
@@ -189,31 +163,24 @@
             <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight"><span id="orbitCountDisplay" class="text-tntc-accent">0</span> orbits around Earth.</h2>
             <p class="text-tntc-textSecondary text-sm mb-16 max-w-2xl mx-auto">Every job our drivers complete adds to one shared odometer. Here's how far the fleet has actually travelled together.</p>
             
-            <!-- Orbit Curve Visual -->
             <div class="relative w-full max-w-4xl mx-auto h-32 md:h-48 mb-16 px-4">
                 <svg viewBox="0 0 1000 200" class="absolute w-full h-full overflow-visible left-0 top-0" preserveAspectRatio="none">
                     <path d="M 50,180 Q 500,0 950,180" fill="none" stroke="#1e293b" stroke-width="6" stroke-dasharray="15 10" stroke-linecap="round"/>
                     <path id="orbitProgressPath" d="M 50,180 Q 500,0 950,180" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round" class="transition-all duration-[2000ms] ease-out" stroke-dasharray="1200" stroke-dashoffset="1200"/>
-                    
                     <circle id="node-100" cx="275" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
                     <text x="275" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">100×</text>
-                    
                     <circle id="node-200" cx="500" cy="50" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
                     <text x="500" y="22" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">200×</text>
-                    
                     <circle id="node-300" cx="725" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
                     <text x="725" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">300×</text>
-
                     <circle id="node-400" cx="950" cy="180" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
                     <text x="950" y="152" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">400×</text>
                 </svg>
-                
                 <div id="truckIndicator" class="absolute w-8 h-8 bg-tntc-accent rounded-full flex items-center justify-center shadow-[0_0_20px_#06b6d4] transition-all duration-[2000ms] ease-out -translate-x-1/2 -translate-y-1/2 opacity-0 z-10">
                     <i data-lucide="truck" class="w-4 h-4 text-[#05070a]"></i>
                 </div>
             </div>
 
-            <!-- Numbers -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
                 <div class="flex flex-col items-center">
                     <h4 class="text-4xl md:text-5xl font-black text-tntc-accent mb-2" id="statDistance">0</h4>
@@ -242,14 +209,13 @@
             <h2 class="text-3xl md:text-4xl font-black text-white mt-2 uppercase tracking-tight">See the fleet in motion</h2>
             <p class="text-sm text-tntc-textSecondary mt-3 max-w-2xl mx-auto">A glimpse of how Tamilnadu Trucking Crew takes on the asphalt — convoys, events, and the rhythm of the road.</p>
         </div>
-        
-        <!-- Video Container with Glowing Cyan Accent -->
         <div class="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-tntc-muted/30 shadow-[0_0_30px_rgba(6,182,212,0.1)] bg-tntc-card p-2 md:p-3 reveal delay-100">
             <div class="aspect-video w-full rounded-xl overflow-hidden relative bg-tntc-main border border-tntc-muted/20">
-                <!-- IMPORTANT: Replace YOUR_VIDEO_ID with the actual YouTube Video ID from Timeless Gamer -->
+                <!-- IMPORTANT: data-video-asset added to let api.js dynamically inject the YouTube link! -->
                 <iframe 
+                    data-video-asset="PROMO_VIDEO"
                     class="absolute top-0 left-0 w-full h-full"
-                    src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=0&rel=0&modestbranding=1" 
+                    src="https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=0&rel=0&modestbranding=1" 
                     title="TNTC Fleet in Motion" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -277,14 +243,11 @@
                     <button onclick="openApplyModal()" class="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-black tracking-wider uppercase text-sm transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center gap-2">
                         Apply Now <i data-lucide="user-plus" class="w-4 h-4"></i>
                     </button>
-                    <!-- SECURE DOWNLOAD BUTTON -->
                     <button onclick="secureDownloadLogin()" class="px-6 py-3.5 bg-transparent border border-tntc-muted hover:border-tntc-accent hover:text-tntc-accent text-white rounded-xl text-sm font-black tracking-wider uppercase transition-all flex items-center justify-center gap-2">
                         <i data-lucide="download" class="w-4 h-4"></i> Download Tracker
                     </button>
                 </div>
             </div>
-
-            <!-- Features Box -->
             <div class="bg-[#0a0e14] border border-tntc-muted/30 p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden reveal delay-100">
                 <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500/5 rounded-full blur-3xl"></div>
                 <div class="relative z-10">
@@ -305,7 +268,7 @@
         </div>
     </section>
 
-    <!-- NEWS SECTION WITH VIEW ALL LINK -->
+    <!-- NEWS & GALLERY SECTIONS -->
     <section id="news" class="py-24 px-6 bg-[#030407] hidden border-b border-tntc-muted/20 reveal">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
@@ -321,7 +284,6 @@
         </div>
     </section>
 
-    <!-- GALLERY SECTION WITH VIEW ALL LINK -->
     <section id="gallery" class="py-24 px-6 bg-tntc-main hidden border-b border-tntc-muted/20 reveal">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
@@ -341,20 +303,20 @@
     <footer class="bg-[#010204] py-16 px-6 relative z-10">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
             <div class="flex items-center gap-4">
-                <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNTC" class="w-10 h-10 rounded border border-yellow-500/30 p-0.5 object-cover">
+                <!-- Dynamic Asset Tag Added Here -->
+                <img data-asset="TNL_LOGO" src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNTC" class="w-10 h-10 rounded border border-yellow-500/30 p-0.5 object-cover">
                 <div>
                     <h2 class="text-white font-black text-xl tracking-widest uppercase leading-none">Tamilnadu Logistics</h2>
                     <span class="text-[9px] font-bold text-tntc-textSecondary tracking-widest uppercase mt-1">Official Parent VTC</span>
                 </div>
             </div>
-            
             <div class="text-xs text-tntc-textSecondary font-medium">
                 Made with <span class="text-red-500 mx-1">♥</span> by TNL Team &middot; © 2026 All Rights Reserved
             </div>
         </div>
     </footer>
 
-    <!-- CREW LOGIN MODAL -->
+    <!-- CREW LOGIN MODAL (UPDATED FOR 3 ROLES + RED ERROR TEXT) -->
     <div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm transition-opacity">
         <div class="bg-tntc-card border border-tntc-muted/50 p-8 rounded-2xl shadow-2xl relative w-full max-w-sm text-center">
             <div class="w-16 h-16 rounded-full bg-tntc-accent/10 border border-tntc-accent/30 mx-auto mb-6 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)]">
@@ -363,11 +325,15 @@
             <h3 class="text-2xl font-black text-white mb-2 tracking-tight">Security Gateway</h3>
             <p class="text-xs text-tntc-textSecondary mb-8 font-medium">Enter division passcode to access the VTC dashboard.</p>
             
-            <input type="password" id="passcode" placeholder="Enter Passcode..." class="w-full bg-[#0a0e14] border border-tntc-muted/50 p-3.5 rounded-lg text-white mb-4 text-center tracking-widest text-sm font-bold outline-none focus:border-tntc-accent focus:ring-1 focus:ring-tntc-accent transition-all">
+            <input type="password" id="passcode" placeholder="Enter Passcode..." class="w-full bg-[#0a0e14] border border-tntc-muted/50 p-3.5 rounded-lg text-white mb-2 text-center tracking-widest text-sm font-bold outline-none focus:border-tntc-accent focus:ring-1 focus:ring-tntc-accent transition-all">
+            
+            <!-- Hidden Error Text -->
+            <p id="loginErrorMsg" class="text-red-500 text-xs font-bold mb-4 hidden tracking-wider uppercase">Invalid Passcode!</p>
             
             <div class="flex gap-4">
                 <button onclick="closeAuthModal()" class="flex-1 py-3.5 bg-transparent border border-tntc-muted text-tntc-textSecondary hover:text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">Cancel</button>
-                <button onclick="checkPasscode()" class="flex-1 py-3.5 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all">Authenticate</button>
+                <!-- Centralized authentication call to home.js -->
+                <button onclick="authenticateCrew()" class="flex-1 py-3.5 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all">Authenticate</button>
             </div>
         </div>
     </div>
@@ -377,7 +343,6 @@
         <div class="bg-tntc-card border border-yellow-500/30 p-8 md:p-10 rounded-2xl shadow-2xl relative w-full max-w-lg mx-4">
             <h3 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">Join TNTC Division</h3>
             <p class="text-sm text-tntc-textSecondary mb-8">Fill out your details. An admin will review and contact you on Discord for an interview.</p>
-            
             <form id="applicationForm" onsubmit="submitApplication(event)" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <input type="text" id="appName" placeholder="Your Name" required class="w-full bg-[#0a0e14] border border-tntc-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500">
@@ -388,7 +353,6 @@
                     <input type="text" id="appTMP" placeholder="TruckersMP ID" required class="w-full bg-[#0a0e14] border border-tntc-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500">
                 </div>
                 <textarea id="appReason" placeholder="Why do you want to join our division?" required rows="3" class="w-full bg-[#0a0e14] border border-tntc-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500"></textarea>
-                
                 <div class="flex gap-4 pt-4">
                     <button type="button" onclick="closeApplyModal()" class="flex-1 py-3.5 bg-transparent border border-tntc-muted text-tntc-textSecondary hover:text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">Cancel</button>
                     <button type="submit" id="btnSubmitApp" class="flex-[2] py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_15px_rgba(234,179,8,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all">Submit Application</button>
@@ -413,6 +377,7 @@
         </div>
     </div>
 
+    <!-- UI Scripts -->
     <script>
         function openNewsModal(title, category, image, desc, link) {
             document.getElementById('newsModalTitle').textContent = title;
@@ -446,7 +411,6 @@
             modal.classList.add('hidden');
         }
 
-        // Close modal when clicking outside content
         document.addEventListener('DOMContentLoaded', () => {
             let modal = document.getElementById('newsModal');
             if(modal) {
@@ -457,7 +421,18 @@
         });
     </script>
 
-    <!-- Scripts -->
+    <!-- BOOT SCRIPTS (Fetch Core, API, and Home) -->
+    <script src="core.js"></script>
+    <script src="api.js"></script>
     <script src="home.js"></script>
+    
+    <!-- Dynamic Assets Trigger -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof fetchSiteAssets === 'function') {
+                fetchSiteAssets();
+            }
+        });
+    </script>
 </body>
 </html>

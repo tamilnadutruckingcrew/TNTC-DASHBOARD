@@ -24,7 +24,6 @@ async function fetchVTCData(isInitialLoad = false) {
     function checkAndRenderOverview() {
         if (jobsLoaded && eventsLoaded) {
             if(typeof applyOverviewFilter === "function") applyOverviewFilter();
-            // Dashboard UI refresh after data is ready
             if(typeof updateOverviewTab === 'function') updateOverviewTab();
             if(typeof updateJobLogsTab === 'function') updateJobLogsTab();
         }
@@ -79,7 +78,6 @@ async function fetchVTCData(isInitialLoad = false) {
                     header: false,
                     skipEmptyLines: 'greedy',
                     complete: function(results) {
-                        // Skip header row for merge safety
                         let startIdx = String(results.data[0][0]).toUpperCase().includes('TIME') ? 1 : 0;
                         if(startIdx === 0 && String(results.data[0][1]).toUpperCase().includes('DATE')) startIdx = 1; 
                         
@@ -87,7 +85,7 @@ async function fetchVTCData(isInitialLoad = false) {
                     },
                     error: function(err) {
                         console.error("PapaParse Job Fetch Error for URL:", url, err);
-                        resolve([]); // Prevent crash if one sheet fails
+                        resolve([]); 
                     }
                 });
             });
@@ -99,7 +97,6 @@ async function fetchVTCData(isInitialLoad = false) {
                 combinedRows = combinedRows.concat(rows);
             });
 
-            // SORT BY DATE (Oldest to Newest)
             combinedRows.sort((a, b) => {
                 let dateA = new Date(a[0]).getTime() || 0; 
                 let dateB = new Date(b[0]).getTime() || 0;
@@ -158,20 +155,97 @@ function populateDriverDropdowns() {
     jobDriverFilter.value = currentJobDriver || 'ALL';
 }
 
+// ==========================================
+// DYNAMIC ASSETS (CMS ENGINE)
+// ==========================================
+
+function fetchSiteAssets() {
+    if (typeof ASSETS_CSV_URL === 'undefined') return;
+
+    if (typeof Papa !== 'undefined') {
+        Papa.parse(ASSETS_CSV_URL, {
+            download: true,
+            header: false,
+            skipEmptyLines: 'greedy',
+            complete: function(results) {
+                if (results.data && results.data.length > 0) {
+                    globalSiteAssets = {};
+                    
+                    results.data.forEach(row => {
+                        let assetName = String(row[0]).trim().toUpperCase();
+                        let assetUrl = String(row[1]).trim();
+                        if (assetName && assetUrl) {
+                            globalSiteAssets[assetName] = assetUrl;
+                        }
+                    });
+                    
+                    applyDynamicAssets(); 
+                }
+            },
+            error: function(err) {
+                console.error("Assets Fetch Error:", err);
+            }
+        });
+    }
+}
+
+function applyDynamicAssets() {
+    // 1. Update standard <img> tags
+    document.querySelectorAll('img[data-asset]').forEach(img => {
+        let key = img.getAttribute('data-asset').toUpperCase();
+        if (globalSiteAssets[key]) {
+            img.src = globalSiteAssets[key];
+        }
+    });
+
+    // 2. Update background images
+    document.querySelectorAll('[data-bg-asset]').forEach(el => {
+        let key = el.getAttribute('data-bg-asset').toUpperCase();
+        if (globalSiteAssets[key]) {
+            el.style.backgroundImage = `url('${globalSiteAssets[key]}')`;
+        }
+    });
+
+    // 3. Update YouTube Promo Video iframe securely
+    document.querySelectorAll('iframe[data-video-asset]').forEach(iframe => {
+        let key = iframe.getAttribute('data-video-asset').toUpperCase();
+        let rawUrl = globalSiteAssets[key];
+        
+        if (rawUrl) {
+            let videoId = "";
+            // Smart Extractor: Handles standard links, short links, and embed links
+            if (rawUrl.includes("youtu.be/")) {
+                videoId = rawUrl.split("youtu.be/")[1].split("?")[0];
+            } else if (rawUrl.includes("youtube.com/watch?v=")) {
+                videoId = rawUrl.split("v=")[1].split("&")[0];
+            } else if (rawUrl.includes("youtube.com/embed/")) {
+                videoId = rawUrl.split("embed/")[1].split("?")[0];
+            }
+
+            if (videoId) {
+                // Ensure it plays securely with proper parameters
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
+            }
+        }
+    });
+}
+
 function fetchLiveRidersOnly() {
     if (typeof LIVE_RIDERS_CSV_URL === 'undefined') return;
     
-    Papa.parse(LIVE_RIDERS_CSV_URL, {
-        download: true,
-        header: false,
-        skipEmptyLines: 'greedy',
-        complete: function(results) {
-            if (results.data && typeof renderLiveRiders === "function") {
-                renderLiveRiders(results.data);
+    if (typeof Papa !== 'undefined') {
+        Papa.parse(LIVE_RIDERS_CSV_URL, {
+            download: true,
+            header: false,
+            skipEmptyLines: 'greedy',
+            complete: function(results) {
+                if (results.data && typeof renderLiveRiders === "function") {
+                    renderLiveRiders(results.data);
+                }
+            },
+            error: function(err) {
+                console.error("Live Riders Fetch Error:", err);
             }
-        },
-        error: function(err) {
-            console.error("Live Riders Fetch Error:", err);
-        }
-    });
+        });
+    }
 }

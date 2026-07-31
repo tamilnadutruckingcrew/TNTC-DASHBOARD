@@ -56,14 +56,14 @@
 <body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
 
     <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-tntc-muted/20 bg-[#0a0d14] flex items-center justify-center gap-3 shadow-lg z-20 relative">
-        <img src="https://cdn.discordapp.com/attachments/1497198269120381021/1531694103857991750/TNL_logo.png?ex=6a6a24cb&is=6a68d34b&hm=d0f80f556b08217e00ce199cbfb1ea809e39e9be13baff35842a62c4e7ada586" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-yellow-500/50 object-cover shadow-[0_0_15px_rgba(250,204,21,0.2)]">
+        <img data-asset="TNL_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531694103857991750/TNL_logo.png?ex=6a6a24cb&is=6a68d34b&hm=d0f80f556b08217e00ce199cbfb1ea809e39e9be13baff35842a62c4e7ada586" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-yellow-500/50 object-cover shadow-[0_0_15px_rgba(250,204,21,0.2)]">
         <h1 class="text-lg md:text-xl font-black text-tntc-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
     </div>
 
     <header class="relative flex flex-col md:flex-row justify-between items-center mb-6 pb-2 gap-6 md:gap-4">
         <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
             <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.2)] bg-tntc-accent/10 border border-tntc-accent/30">
-                <img src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png?ex=6a69f2eb&is=6a68a16b&hm=1799fec0be913760da0d600e565ae743f726713d58ef67b61c3eb89d4c707d01" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
+                <img data-asset="TNTC_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png?ex=6a69f2eb&is=6a68a16b&hm=1799fec0be913760da0d600e565ae743f726713d58ef67b61c3eb89d4c707d01" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
             </div>
             <div class="text-center md:text-left">
                 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-tntc-textPrimary uppercase">TAMILNADU TRUCKING CREW</h2>
@@ -72,8 +72,9 @@
         </div>
 
         <div class="flex items-center gap-3 z-10">
-            <button id="adminToolsBtn" onclick="openAdminModal()" class="hidden bg-tntc-admin/10 hover:bg-tntc-admin/20 text-tntc-admin border border-tntc-admin/50 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider items-center gap-2 transition-colors shadow-sm">
-                <i data-lucide="shield-alert" class="w-4 h-4"></i> Admin Panel
+            <!-- PROTECTED ADMIN BUTTON -> Redirects to admin.html now -->
+            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/10 hover:bg-tntc-admin/20 text-tntc-admin border border-tntc-admin/50 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider items-center gap-2 transition-colors shadow-sm">
+                <i data-lucide="shield-alert" class="w-4 h-4 inline-block"></i> Admin Panel
             </button>
             <button onclick="logout()" class="bg-tntc-card hover:bg-tntc-hover border border-tntc-muted/30 px-3 py-2 rounded-lg text-tntc-textSecondary transition-colors" title="Logout">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -138,7 +139,6 @@
                 <p class="text-sm text-tntc-textSecondary">Download the official TNTC division tracker application to automatically log your jobs, distance, and revenue to the live VTC database.</p>
             </div>
             <div class="relative z-10 shrink-0">
-                <!-- IMPORTANT: Add your actual download URL inside the href attribute below -->
                 <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases" target="_blank" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(56,189,248,0.3)] flex items-center justify-center gap-2">
                     <i data-lucide="download" class="w-4 h-4"></i> Download App
                 </a>
@@ -326,176 +326,6 @@
         </div>
     </div>
 
-    <!-- ADMIN MODAL -->
-    <div id="adminModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-closed">
-        <div class="custom-modal-content bg-tntc-card border border-tntc-admin/50 w-full max-w-3xl mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="p-5 sm:p-6 border-b border-tntc-muted/20 bg-tntc-admin/10 flex justify-between items-center shrink-0">
-                <h2 class="text-xl font-black text-tntc-admin uppercase flex items-center gap-2"><i data-lucide="shield-alert" class="w-6 h-6"></i> Admin Control Center</h2>
-                <button onclick="closeModal('adminModal')" class="text-tntc-textSecondary hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            
-            <!-- Admin Tabs -->
-            <div class="flex border-b border-tntc-muted/30 shrink-0 overflow-x-auto custom-scrollbar">
-                <button onclick="switchAdminTab('event')" id="adm-btn-event" class="flex-1 py-3 px-4 text-sm font-bold text-tntc-accent border-b-2 border-tntc-accent bg-tntc-hover transition-colors whitespace-nowrap">Post Event</button>
-                <button onclick="switchAdminTab('tour')" id="adm-btn-tour" class="flex-1 py-3 px-4 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap">Create Tour</button>
-                <button onclick="switchAdminTab('manage')" id="adm-btn-manage" class="flex-1 py-3 px-4 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap">Manage Tours</button>
-                <button onclick="switchAdminTab('news')" id="adm-btn-news" class="flex-1 py-3 px-4 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap">Post News</button>
-                <button onclick="switchAdminTab('gallery')" id="adm-btn-gallery" class="flex-1 py-3 px-4 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap">Add Gallery</button>
-                <button onclick="switchAdminTab('recruit')" id="adm-btn-recruit" class="flex-1 py-3 px-4 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap text-yellow-500">Requests</button>
-            </div>
-
-            <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar relative flex-1">
-                <!-- Loading Overlay -->
-                <div id="adminLoadingOverlay" class="absolute inset-0 bg-tntc-card/90 backdrop-blur-sm z-20 hidden flex-col items-center justify-center gap-3">
-                    <div class="loader"></div>
-                    <p id="adminLoadingText" class="text-tntc-accent font-bold text-sm tracking-wider uppercase">Processing Request...</p>
-                </div>
-
-                <!-- ADD EVENT FORM -->
-                <div id="adm-tab-event" class="block space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Event Name</label><input type="text" id="addEvName" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Date</label><input type="date" id="addEvDate" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Category</label>
-                            <select id="addEvCat" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent">
-                                <option value="DIVISION EVENT">DIVISION EVENT</option>
-                                <option value="TNL PUBLIC EVENT">TNL PUBLIC EVENT</option>
-                                <option value="TNL PRIVATE EVENT">TNL PRIVATE EVENT</option>
-                                <option value="OTHER PUBLIC EVENTS">OTHER PUBLIC EVENTS</option>
-                                <option value="OTHER DIVISION EVENTS">OTHER DIVISION EVENTS</option>
-                            </select>
-                        </div>
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">TMP Event Link</label><input type="text" id="addEvLink" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                    </div>
-                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Image Link (Column F)</label><input type="text" id="addEvImage" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                    
-                    <div class="pt-2">
-                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider border-b border-tntc-muted/20 pb-1">Attended Drivers</label>
-                        <div id="adminDriverChecklist" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
-                    </div>
-                    <button onclick="submitNewEvent()" class="w-full mt-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-3 rounded-lg uppercase tracking-wider shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-all">Publish Event to Sheet</button>
-                </div>
-
-                <!-- CREATE TOUR FORM -->
-                <div id="adm-tab-tour" class="hidden space-y-4">
-                    <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl text-amber-500 text-xs font-bold mb-4">
-                        Define tour parameters and build the route manifest below.
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Tour Name</label>
-                            <input type="text" id="addTourName" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Banner Image URL</label>
-                            <input type="text" id="addTourBanner" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Start Date</label>
-                            <input type="date" id="addTourStart" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">End Date (Target)</label>
-                            <input type="date" id="addTourEnd" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent">
-                        </div>
-                    </div>
-
-                    <div id="route-container" class="space-y-2 border-t border-tntc-muted/20 pt-4">
-                        <label class="block text-xs font-bold text-tntc-textSecondary uppercase tracking-wider mb-2">Route Manifest</label>
-                    </div>
-                    
-                    <button onclick="addRouteRow()" class="text-xs font-bold text-tntc-accent flex items-center gap-1 hover:underline mt-2">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Add Another Route
-                    </button>
-
-                    <button onclick="submitNewTour()" class="w-full mt-4 bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-3 rounded-lg uppercase tracking-wider shadow-[0_0_15px_rgba(74,222,128,0.3)] transition-all">
-                        Generate Tour Manifest
-                    </button>
-                </div>
-
-                <!-- MANAGE TOURS FORM -->
-                <div id="adm-tab-manage" class="hidden space-y-4">
-                    <div class="bg-tntc-muted/10 border border-tntc-muted/30 p-4 rounded-xl text-tntc-accent text-xs font-bold mb-4">
-                        Pause or end active tours. Paused tours require a reason broadcasted to the crew.
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Select Active Tour</label>
-                        <select id="manageTourSelect" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Change Status</label>
-                        <select id="manageTourStatus" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent">
-                            <option value="LIVE">🟢 LIVE</option>
-                            <option value="PAUSED">🟡 PAUSED (Hold)</option>
-                            <option value="ENDED">🔴 ENDED (Archived)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Reason / Annoucement (Visible to drivers)</label>
-                        <input type="text" id="manageTourReason" placeholder="E.g. Server maintenance, Tour completed..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent">
-                    </div>
-
-                    <button onclick="submitTourStatusUpdate()" class="w-full mt-4 bg-tntc-revenue hover:bg-tntc-revenue/80 text-[#05070a] font-black py-3 rounded-lg uppercase tracking-wider shadow-[0_0_15px_rgba(250,204,21,0.3)] transition-all">
-                        Broadcast Status Change
-                    </button>
-                </div>
-
-                <!-- POST NEWS FORM -->
-                <div id="adm-tab-news" class="hidden space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">News Title</label><input type="text" id="addNewsTitle" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Date (e.g. Aug 15, 2026)</label><input type="text" id="addNewsDate" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Category (e.g. MILESTONE)</label><input type="text" id="addNewsCat" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                        <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Image URL</label><input type="text" id="addNewsImg" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                    </div>
-                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Description</label><textarea id="addNewsDesc" rows="3" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></textarea></div>
-                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Read More Link</label><input type="text" id="addNewsLink" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-2 text-sm outline-none focus:border-tntc-accent"></div>
-                    <button onclick="submitNewNews()" class="w-full mt-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-3 rounded-lg uppercase tracking-wider shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-all">Publish News</button>
-                </div>
-
-                <!-- ADD GALLERY FORM -->
-                <div id="adm-tab-gallery" class="hidden space-y-4">
-                    <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl text-amber-500 text-xs font-bold mb-4">
-                        Add direct image URLs here to showcase them on the homepage gallery grid.
-                    </div>
-                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Image URL</label><input type="text" id="addGalleryImg" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded p-3 text-sm outline-none focus:border-tntc-accent"></div>
-                    <button onclick="submitNewGallery()" class="w-full mt-4 bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-3 rounded-lg uppercase tracking-wider shadow-[0_0_15px_rgba(74,222,128,0.3)] transition-all">Add to Gallery</button>
-                </div>
-
-                <!-- RECRUITMENT REQUESTS FORM -->
-                <div id="adm-tab-recruit" class="hidden space-y-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-xl text-yellow-500 text-xs font-bold w-full flex justify-between items-center">
-                            Review new driver applications here.
-                            <button onclick="fetchApplications()" class="bg-yellow-500 text-black px-3 py-1.5 rounded font-black tracking-wider uppercase hover:bg-yellow-400 transition-colors shadow-lg">Refresh List</button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto custom-scrollbar border border-tntc-muted/30 rounded-xl">
-                        <table class="w-full text-left text-sm text-tntc-textSecondary whitespace-nowrap">
-                            <thead class="text-[10px] uppercase tracking-wider bg-tntc-card border-b border-tntc-muted/30 text-white">
-                                <tr>
-                                    <th class="p-4">Date</th>
-                                    <th class="p-4">Name</th>
-                                    <th class="p-4">Discord</th>
-                                    <th class="p-4">TMP ID</th>
-                                    <th class="p-4">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="applicationsTableBody" class="divide-y divide-tntc-muted/10 text-xs">
-                                <tr><td colspan="5" class="p-6 text-center">Click refresh to load applications.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- SCRIPTS -->
     <script src="core.js"></script>
     <script src="api.js"></script>
@@ -505,272 +335,22 @@
     <script src="liveriders.js"></script>
     <script src="init.js"></script>
     
-    <!-- ADMIN LOGIC -->
+    <!-- SECURE ROLE VERIFICATION SCRIPT -->
     <script>
-        // THIS URL MUST MATCH THE APP_URL IN home.js
-        const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzvotvrNlRG82W5XIjfkyljzhhZ2508umguh2yLulnLcmXCEuLB2mhhokra6zfcJTQmaA/exec";
-
-        function openAdminModal() {
-    // Fetch tour master index if not already loaded so admin can manage tours immediately
-    if (typeof fetchTourData === "function" && !isTourDataFetched) {
-        fetchTourData();
-    }
-    populateAdminDriverChecklist();
-    let modal = document.getElementById('adminModal');
-    modal.classList.remove('modal-closed');
-    modal.classList.add('modal-open');
-        }
-
-        function switchAdminTab(tab) {
-            document.getElementById('adm-tab-event').classList.toggle('hidden', tab !== 'event');
-            document.getElementById('adm-tab-tour').classList.toggle('hidden', tab !== 'tour');
-            document.getElementById('adm-tab-manage').classList.toggle('hidden', tab !== 'manage');
-            document.getElementById('adm-tab-news').classList.toggle('hidden', tab !== 'news');
-            document.getElementById('adm-tab-gallery').classList.toggle('hidden', tab !== 'gallery');
-            document.getElementById('adm-tab-recruit').classList.toggle('hidden', tab !== 'recruit');
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Role-Based Access Control
+            const role = sessionStorage.getItem('tntc_role');
             
-            let btnEv = document.getElementById('adm-btn-event');
-            let btnTr = document.getElementById('adm-btn-tour');
-            let btnMg = document.getElementById('adm-btn-manage');
-            let btnNw = document.getElementById('adm-btn-news');
-            let btnGl = document.getElementById('adm-btn-gallery');
-            let btnRc = document.getElementById('adm-btn-recruit');
-            
-            const activeClass = "flex-1 py-3 px-4 text-sm font-bold text-tntc-accent border-b-2 border-tntc-accent bg-tntc-hover transition-colors whitespace-nowrap";
-            const inactiveClass = "flex-1 py-3 px-4 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap";
-
-            btnEv.className = tab === 'event' ? activeClass : inactiveClass;
-            btnTr.className = tab === 'tour' ? activeClass : inactiveClass;
-            btnMg.className = tab === 'manage' ? activeClass : inactiveClass;
-            btnNw.className = tab === 'news' ? activeClass : inactiveClass;
-            btnGl.className = tab === 'gallery' ? activeClass : inactiveClass;
-            btnRc.className = tab === 'recruit' ? activeClass : inactiveClass;
-            
-            if (tab === 'manage' && typeof populateManageToursDropdown === 'function') {
-                populateManageToursDropdown();
+            // Show standard admin tools to both Leaders and Admins
+            if (role === 'leader' || role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
             }
-            if (tab === 'recruit') {
-                fetchApplications();
+
+            // 2. Fetch Dynamic Assets from Google Sheets (if function exists in api.js)
+            if (typeof fetchSiteAssets === 'function') {
+                fetchSiteAssets();
             }
-        }
-
-        function populateAdminDriverChecklist() {
-            let container = document.getElementById('adminDriverChecklist');
-            if(!container) return;
-            
-            let html = "";
-            if(globalEventData.headers.length > 6) {
-                for(let i = 6; i < globalEventData.headers.length; i++) {
-                    let name = String(globalEventData.headers[i] || '').trim();
-                    let norm = normalizeKey(name);
-                    if(norm && norm !== 'UNKNOWN' && !norm.includes('ATTENDANCE')) {
-                        html += `
-                        <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-tntc-hover rounded border border-transparent hover:border-tntc-muted/20 transition-colors">
-                            <input type="checkbox" value="${name.toUpperCase()}" class="admin-drv-chk accent-tntc-accent w-3.5 h-3.5">
-                            <span class="text-[10px] sm:text-xs font-semibold text-tntc-textPrimary truncate">${name}</span>
-                        </label>`;
-                    }
-                }
-            }
-            container.innerHTML = html;
-        }
-
-        async function fetchApplications() {
-            let tbody = document.getElementById('applicationsTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-tntc-accent font-bold"><i data-lucide="loader" class="w-4 h-4 inline animate-spin mr-2"></i> Fetching records...</td></tr>';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-
-            try {
-                const response = await fetch(ADMIN_WEBAPP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "GET_APPLICATIONS" })
-                });
-                const resData = await response.json();
-                
-                if(resData.status === 'success' && resData.data && resData.data.length > 0) {
-                    let html = '';
-                    resData.data.forEach(app => {
-                        html += `
-                        <tr class="hover:bg-tntc-hover transition-colors">
-                            <td class="p-4 font-mono text-tntc-textSecondary">${app.date.split(',')[0]}</td>
-                            <td class="p-4 font-bold text-white">${app.name}</td>
-                            <td class="p-4 font-bold text-tntc-accent">${app.discord}</td>
-                            <td class="p-4 font-mono">${app.tmpId}</td>
-                            <td class="p-4"><span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest">${app.status}</span></td>
-                        </tr>`;
-                    });
-                    tbody.innerHTML = html;
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No pending applications found.</td></tr>';
-                }
-            } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-tntc-admin">Error loading data. Check Web App URL.</td></tr>';
-            }
-        }
-
-        async function submitNewEvent() {
-            let payload = {
-                action: "ADD_EVENT",
-                data: {
-                    eventName: document.getElementById('addEvName').value,
-                    date: document.getElementById('addEvDate').value,
-                    category: document.getElementById('addEvCat').value,
-                    link: document.getElementById('addEvLink').value,
-                    imageLink: document.getElementById('addEvImage').value,
-                    attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
-                }
-            };
-
-            if(!payload.data.eventName || !payload.data.date) { alert("Event Name and Date are required!"); return; }
-            await sendAdminRequest(payload, "Adding Event to Sheet...");
-        }
-
-        function addRouteRow() {
-            let container = document.getElementById('route-container');
-            if(!container) return;
-            let div = document.createElement('div');
-            
-            div.className = "grid grid-cols-2 md:grid-cols-6 gap-2 route-row bg-tntc-card p-3 rounded-lg border border-tntc-muted/20 mb-2 relative group";
-            div.innerHTML = `
-                <input type="text" placeholder="Source City" class="route-src bg-tntc-main border border-tntc-muted/30 rounded p-2 text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Source Co." class="route-src-co bg-tntc-main border border-tntc-muted/30 rounded p-2 text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Dest City" class="route-dst bg-tntc-main border border-tntc-muted/30 rounded p-2 text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Dest Co." class="route-dst-co bg-tntc-main border border-tntc-muted/30 rounded p-2 text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="number" placeholder="KM" class="route-km bg-tntc-main border border-tntc-muted/30 rounded p-2 text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Img Link" class="route-img bg-tntc-main border border-tntc-muted/30 rounded p-2 text-xs text-white outline-none focus:border-tntc-accent">
-                
-                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-tntc-admin text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" title="Remove Route">
-                    <i data-lucide="x" class="w-3 h-3"></i>
-                </button>
-            `;
-            container.appendChild(div);
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-        
-        document.addEventListener("DOMContentLoaded", function() {
-            addRouteRow();
         });
-
-        async function submitNewTour() {
-            let routes = [];
-            document.querySelectorAll('.route-row').forEach(row => {
-                routes.push({
-                    source: row.querySelector('.route-src').value,
-                    sourceCo: row.querySelector('.route-src-co').value,
-                    dest: row.querySelector('.route-dst').value,
-                    destCo: row.querySelector('.route-dst-co').value,
-                    dist: row.querySelector('.route-km').value,
-                    img: row.querySelector('.route-img').value
-                });
-            });
-
-            let tourName = document.getElementById('addTourName').value;
-            let startDate = document.getElementById('addTourStart').value;
-            let endDate = document.getElementById('addTourEnd').value;
-            let banner = document.getElementById('addTourBanner').value;
-            
-            if(!tourName || !startDate) { alert("Tour name and Start Date are required!"); return; }
-            
-            let sDate = new Date(startDate);
-
-            let payload = { 
-                action: "CREATE_TOUR", 
-                data: { 
-                    tourName: tourName, 
-                    startDate: startDate,
-                    endDate: endDate,
-                    bannerUrl: banner,
-                    startYear: sDate.getFullYear(),
-                    startMonth: sDate.getMonth() + 1,
-                    startDay: sDate.getDate(),
-                    routes: routes 
-                } 
-            };
-            await sendAdminRequest(payload, "Generating Tour Manifest...");
-        }
-        
-        async function submitTourStatusUpdate() {
-            let tourName = document.getElementById('manageTourSelect').value;
-            let status = document.getElementById('manageTourStatus').value;
-            let reason = document.getElementById('manageTourReason').value;
-            
-            if(!tourName) { alert("Please select a tour."); return; }
-            if(status === 'PAUSED' && !reason) { alert("A reason is required when pausing a tour."); return; }
-
-            let payload = { action: "UPDATE_TOUR_STATUS", data: { tourName: tourName, status: status, reason: reason } };
-            await sendAdminRequest(payload, "Updating Tour Status...");
-        }
-
-        async function submitNewNews() {
-            let payload = {
-                action: "ADD_NEWS",
-                data: {
-                    title: document.getElementById('addNewsTitle').value,
-                    date: document.getElementById('addNewsDate').value,
-                    category: document.getElementById('addNewsCat').value,
-                    image: document.getElementById('addNewsImg').value,
-                    desc: document.getElementById('addNewsDesc').value,
-                    link: document.getElementById('addNewsLink').value
-                }
-            };
-            if(!payload.data.title || !payload.data.date) { alert("Title and Date are required!"); return; }
-            await sendAdminRequest(payload, "Publishing News...");
-        }
-
-        async function submitNewGallery() {
-            let payload = {
-                action: "ADD_GALLERY",
-                data: { image: document.getElementById('addGalleryImg').value }
-            };
-            if(!payload.data.image) { alert("Image URL is required!"); return; }
-            await sendAdminRequest(payload, "Adding to Gallery...");
-        }
-
-        // Replace inside dashboard.html
-async function sendAdminRequest(payload, loadingMsg) {
-    let overlay = document.getElementById('adminLoadingOverlay');
-    let txt = document.getElementById('adminLoadingText');
-    overlay.classList.remove('hidden'); overlay.classList.add('flex');
-    txt.innerText = loadingMsg;
-
-    try {
-        // FIX: Use mode: 'no-cors' and text/plain to prevent browser CORS block on Apps Script redirects
-        await fetch(ADMIN_WEBAPP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(payload)
-        });
-        
-        // Since the POST goes through perfectly, we show success immediately
-        alert("Success! Entry published to the database.\n\nIt may take 1-3 minutes for the Google Sheet CSV to update completely.");
-        closeModal('adminModal');
-        
-        // Form Cleanup
-        if(document.getElementById('addEvName')) document.getElementById('addEvName').value = '';
-        if(document.getElementById('addTourName')) document.getElementById('addTourName').value = '';
-        if(document.getElementById('addNewsTitle')) document.getElementById('addNewsTitle').value = '';
-        if(document.getElementById('addGalleryImg')) document.getElementById('addGalleryImg').value = '';
-        
-        document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
-        
-        let routeContainer = document.getElementById('route-container');
-        if(routeContainer) {
-            routeContainer.innerHTML = '<label class="block text-xs font-bold text-tntc-textSecondary uppercase tracking-wider mb-2">Route Manifest</label>';
-            addRouteRow();
-        }
-        
-        if(typeof fetchData === "function") fetchData(true);
-        
-    } catch (error) {
-        alert("Network Error: Could not connect to the database. Please check your connection.");
-        console.error("Fetch Error:", error);
-    } finally {
-        overlay.classList.add('hidden'); overlay.classList.remove('flex');
-    }
-}
     </script>
 </body>
 </html>

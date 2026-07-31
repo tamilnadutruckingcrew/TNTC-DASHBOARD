@@ -5,8 +5,6 @@
 // Add all your Job Log CSV URLs here inside the array for the Dashboard
 const DASHBOARD_JOB_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
-    // "YOUR_OLD_DRIVER_1_URL_HERE",
-    // "YOUR_OLD_DRIVER_2_URL_HERE"
 ];
 
 const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";
@@ -14,12 +12,16 @@ const TOUR_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMK
 const LIVE_RIDERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=398596081&single=true&output=csv";
 const EVENT_COVERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=1086258292&single=true&output=csv";
 
+// NEW: Site Assets CMS Link
+const ASSETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1307238988&single=true&output=csv";
+
 // Global Dashboard Data Arrays & Variables
+let globalSiteAssets = {}; // Stores dynamic images { "TNTC_LOGO": "https://...", "HOME_BG": "..." }
 let kmChartInstance = null;
 let eventChartInstance = null;
 let globalJobData = []; 
 let globalEventData = { headers: [], rows: [] }; 
-let globalEventCovers = {}; // Stores { "JUNE 2026": "https://..." }
+let globalEventCovers = {}; 
 
 let globalTourData = { headers: [], rows: [] }; 
 let currentProcessedRoutes = []; 
@@ -31,14 +33,15 @@ let isTourDataFetched = false;
 let currentJobPage = 1;
 let globalFilteredJobs = [];
 let currentEventPage = 1;
-
 let domCache = {};
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Authentication Check
+    // 1. Authentication Check (Optional based on your page flow)
     const role = sessionStorage.getItem('tntc_role');
-    if (!role) {
-        window.location.href = 'index.html'; // Kick to home if not logged in
+    
+    // Disable forced kick to index if on admin page
+    if (!role && !window.location.pathname.includes('admin.html') && window.location.pathname.includes('dashboard.html')) {
+        window.location.href = 'index.html'; 
         return; 
     }
 
@@ -50,12 +53,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // 3. Setup Tab Navigation
     const urlParams = new URLSearchParams(window.location.search);
     const activeTab = urlParams.get('tab') || 'overview';
-    switchTab(activeTab);
+    if(typeof switchTab === 'function') switchTab(activeTab);
 
     // 4. Update UI based on Role
     setupRoleUI(role);
 
-    // 5. Start fetching Data (This triggers api.js)
+    // 5. Fetch Dynamic Assets for the entire site!
+    if(typeof fetchSiteAssets === 'function') {
+        fetchSiteAssets();
+    }
+
+    // 6. Start fetching Dashboard Data
     if(typeof fetchVTCData === 'function') {
         fetchVTCData();
     }
@@ -153,7 +161,7 @@ function closeModal(modalId) {
 // ==========================================
 
 function setupRoleUI(role) {
-    if (role === 'admin') {
+    if (role === 'admin' || role === 'leader') {
         document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
     } else {
         document.querySelectorAll('.admin-only').forEach(el => el.remove());
@@ -178,7 +186,6 @@ function switchTab(tabId) {
 
     if (window.innerWidth < 1024) toggleSidebar(); 
     
-    // Call UI update functions based on the tab
     if (tabId === 'overview' && typeof updateOverviewTab === 'function') updateOverviewTab();
     if (tabId === 'joblogs' && typeof updateJobLogsTab === 'function') updateJobLogsTab();
 }
