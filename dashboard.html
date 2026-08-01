@@ -191,7 +191,6 @@
                             <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
                         </div>
                         <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
-                            <!-- 🔥 ADDED MISSING LABEL HERE 🔥 -->
                             <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
                             <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
                                 <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
@@ -203,15 +202,17 @@
                     </div>
                 </div>
 
+                <!-- UPDATE: Rows Default value changed to 10 -->
                 <div class="col-span-1 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Rows</label>
                     <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
-                        <option value="10">10 / page</option>
-                        <option value="25" selected>25 / page</option>
+                        <option value="10" selected>10 / page</option>
+                        <option value="25">25 / page</option>
                         <option value="50">50 / page</option>
                         <option value="100">100 / page</option>
                     </select>
                 </div>
+                
                 <div class="col-span-1 bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
                     <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Filtered Dist.</p>
                     <p id="filteredTotalKm" class="text-lg font-bold text-tntc-distance">0 km</p>
@@ -266,7 +267,6 @@
                             <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
                         </div>
                         <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
-                            <!-- 🔥 ADDED MISSING LABEL HERE 🔥 -->
                             <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
                             <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
                                 <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
@@ -278,15 +278,17 @@
                     </div>
                 </div>
 
+                <!-- UPDATE: Rows Default value changed to 10 -->
                 <div class="col-span-1 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Rows</label>
                     <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
-                        <option value="10">10 / page</option>
-                        <option value="25" selected>25 / page</option>
+                        <option value="10" selected>10 / page</option>
+                        <option value="25">25 / page</option>
                         <option value="50">50 / page</option>
                         <option value="100">100 / page</option>
                     </select>
                 </div>
+                
                 <div class="col-span-1 bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
                     <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Total Events</p>
                     <p id="filteredTotalEvents" class="text-lg font-bold text-tntc-accent">0</p>
@@ -394,7 +396,6 @@
     <script src="liveriders.js"></script>
     <script src="init.js"></script>
     
-    <!-- 🟢 PREMIUM VTC FILTER LOGIC (UPDATED & BUG-FIXED) 🟢 -->
     <script>
         // GLOBAL VTC FILTER STATE
         window.vtcFilterStates = { overview: { mode: 'ALL', value: '' }, logs: { mode: 'ALL', value: '' }, events: { mode: 'ALL', value: '' } };
@@ -428,7 +429,7 @@
 
                         let mode = tab.dataset.mode;
                         
-                        // 🔥 AUTO-APPLY FRESH CURRENT DATES WHEN TABS ARE CLICKED 🔥
+                        // AUTO-APPLY FRESH CURRENT DATES WHEN TABS ARE CLICKED
                         const freshNow = new Date();
                         const freshMonth = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}`;
                         const freshDate = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}-${String(freshNow.getDate()).padStart(2, '0')}`;
@@ -438,22 +439,20 @@
                             triggerFilter(targetFunc, mode, '');
                         } else if (mode === 'MONTHLY') {
                             pickerContainer.classList.remove('hidden');
-                            if (pickerLabel) pickerLabel.innerText = 'MONTH'; // Safety Check!
+                            if (pickerLabel) pickerLabel.innerText = 'MONTH';
                             monthInput.classList.remove('hidden'); 
                             dateInput.classList.add('hidden');
                             
-                            // Auto Apply Current Month and Filter!
                             monthInput.value = freshMonth;
                             updateDisplay(monthInput.value, 'month');
                             triggerFilter(targetFunc, mode, monthInput.value);
                             
                         } else if (mode === 'DAILY') {
                             pickerContainer.classList.remove('hidden');
-                            if (pickerLabel) pickerLabel.innerText = 'DATE'; // Safety Check!
+                            if (pickerLabel) pickerLabel.innerText = 'DATE';
                             monthInput.classList.add('hidden'); 
                             dateInput.classList.remove('hidden');
                             
-                            // Auto Apply Today's Date and Filter!
                             dateInput.value = freshDate;
                             updateDisplay(dateInput.value, 'date');
                             triggerFilter(targetFunc, mode, dateInput.value);
@@ -475,6 +474,7 @@
                     if (!val) { pickerDisplay.innerText = "Select..."; return; }
                     const parts = val.split('-');
                     let d;
+                    // FIX: Preventing Timezone shifting in Safari/Mobile by using standard parts
                     if (type === 'month') {
                         d = new Date(parts[0], parseInt(parts[1]) - 1, 1);
                         pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });

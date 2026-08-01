@@ -12,27 +12,57 @@
             theme: {
                 extend: {
                     colors: {
-                        tntc: { main: '#05070a', card: '#0a0e14', distance: '#22c55e', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#334155' }
+                        tntc: { main: '#05070a', card: '#0a0e14', distance: '#22c55e', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#334155', accent: '#38bdf8' }
                     }
                 }
             }
         }
     </script>
-    <style>body { background-color: #05070a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }</style>
+    <style>
+        body { background-color: #05070a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Lightbox Animations */
+        .lightbox-enter { opacity: 0; }
+        .lightbox-enter-active { opacity: 1; transition: opacity 0.3s ease-out; }
+        .lightbox-exit { opacity: 1; }
+        .lightbox-exit-active { opacity: 0; transition: opacity 0.3s ease-in; }
+        
+        .img-scale-enter { transform: scale(0.9); }
+        .img-scale-enter-active { transform: scale(1); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .img-scale-exit { transform: scale(1); }
+        .img-scale-exit-active { transform: scale(0.95); transition: transform 0.3s ease-in; }
+    </style>
 </head>
-<body class="min-h-screen p-6 md:p-12">
-    <div class="max-w-6xl mx-auto mb-10 flex justify-between items-center border-b border-tntc-muted/30 pb-6">
+<body class="min-h-screen p-6 md:p-12 relative">
+    <div class="max-w-6xl mx-auto mb-10 flex justify-between items-center border-b border-tntc-muted/30 pb-6 relative z-10">
         <div>
             <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Full Fleet Gallery</h1>
             <p class="text-tntc-textSecondary text-sm mt-1">Snapshots from our convoys and travels on the road.</p>
         </div>
-        <a href="index.html" class="px-4 py-2 bg-tntc-card border border-tntc-muted/50 hover:border-tntc-distance rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors">
+        <a href="index.html" class="px-4 py-2 bg-tntc-card border border-tntc-muted/50 hover:border-tntc-accent hover:text-tntc-accent rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
         </a>
     </div>
 
-    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="allGalleryContainer">
-        <div class="col-span-full text-center py-20 text-tntc-textSecondary">Loading gallery...</div>
+    <!-- Gallery Container -->
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 relative z-10" id="allGalleryContainer">
+        <div class="col-span-full text-center py-20 text-tntc-textSecondary">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-tntc-accent mx-auto mb-4"></div>
+            Loading gallery...
+        </div>
+    </div>
+
+    <!-- 🔥 FULL SCREEN LIGHTBOX MODAL 🔥 -->
+    <div id="lightboxModal" class="fixed inset-0 z-[100] hidden bg-black/95 backdrop-blur-md flex items-center justify-center lightbox-enter">
+        <!-- Close Button -->
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 md:top-10 md:right-10 text-white/60 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all z-50 shadow-lg">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        
+        <!-- Image Container -->
+        <div class="w-full h-full max-w-6xl max-h-[90vh] p-4 flex items-center justify-center img-scale-enter" id="lightboxContent">
+            <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10">
+        </div>
     </div>
 
     <script src="home.js"></script>
@@ -47,16 +77,80 @@
                         let html = "";
                         results.data.forEach(item => {
                             if(item.IMAGE_URL) {
+                                // Added cursor-pointer and onclick event
+                                let safeUrl = item.IMAGE_URL.replace(/'/g, "\\'");
                                 html += `
-                                <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group">
-                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
+                                <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group cursor-pointer" onclick="openLightbox('${safeUrl}')">
+                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 group-hover:opacity-80 transition-all duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
+                                    
+                                    <!-- Hover Overlay Icon -->
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                        <i data-lucide="zoom-in" class="w-8 h-8 text-white drop-shadow-md"></i>
+                                    </div>
                                 </div>`;
                             }
                         });
                         document.getElementById('allGalleryContainer').innerHTML = html || '<p class="col-span-full text-center text-tntc-textSecondary">No images found.</p>';
+                        lucide.createIcons();
                     }
                 }
             });
+        });
+
+        // 🔥 LIGHTBOX JS LOGIC 🔥
+        const modal = document.getElementById('lightboxModal');
+        const content = document.getElementById('lightboxContent');
+        const img = document.getElementById('lightboxImg');
+
+        function openLightbox(url) {
+            img.src = url;
+            modal.classList.remove('hidden');
+            
+            // Trigger animation frame for CSS transitions
+            requestAnimationFrame(() => {
+                modal.classList.remove('lightbox-enter');
+                modal.classList.add('lightbox-enter-active');
+                
+                content.classList.remove('img-scale-enter');
+                content.classList.add('img-scale-enter-active');
+            });
+            
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            modal.classList.remove('lightbox-enter-active');
+            modal.classList.add('lightbox-exit-active');
+            
+            content.classList.remove('img-scale-enter-active');
+            content.classList.add('img-scale-exit-active');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('lightbox-exit-active');
+                modal.classList.add('lightbox-enter');
+                
+                content.classList.remove('img-scale-exit-active');
+                content.classList.add('img-scale-enter');
+                
+                img.src = "";
+                document.body.style.overflow = ''; // Restore scroll
+            }, 300);
+        }
+
+        // Close when clicking the background (outside the image)
+        modal.addEventListener('click', function(e) {
+            if (e.target === this || e.target === content) {
+                closeLightbox();
+            }
+        });
+        
+        // Close on ESC key press
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeLightbox();
+            }
         });
     </script>
 </body>

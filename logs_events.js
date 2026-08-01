@@ -83,7 +83,7 @@ function applyLogFilters() {
 
 function renderJobPage(page) {
     let limitEl = document.getElementById('jobPageLimit');
-    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 25; 
+    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 10; 
     const totalPages = Math.ceil(globalFilteredJobs.length / rowsPerPage) || 1;
     
     if (page < 1) page = 1;
@@ -211,7 +211,7 @@ function applyEventFilters() {
 
 function renderEventPage(page) {
     let limitEl = document.getElementById('eventPageLimit');
-    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 25; 
+    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 10; 
     const totalPages = Math.ceil(window.currentFilteredEvents.length / rowsPerPage) || 1;
     
     if (page < 1) page = 1;

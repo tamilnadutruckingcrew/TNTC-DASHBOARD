@@ -6,7 +6,7 @@
     <title>TNTC - Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- MUKKIYAM: Added PapaParse for fetching CSV Data -->
+    <!-- MUKKIYAM: PapaParse for fetching CSV Data -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script>
         tailwind.config = {
@@ -36,16 +36,16 @@
         .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #38bdf8; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Custom Alert Animation */
+        /* Custom Alert/Confirm Animation */
         .msg-box-enter { animation: slideIn 0.3s ease-out forwards; }
         .msg-box-exit { animation: slideOut 0.3s ease-in forwards; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes slideOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-20px); opacity: 0; } }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 relative">
 
-    <header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-10">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-tntc-admin/10 border border-tntc-admin/30 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.2)]">
                 <i data-lucide="shield-alert" class="w-6 h-6 text-tntc-admin"></i>
@@ -65,7 +65,7 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto glass-panel rounded-2xl shadow-2xl overflow-hidden flex flex-col relative min-h-[70vh]">
+    <main class="max-w-6xl mx-auto glass-panel rounded-2xl shadow-2xl overflow-hidden flex flex-col relative min-h-[70vh] z-10">
         
         <div id="adminLoadingOverlay" class="absolute inset-0 bg-tntc-main/90 backdrop-blur-sm z-50 hidden flex-col items-center justify-center gap-4">
             <div class="loader"></div>
@@ -83,7 +83,7 @@
             <button onclick="switchAdminTab('recruit')" id="adm-btn-recruit" class="flex-1 py-4 px-6 text-sm font-bold text-yellow-500 border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Requests</button>
         </div>
 
-        <div class="p-6 md:p-8 flex-1">
+        <div class="p-6 md:p-8 flex-1 overflow-y-auto custom-scrollbar">
             
             <!-- Assets Tab -->
             <div id="adm-tab-assets" class="hidden space-y-6">
@@ -201,27 +201,49 @@
             </div>
 
             <!-- News Tab -->
-            <div id="adm-tab-news" class="hidden space-y-6">
+            <div id="adm-tab-news" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">News Title</label><input type="text" id="addNewsTitle" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
                     <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Date (e.g. Aug 15, 2026)</label><input type="text" id="addNewsDate" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
                     <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Category (e.g. MILESTONE)</label><input type="text" id="addNewsCat" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
                     <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Image URL</label><input type="text" id="addNewsImg" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
                 </div>
-                <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Description</label><textarea id="addNewsDesc" rows="4" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></textarea></div>
-                <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Read More Link</label><input type="text" id="addNewsLink" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
-                <button onclick="submitNewNews()" class="w-full mt-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="newspaper" class="w-5 h-5"></i> Publish Dispatch</button>
+                <div class="mt-6"><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Description</label><textarea id="addNewsDesc" rows="4" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></textarea></div>
+                <div class="mt-6"><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Read More Link</label><input type="text" id="addNewsLink" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                <button onclick="submitNewNews()" class="w-full mt-6 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="newspaper" class="w-5 h-5"></i> Publish Dispatch</button>
+
+                <!-- 🔥 LIVE NEWS PREVIEW SECTION 🔥 -->
+                <div class="mt-12 border-t border-tntc-muted/20 pt-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-tntc-textPrimary font-black text-lg uppercase tracking-wider flex items-center gap-2"><i data-lucide="radio" class="w-5 h-5 text-tntc-accent animate-pulse"></i> Live News Preview</h3>
+                        <button onclick="loadAdminNews()" class="text-xs bg-tntc-card border border-tntc-muted/30 px-3 py-1.5 rounded hover:text-white transition-colors flex items-center gap-2 shadow-sm"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync</button>
+                    </div>
+                    <div id="adminNewsContainer" class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                        <p class="text-center text-tntc-textSecondary py-8 italic">Click Sync to load news from database.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Gallery Tab -->
-            <div id="adm-tab-gallery" class="hidden space-y-6">
-                <div class="bg-tntc-card p-8 rounded-xl border border-tntc-muted/20 text-center max-w-xl mx-auto mt-10 shadow-lg">
+            <div id="adm-tab-gallery" class="hidden">
+                <div class="bg-tntc-card p-8 rounded-xl border border-tntc-muted/20 text-center max-w-xl mx-auto mt-6 shadow-lg">
                     <div class="w-16 h-16 bg-tntc-distance/10 border border-tntc-distance/30 rounded-full flex items-center justify-center mx-auto mb-6">
                         <i data-lucide="image-plus" class="w-8 h-8 text-tntc-distance"></i>
                     </div>
                     <label class="block text-sm font-bold text-white mb-4 uppercase tracking-wider">Direct Image URL</label>
                     <input type="text" id="addGalleryImg" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-4 text-center text-sm outline-none focus:border-tntc-distance focus:ring-1 focus:ring-tntc-distance mb-6">
                     <button onclick="submitNewGallery()" class="w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all flex items-center justify-center gap-2">Add to Fleet Gallery</button>
+                </div>
+
+                <!-- 🔥 LIVE GALLERY PREVIEW SECTION 🔥 -->
+                <div class="mt-12 border-t border-tntc-muted/20 pt-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-tntc-textPrimary font-black text-lg uppercase tracking-wider flex items-center gap-2"><i data-lucide="radio" class="w-5 h-5 text-tntc-distance animate-pulse"></i> Live Gallery Preview</h3>
+                        <button onclick="loadAdminGallery()" class="text-xs bg-tntc-card border border-tntc-muted/30 px-3 py-1.5 rounded hover:text-white transition-colors flex items-center gap-2 shadow-sm"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync</button>
+                    </div>
+                    <div id="adminGalleryContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-2 pb-4">
+                        <p class="col-span-full text-center text-tntc-textSecondary py-8 italic">Click Sync to load gallery from database.</p>
+                    </div>
                 </div>
             </div>
 
@@ -255,6 +277,7 @@
         </div>
     </main>
 
+    <!-- CUSTOM ALERT MODAL (Non-obstructive) -->
     <div id="customAlertBox" class="fixed top-6 right-6 max-w-sm w-full bg-tntc-card border border-tntc-muted/50 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] z-[100] hidden flex-col overflow-hidden msg-box-enter">
         <div id="alertHeader" class="px-4 py-2 bg-tntc-accent/20 border-b border-tntc-accent/30 flex items-center gap-2">
             <i id="alertIcon" data-lucide="info" class="w-4 h-4 text-tntc-accent"></i>
@@ -268,12 +291,32 @@
         </div>
     </div>
 
+    <!-- 🔥 CUSTOM CONFIRM MODAL (For Safe Deletions) 🔥 -->
+    <div id="customConfirmBox" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/90 backdrop-blur-sm msg-box-enter">
+        <div class="bg-tntc-card border border-tntc-admin/50 p-8 rounded-2xl shadow-[0_0_40px_rgba(239,68,68,0.2)] max-w-sm w-full text-center relative mx-4">
+            <div class="w-16 h-16 rounded-full bg-tntc-admin/10 border border-tntc-admin/30 mx-auto mb-4 flex items-center justify-center">
+                <i data-lucide="trash-2" class="text-tntc-admin w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-black text-white mb-2 uppercase tracking-wide">Confirm Deletion</h3>
+            <p id="confirmMessage" class="text-xs text-tntc-textSecondary mb-8">Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div class="flex gap-4">
+                <button onclick="closeConfirmBox()" class="flex-1 py-3 bg-tntc-main border border-tntc-muted text-tntc-textSecondary hover:text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">Cancel</button>
+                <button id="confirmActionBtn" class="flex-1 py-3 bg-tntc-admin hover:bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] rounded-lg font-black text-xs uppercase tracking-wider transition-all">Delete Item</button>
+            </div>
+        </div>
+    </div>
+
     <script src="core.js"></script>
     <script src="api.js"></script>
     
     <script>
-        // 🔴 PASTE YOUR NEW GOOGLE APPS SCRIPT DEPLOYMENT URL HERE! 🔴
+        // 🔴 1. PASTE YOUR GOOGLE APPS SCRIPT WEBAPP URL HERE 🔴
         const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
+        
+        // 🔴 2. PASTE YOUR PUBLISHED CSV LINKS HERE (For Live Preview) 🔴
+        const ADMIN_NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv";
+        const ADMIN_GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
+        const APPLICATIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=188998109&single=true&output=csv";
 
         document.addEventListener("DOMContentLoaded", () => {
             const role = sessionStorage.getItem('tntc_role');
@@ -295,14 +338,14 @@
             addRouteRow();
         });
 
+        /* --- UI HELPERS --- */
         function showCustomAlert(title, message, isError = false) {
             const box = document.getElementById('customAlertBox');
             const header = document.getElementById('alertHeader');
             const titleEl = document.getElementById('alertTitle');
             const msgEl = document.getElementById('alertMessage');
             
-            titleEl.innerText = title;
-            msgEl.innerText = message;
+            titleEl.innerText = title; msgEl.innerText = message;
             
             if (isError) {
                 header.className = "px-4 py-2 bg-red-500/20 border-b border-red-500/30 flex items-center gap-2";
@@ -315,17 +358,40 @@
             }
             
             lucide.createIcons();
-            box.classList.remove('hidden', 'msg-box-exit');
-            box.classList.add('flex', 'msg-box-enter');
+            box.classList.remove('hidden', 'msg-box-exit'); box.classList.add('flex', 'msg-box-enter');
         }
 
         function closeCustomAlert() {
             const box = document.getElementById('customAlertBox');
-            box.classList.remove('msg-box-enter');
-            box.classList.add('msg-box-exit');
+            box.classList.remove('msg-box-enter'); box.classList.add('msg-box-exit');
             setTimeout(() => { box.classList.remove('flex', 'msg-box-exit'); box.classList.add('hidden'); }, 300);
         }
 
+        /* --- DELETE CONFIRMATION MODAL --- */
+        let pendingDeleteAction = null;
+        
+        function openConfirmDelete(type, identifier) {
+            document.getElementById('confirmMessage').innerText = `Are you sure you want to delete this ${type}? It will be permanently removed from the live website.`;
+            
+            pendingDeleteAction = () => {
+                closeConfirmBox();
+                if (type === 'news') performDeleteNews(identifier);
+                if (type === 'gallery') performDeleteGallery(identifier);
+            };
+            
+            document.getElementById('confirmActionBtn').onclick = pendingDeleteAction;
+            
+            let box = document.getElementById('customConfirmBox');
+            box.classList.remove('hidden'); box.classList.add('flex');
+        }
+
+        function closeConfirmBox() {
+            let box = document.getElementById('customConfirmBox');
+            box.classList.remove('flex'); box.classList.add('hidden');
+            pendingDeleteAction = null;
+        }
+
+        /* --- TAB SWITCHING --- */
         function logoutStaff() {
             sessionStorage.removeItem('tntc_role');
             window.location.href = 'index.html';
@@ -345,10 +411,7 @@
             ['assets', 'event', 'tour', 'manage', 'news', 'gallery', 'recruit'].forEach(t => {
                 const btn = document.getElementById(`adm-btn-${t}`);
                 if(btn) {
-                    if (t === 'assets' && role !== 'leader') {
-                        btn.className = "hidden"; 
-                        return;
-                    }
+                    if (t === 'assets' && role !== 'leader') { btn.className = "hidden"; return; }
                     if (t === 'recruit') {
                          btn.className = tab === t ? activeClass.replace('text-tntc-accent border-tntc-accent', 'text-yellow-500 border-yellow-500') : inactiveClass.replace('text-tntc-textSecondary', 'text-yellow-500 opacity-70');
                     } else {
@@ -357,55 +420,126 @@
                 }
             });
 
-            // Trigger Data Fetches based on Active Tab
+            // Trigger Fetch based on Active Tab
             if (tab === 'recruit') fetchApplications();
             if (tab === 'manage') loadToursForAdmin();
+            if (tab === 'news') loadAdminNews();
+            if (tab === 'gallery') loadAdminGallery();
         }
 
+        /* --- LIVE PREVIEWS --- */
+        function loadAdminNews() {
+            let container = document.getElementById('adminNewsContainer');
+            container.innerHTML = `<div class="text-center py-8"><div class="loader inline-block"></div><p class="text-tntc-textSecondary mt-2">Syncing...</p></div>`;
+            
+            Papa.parse(ADMIN_NEWS_CSV_URL, { 
+                download: true, header: true, skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    if(results.data && results.data.length > 0 && results.data[0].TITLE) {
+                        let html = "";
+                        // Reverse array to show newest first
+                        let reversedData = [...results.data].reverse();
+                        
+                        reversedData.forEach(item => {
+                            if(item.TITLE) {
+                                let safeTitle = item.TITLE.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                                html += `
+                                <div class="bg-tntc-card border border-tntc-muted/30 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 hover:border-tntc-accent/30 transition-colors">
+                                    <div class="flex items-center gap-4 w-full md:w-auto">
+                                        <img src="${item.IMAGE_URL}" onerror="this.src='https://placehold.co/100x100/0a0e14/06b6d4'" class="w-16 h-16 rounded object-cover border border-tntc-muted/50 shrink-0">
+                                        <div>
+                                            <span class="text-[9px] font-black text-tntc-accent uppercase tracking-widest">${item.CATEGORY} &bull; ${item.DATE}</span>
+                                            <h4 class="text-sm font-bold text-white line-clamp-1">${item.TITLE}</h4>
+                                        </div>
+                                    </div>
+                                    <button onclick="openConfirmDelete('news', '${safeTitle}')" class="shrink-0 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 px-4 py-2 rounded-lg text-xs font-bold uppercase transition-colors flex items-center gap-2">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i> Remove
+                                    </button>
+                                </div>`;
+                            }
+                        });
+                        container.innerHTML = html;
+                        lucide.createIcons();
+                    } else {
+                        container.innerHTML = `<p class="text-center text-tntc-textSecondary py-8 italic">No news dispatched yet.</p>`;
+                    }
+                }
+            });
+        }
+
+        function loadAdminGallery() {
+            let container = document.getElementById('adminGalleryContainer');
+            container.innerHTML = `<div class="col-span-full text-center py-8"><div class="loader inline-block"></div><p class="text-tntc-textSecondary mt-2">Syncing...</p></div>`;
+            
+            Papa.parse(ADMIN_GALLERY_CSV_URL, { 
+                download: true, header: true, skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
+                        let html = "";
+                        let reversedData = [...results.data].reverse();
+                        
+                        reversedData.forEach(item => {
+                            if(item.IMAGE_URL) {
+                                let safeUrl = item.IMAGE_URL.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                                html += `
+                                <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 relative group">
+                                    <img src="${item.IMAGE_URL}" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4'" class="w-full h-full object-cover opacity-80 group-hover:opacity-40 transition-all duration-300">
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="openConfirmDelete('gallery', '${safeUrl}')" class="bg-red-500 text-white p-3 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.5)] hover:scale-110 transition-transform">
+                                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                </div>`;
+                            }
+                        });
+                        container.innerHTML = html;
+                        lucide.createIcons();
+                    } else {
+                        container.innerHTML = `<p class="col-span-full text-center text-tntc-textSecondary py-8 italic">No gallery images found.</p>`;
+                    }
+                }
+            });
+        }
+
+        /* --- DELETE ACTIONS --- */
+        async function performDeleteNews(title) {
+            let payload = { action: "DELETE_NEWS", data: { title: title } };
+            await sendAdminRequest(payload, "Removing Dispatch...");
+            setTimeout(loadAdminNews, 2000); 
+        }
+
+        async function performDeleteGallery(imageUrl) {
+            let payload = { action: "DELETE_GALLERY", data: { image: imageUrl } };
+            await sendAdminRequest(payload, "Removing Media...");
+            setTimeout(loadAdminGallery, 2000); 
+        }
+
+        /* --- BASE ADMIN LOGIC --- */
         function loadToursForAdmin() {
             let select = document.getElementById('manageTourSelect');
             if (!select) return;
-            
             select.innerHTML = '<option value="">Fetching tours from database...</option>';
-
-            if (typeof TOUR_SHEET_CSV_URL === 'undefined') {
-                select.innerHTML = '<option value="">Error: TOUR_SHEET_CSV_URL not found</option>';
-                return;
-            }
+            if (typeof TOUR_SHEET_CSV_URL === 'undefined') { select.innerHTML = '<option value="">Error: TOUR_SHEET_CSV_URL not found</option>'; return; }
 
             Papa.parse(TOUR_SHEET_CSV_URL, {
-                download: true,
-                header: false,
-                skipEmptyLines: 'greedy',
+                download: true, header: false, skipEmptyLines: 'greedy',
                 complete: function(results) {
                     let rows = results.data;
-                    
-                    if (rows.length <= 1) {
-                        select.innerHTML = '<option value="">No active tours found in Database</option>';
-                        return;
-                    }
+                    if (rows.length <= 1) { select.innerHTML = '<option value="">No active tours found in Database</option>'; return; }
                     
                     let html = '<option value="">-- Select Active Tour --</option>';
-                    
                     for (let i = 1; i < rows.length; i++) {
                         let tName = String(rows[i][0]).trim();
                         let tStatus = String(rows[i][3]).trim().toUpperCase();
-                        
                         if (!tName) continue;
                         
                         let emoji = '🔴';
                         if (tStatus === 'LIVE') emoji = '🟢';
                         else if (tStatus === 'PAUSED') emoji = '🟡';
                         else if (tStatus === 'COMING SOON') emoji = '🟠';
-                        
                         html += `<option value="${tName}">${emoji} ${tName} (${tStatus})</option>`;
                     }
-                    
                     select.innerHTML = html;
-                },
-                error: function(err) {
-                    console.error("Failed to fetch tours:", err);
-                    select.innerHTML = '<option value="">Error connecting to Google Sheets</option>';
                 }
             });
         }
@@ -413,7 +547,6 @@
         function populateAdminDriverChecklist() {
             let container = document.getElementById('adminDriverChecklist');
             if(!container) return;
-            
             if(typeof globalEventData !== 'undefined' && globalEventData.headers && globalEventData.headers.length > 6) {
                 let html = "";
                 for(let i = 6; i < globalEventData.headers.length; i++) {
@@ -437,7 +570,6 @@
             let container = document.getElementById('route-container');
             if(!container) return;
             let div = document.createElement('div');
-            
             div.className = "grid grid-cols-2 md:grid-cols-6 gap-3 route-row bg-[#0a0d14] p-4 rounded-xl border border-tntc-muted/30 mb-3 relative group";
             div.innerHTML = `
                 <input type="text" placeholder="Source City" class="route-src bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
@@ -446,10 +578,7 @@
                 <input type="text" placeholder="Dest Co." class="route-dst-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
                 <input type="number" placeholder="Distance (KM)" class="route-km bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
                 <input type="text" placeholder="Image URL" class="route-img bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
-                
-                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_rgba(220,38,38,0.5)]" title="Remove Route">
-                    <i data-lucide="x" class="w-3 h-3"></i>
-                </button>
+                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_rgba(220,38,38,0.5)]" title="Remove Route"><i data-lucide="x" class="w-3 h-3"></i></button>
             `;
             container.appendChild(div);
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -463,20 +592,21 @@
 
             try {
                 await fetch(ADMIN_WEBAPP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain' },
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify(payload)
                 });
                 
                 showCustomAlert("Database Updated", "Success! The data was published successfully.\n\nChanges may take 1-3 minutes to sync across the live website.", false);
                 
-                document.querySelectorAll('input[type="text"], input[type="url"], input[type="date"], input[type="number"], textarea').forEach(el => el.value = '');
-                document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
-                let routeContainer = document.getElementById('route-container');
-                if(routeContainer) {
-                    routeContainer.innerHTML = '<label class="block text-xs font-black text-tntc-accent uppercase tracking-wider mb-2"><i data-lucide="milestone" class="w-4 h-4 inline-block mr-1"></i> Route Manifest</label>';
-                    addRouteRow();
+                // Clear inputs (except on delete actions to preserve form states if needed)
+                if(payload.action !== "DELETE_NEWS" && payload.action !== "DELETE_GALLERY") {
+                    document.querySelectorAll('input[type="text"], input[type="url"], input[type="date"], input[type="number"], textarea').forEach(el => el.value = '');
+                    document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
+                    let routeContainer = document.getElementById('route-container');
+                    if(routeContainer) {
+                        routeContainer.innerHTML = '<label class="block text-xs font-black text-tntc-accent uppercase tracking-wider mb-2"><i data-lucide="milestone" class="w-4 h-4 inline-block mr-1"></i> Route Manifest</label>';
+                        addRouteRow();
+                    }
                 }
                 
             } catch (error) {
@@ -488,13 +618,7 @@
         }
 
         async function submitAssetUpdate() {
-            let payload = {
-                action: "UPDATE_ASSET",
-                data: {
-                    assetKey: document.getElementById('assetKey').value,
-                    newUrl: document.getElementById('assetUrl').value
-                }
-            };
+            let payload = { action: "UPDATE_ASSET", data: { assetKey: document.getElementById('assetKey').value, newUrl: document.getElementById('assetUrl').value } };
             if(!payload.data.newUrl) { showCustomAlert("Validation Failed", "Please enter a valid Image/Video URL.", true); return; }
             await sendAdminRequest(payload, "Updating Site Assets...");
         }
@@ -503,12 +627,9 @@
             let payload = {
                 action: "ADD_EVENT",
                 data: {
-                    eventName: document.getElementById('addEvName').value,
-                    date: document.getElementById('addEvDate').value,
-                    category: document.getElementById('addEvCat').value,
-                    link: document.getElementById('addEvLink').value,
-                    imageLink: document.getElementById('addEvImage').value,
-                    attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
+                    eventName: document.getElementById('addEvName').value, date: document.getElementById('addEvDate').value,
+                    category: document.getElementById('addEvCat').value, link: document.getElementById('addEvLink').value,
+                    imageLink: document.getElementById('addEvImage').value, attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
                 }
             };
             if(!payload.data.eventName || !payload.data.date) { showCustomAlert("Validation Failed", "Event Name and Date are required!", true); return; }
@@ -525,19 +646,11 @@
                 });
             });
 
-            let tName = document.getElementById('addTourName').value;
-            let sDate = document.getElementById('addTourStart').value;
+            let tName = document.getElementById('addTourName').value; let sDate = document.getElementById('addTourStart').value;
             if(!tName || !sDate) { showCustomAlert("Validation Failed", "Tour Name and Start Date are required!", true); return; }
             let sD = new Date(sDate);
 
-            let payload = { 
-                action: "CREATE_TOUR", 
-                data: { 
-                    tourName: tName, startDate: sDate, endDate: document.getElementById('addTourEnd').value,
-                    bannerUrl: document.getElementById('addTourBanner').value, startYear: sD.getFullYear(),
-                    startMonth: sD.getMonth() + 1, startDay: sD.getDate(), routes: routes 
-                } 
-            };
+            let payload = { action: "CREATE_TOUR", data: { tourName: tName, startDate: sDate, endDate: document.getElementById('addTourEnd').value, bannerUrl: document.getElementById('addTourBanner').value, startYear: sD.getFullYear(), startMonth: sD.getMonth() + 1, startDay: sD.getDate(), routes: routes } };
             await sendAdminRequest(payload, "Generating Tour Manifest...");
         }
 
@@ -552,12 +665,14 @@
             let payload = { action: "ADD_NEWS", data: { title: document.getElementById('addNewsTitle').value, date: document.getElementById('addNewsDate').value, category: document.getElementById('addNewsCat').value, image: document.getElementById('addNewsImg').value, desc: document.getElementById('addNewsDesc').value, link: document.getElementById('addNewsLink').value } };
             if(!payload.data.title || !payload.data.date) { showCustomAlert("Validation Failed", "Title and Date are required!", true); return; }
             await sendAdminRequest(payload, "Publishing News Dispatch...");
+            setTimeout(loadAdminNews, 2000); // Reload preview
         }
 
         async function submitNewGallery() {
             let payload = { action: "ADD_GALLERY", data: { image: document.getElementById('addGalleryImg').value } };
             if(!payload.data.image) { showCustomAlert("Validation Failed", "Image URL is required!", true); return; }
             await sendAdminRequest(payload, "Adding Media to Gallery...");
+            setTimeout(loadAdminGallery, 2000); // Reload preview
         }
 
         async function fetchApplications() {
@@ -565,37 +680,23 @@
             tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-yellow-500 font-bold"><i data-lucide="loader" class="w-5 h-5 inline animate-spin mr-2"></i> Syncing records from cloud...</td></tr>';
             lucide.createIcons();
 
-            // 🔴 PASTE YOUR PUBLISHED CSV LINK HERE 🔴
-            const APPLICATIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=188998109&single=true&output=csv";
-
             Papa.parse(APPLICATIONS_CSV_URL, {
-                download: true,
-                header: true, // Uses row 1 as object keys
-                skipEmptyLines: 'greedy',
+                download: true, header: true, skipEmptyLines: 'greedy',
                 complete: function(results) {
-                    let data = results.data;
-                    let pendingApps = data.filter(app => app.STATUS && app.STATUS.toUpperCase() === 'PENDING');
-
+                    let pendingApps = results.data.filter(app => app.STATUS && app.STATUS.toUpperCase() === 'PENDING');
                     if (pendingApps.length > 0) {
                         let html = '';
                         pendingApps.forEach(app => {
                             let safeDate = String(app.DATE || '').split(',')[0];
-                            let name = app.NAME || 'N/A';
-                            let discord = app.DISCORD || 'N/A';
-                            let tmpId = app.TMP || 'N/A';
-                            let status = app.STATUS || 'PENDING';
-                            let steamId = app.STEAM || 'N/A';
-                            let reason = app.REASON || 'N/A';
-
                             html += `
                             <tr class="hover:bg-tntc-hover transition-colors">
                                 <td class="p-5 font-mono text-tntc-textSecondary">${safeDate}</td>
-                                <td class="p-5 font-black text-white">${name}</td>
-                                <td class="p-5 font-bold text-yellow-500">${discord}</td>
-                                <td class="p-5 font-mono">${tmpId}</td>
-                                <td class="p-5"><span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest shadow-sm">${status}</span></td>
+                                <td class="p-5 font-black text-white">${app.NAME || 'N/A'}</td>
+                                <td class="p-5 font-bold text-yellow-500">${app.DISCORD || 'N/A'}</td>
+                                <td class="p-5 font-mono">${app.TMP || 'N/A'}</td>
+                                <td class="p-5"><span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest shadow-sm">${app.STATUS || 'PENDING'}</span></td>
                                 <td class="p-5 text-right">
-                                    <button onclick="viewApplicationDetails('${name}', '${discord}', '${steamId}', '${tmpId}', '${reason.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover hover:border-tntc-accent/50 rounded-lg text-xs font-semibold text-tntc-accent inline-flex items-center gap-1.5 transition-all shadow-sm">
+                                    <button onclick="viewApplicationDetails('${app.NAME}', '${app.DISCORD}', '${app.STEAM}', '${app.TMP}', '${(app.REASON || '').replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover hover:border-tntc-accent/50 rounded-lg text-xs font-semibold text-tntc-accent inline-flex items-center gap-1.5 transition-all shadow-sm">
                                         <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
                                     </button>
                                 </td>
@@ -603,29 +704,13 @@
                         });
                         tbody.innerHTML = html;
                         lucide.createIcons();
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-tntc-textSecondary">No pending applications found.</td></tr>';
-                    }
-                },
-                error: function(err) {
-                    console.error("Fetch Error:", err);
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Error loading data.</td></tr>';
-                    lucide.createIcons();
+                    } else { tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-tntc-textSecondary">No pending applications found.</td></tr>'; }
                 }
             });
         }
 
         function viewApplicationDetails(name, discord, steamId, tmpId, reason) {
-            const title = `Application: ${name}`;
-            const message = `
-Discord: ${discord}
-Steam ID: ${steamId}
-TMP ID: ${tmpId}
-
-Reason for joining:
-${reason}
-            `;
-            showCustomAlert(title, message, false);
+            showCustomAlert(`Application: ${name}`, `Discord: ${discord}\nSteam ID: ${steamId}\nTMP ID: ${tmpId}\n\nReason for joining:\n${reason}`, false);
         }
     </script>
 </body>

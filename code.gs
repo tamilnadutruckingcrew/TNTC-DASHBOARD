@@ -1,4 +1,4 @@
-==========================================
+// ==========================================
 // TNTC Admin Backend - Strict Multi-DB Router (OPTIMIZED)
 // ==========================================
 
@@ -38,6 +38,10 @@ function doPost(e) {
     if (action === "ADD_GALLERY") return handleAddGallery(payload.data, headers);
     if (action === "SUBMIT_APPLICATION") return handleSubmitApplication(payload.data, headers);
     if (action === "GET_APPLICATIONS") return handleGetApplications(headers);
+    
+    // 🔴 DELETION ACTIONS FOR ADMIN PANEL 🔴
+    if (action === "DELETE_NEWS") return handleDeleteNews(payload.data, headers);
+    if (action === "DELETE_GALLERY") return handleDeleteGallery(payload.data, headers);
 
     throw new Error("Invalid action provided.");
   } catch (error) {
@@ -143,7 +147,6 @@ function handleAddEvent(data, headers) {
       }
   }
   
-  // OPTIMIZATION: Bounding the search scope to avoid execution timeouts
   let lastDataRow = sheet.getLastRow();
   let searchLimit = Math.max(lastDataRow, headerRowIndex + 1);
   let colC = sheet.getRange(1, 3, searchLimit, 1).getValues(); 
@@ -201,7 +204,6 @@ function handleCreateTour(data, headers) {
   newSheet.appendRow(tourHeaders);
   newSheet.setFrozenRows(1);
 
-  // OPTIMIZATION: Batch Array processing instead of appending row-by-row
   let routesData = [];
   if (data.routes && data.routes.length > 0) {
       data.routes.forEach((route, idx) => {
@@ -212,7 +214,6 @@ function handleCreateTour(data, headers) {
               let colLetter = getColLetter(8 + d); // Starts at H
               
               // 🔥 THE NEW MASTER BULLETPROOF FORMULA 🔥
-              // (Dynamic cell mapping logic with Date errors bypassed)
               let formula = `=IF(COUNTIFS(Live_Job_Logs!$C:$C, ${colLetter}$1, Live_Job_Logs!$F:$F, $B${rowNum}, Live_Job_Logs!$G:$G, $C${rowNum}, Live_Job_Logs!$H:$H, $D${rowNum}, Live_Job_Logs!$I:$I, $E${rowNum}, Live_Job_Logs!$S:$S, ">="&IFERROR(REGEXEXTRACT(TO_TEXT($F${rowNum}), "\\d+")+0, 0)) > 0, TRUE, FALSE)`;
               
               row.push(formula);
@@ -220,10 +221,7 @@ function handleCreateTour(data, headers) {
           routesData.push(row);
       });
       
-      // Extremely fast batch insertion
       newSheet.getRange(2, 1, routesData.length, routesData[0].length).setValues(routesData);
-      
-      // 🔥 Convert those TRUE/FALSE formula cells into actual visual Checkboxes! 🔥
       newSheet.getRange(2, 8, routesData.length, driverNames.length).insertCheckboxes();
   }
 
@@ -293,6 +291,38 @@ function handleGetApplications(headers) {
       }
   }
   return createJsonResponse({status:"success", data: apps}, headers);
+}
+
+// -----------------------------------------------------------------
+// Action: Delete News
+// -----------------------------------------------------------------
+function handleDeleteNews(data, headers) {
+  let { sheet } = getTargetSheet("Website_News");
+  let values = sheet.getDataRange().getValues();
+  // Reverse search to safely delete rows without messing up indices
+  for (let i = values.length - 1; i >= 1; i--) { 
+      if (String(values[i][0]).trim() === String(data.title).trim()) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({status: "success"}, headers);
+      }
+  }
+  throw new Error("News item not found.");
+}
+
+// -----------------------------------------------------------------
+// Action: Delete Gallery
+// -----------------------------------------------------------------
+function handleDeleteGallery(data, headers) {
+  let { sheet } = getTargetSheet("Website_Gallery");
+  let values = sheet.getDataRange().getValues();
+  // Reverse search to safely delete rows without messing up indices
+  for (let i = values.length - 1; i >= 1; i--) { 
+      if (String(values[i][0]).trim() === String(data.image).trim()) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({status: "success"}, headers);
+      }
+  }
+  throw new Error("Gallery item not found.");
 }
 
 function createJsonResponse(responseObject, headers) {
