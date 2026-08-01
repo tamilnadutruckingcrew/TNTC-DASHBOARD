@@ -88,15 +88,19 @@ function generateTourShells() {
         } else if (tour.status === "LIVE") {
             statusBadge = `<span class="bg-tntc-active text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(34,197,94,0.5)] mb-3 inline-block">🟢 LIVE CAMPAIGN</span>`;
             
-            // CLEAN STATIC BANNER (Animation moved to Progress Bar below!)
             bannerOverlay = `
-            <div class="bg-tntc-active/10 border border-tntc-active/30 text-tntc-distance p-4 rounded-xl text-sm font-bold flex items-center justify-between mb-4 shadow-lg shadow-tntc-active/10">
-                <div class="flex items-center gap-3">
+            <div class="bg-tntc-active/10 border border-tntc-active/30 text-tntc-distance p-4 rounded-xl text-sm font-bold flex items-center justify-between mb-4 shadow-lg shadow-tntc-active/10 relative overflow-hidden group">
+                <div class="flex items-center gap-3 relative z-10">
                     <span class="relative flex h-3 w-3 shrink-0">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-active opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-3 w-3 bg-tntc-active"></span>
                     </span>
                     <p>The campaign is <span class="text-[#f8fafc] font-black tracking-wide uppercase">Officially Live!</span> Start logging your deliveries.</p>
+                </div>
+                <div class="relative z-10 hidden sm:block overflow-hidden w-28 h-6 relative">
+                    <div class="moving-truck-wrapper absolute top-0 left-0">
+                        <i data-lucide="truck" class="w-6 h-6 text-tntc-active"></i>
+                    </div>
                 </div>
             </div>`;
         } else if (tour.status === "PAUSED") {
@@ -109,7 +113,7 @@ function generateTourShells() {
 
         html += `
         <div class="mb-10 relative">
-            <!-- Header Card -->
+            <!-- 🔴 HEADER CARD STARTS HERE 🔴 -->
             <div onclick="toggleCampaign('${safeId}', ${isLockedForUser})" class="cursor-pointer group relative bg-tntc-card border ${tour.status==='LIVE' && !isComingSoon ? 'border-tntc-active/30 shadow-[0_10px_40px_-10px_rgba(34,197,94,0.15)] hover:border-tntc-active' : 'border-tntc-muted/30 shadow-lg hover:border-tntc-muted'} rounded-2xl overflow-hidden transition-all mb-4">
                 <div class="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-500" style="background-image: url('${tour.banner}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-[#05070a]/90 to-transparent"></div>
@@ -129,30 +133,22 @@ function generateTourShells() {
                     </div>
                 </div>
                 
-               <!-- PROGRESS BAR WITH DRIVING TRUCK (PERFECT PROPORTION FIX) -->
+                <!-- PROGRESS BAR WITH TRUCK LEADING THE TIP -->
                 <div class="px-6 md:px-8 pb-10 relative z-10">
                     <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider"><span id="prog-title-${safeId}">Overall Division Progress</span><span id="prog-txt-${safeId}">Loading...</span></div>
                     
-                    <!-- PROGRESS BAR WITH TRUCK LEADING THE TIP -->
-                <div class="px-6 md:px-8 pb-10 relative z-10">
-                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider"><span id="prog-title-${safeId}">Overall Division Progress</span><span id="prog-txt-${safeId}">Loading...</span></div>
-                    
-                    <!-- Progress track container -->
                     <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 shadow-inner relative overflow-visible">
-                        
-                        <!-- Green Fill Bar (Pinnadi color fill aagum) -->
                         <div id="prog-bar-${safeId}" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out relative" style="width: 0%;">
                             
-                            <!-- 🔥 TRUCK DIRECTLY ON THE TIP (No circle, facing right, leading the fill) 🔥 -->
                             <div class="absolute -right-4 -top-3.5 z-30 pointer-events-none drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]">
-                                <img src="https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/Bar%20truck.png?raw=true" alt="Truck" class="w-9 h-10 object-contain block max-w-none">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3366/3366116.png" alt="Truck" class="w-7 h-7 object-contain block max-w-none">
                             </div>
                             
                         </div>
                     </div>
                 </div>
+            </div> <!-- 🔴 THE MISSING HEADER CLOSING DIV IS RESTORED HERE 🔴 -->
 
-            <!-- LIVE / STATUS BANNER IS MOVED OUTSIDE COLLAPSE AREA HERE -->
             ${bannerOverlay}
 
             <!-- Content Area (Hidden by Default) -->

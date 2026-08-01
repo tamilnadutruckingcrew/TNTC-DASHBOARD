@@ -1,4 +1,4 @@
-// ==========================================
+==========================================
 // TNTC Admin Backend - Strict Multi-DB Router (OPTIMIZED)
 // ==========================================
 
@@ -161,7 +161,7 @@ function handleAddEvent(data, headers) {
 }
 
 // -----------------------------------------------------------------
-// Action: Create New Tour Campaign (OPTIMIZED)
+// Action: Create New Tour Campaign (OPTIMIZED & BULLETPROOF)
 // -----------------------------------------------------------------
 function handleCreateTour(data, headers) {
   let { sheet: masterSheet, ss } = getTargetSheet("TOUR_MASTER");
@@ -209,15 +209,22 @@ function handleCreateTour(data, headers) {
           let row = [idx + 1, route.source, route.sourceCo, route.dest, route.destCo, route.dist, route.img];
           
           for (let d = 0; d < driverNames.length; d++) {
-              let colLetter = getColLetter(8 + d); 
-              // IMPORTANT: This formula assumes "Live_Job_Logs" is mirrored in DB_TOURS via IMPORTRANGE
-              let formula = `=IF(IFERROR(ROWS(FILTER(Live_Job_Logs!$A:$A, Live_Job_Logs!$C:$C=${colLetter}$1, Live_Job_Logs!$F:$F=$B${rowNum}, Live_Job_Logs!$G:$G=$C${rowNum}, Live_Job_Logs!$H:$H=$D${rowNum}, Live_Job_Logs!$I:$I=$E${rowNum}, Live_Job_Logs!$A:$A>=DATE(${data.startYear},${data.startMonth},${data.startDay}), VALUE(REGEXEXTRACT(Live_Job_Logs!$M:$M&"0", "[0-9.]+"))>=VALUE(REGEXEXTRACT($F${rowNum}&"0", "[0-9.]+")))), 0)>0, TRUE, FALSE)`;
+              let colLetter = getColLetter(8 + d); // Starts at H
+              
+              // 🔥 THE NEW MASTER BULLETPROOF FORMULA 🔥
+              // (Dynamic cell mapping logic with Date errors bypassed)
+              let formula = `=IF(COUNTIFS(Live_Job_Logs!$C:$C, ${colLetter}$1, Live_Job_Logs!$F:$F, $B${rowNum}, Live_Job_Logs!$G:$G, $C${rowNum}, Live_Job_Logs!$H:$H, $D${rowNum}, Live_Job_Logs!$I:$I, $E${rowNum}, Live_Job_Logs!$S:$S, ">="&IFERROR(REGEXEXTRACT(TO_TEXT($F${rowNum}), "\\d+")+0, 0)) > 0, TRUE, FALSE)`;
+              
               row.push(formula);
           }
           routesData.push(row);
       });
+      
       // Extremely fast batch insertion
       newSheet.getRange(2, 1, routesData.length, routesData[0].length).setValues(routesData);
+      
+      // 🔥 Convert those TRUE/FALSE formula cells into actual visual Checkboxes! 🔥
+      newSheet.getRange(2, 8, routesData.length, driverNames.length).insertCheckboxes();
   }
 
   if(masterSheet) {
