@@ -52,9 +52,17 @@
         .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #ef4444; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Custom Truck Marquee Animation */
-        @keyframes truckMarquee { 0% { transform: translateX(0); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(60px); opacity: 0; } }
-        .animate-truck-marquee { animation: truckMarquee 3s linear infinite; }
+        /* 🚛 BULLETPROOF TRUCK ANIMATION WRAPPER */
+        @keyframes driveTruck {
+            0% { transform: translateX(-30px); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateX(120px); opacity: 0; }
+        }
+        .moving-truck-wrapper {
+            display: inline-block;
+            animation: driveTruck 3s linear infinite;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
@@ -76,7 +84,6 @@
         </div>
 
         <div class="flex items-center gap-3 z-10">
-            <!-- PROTECTED ADMIN BUTTON -> Redirects to admin.html now -->
             <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/10 hover:bg-tntc-admin/20 text-tntc-admin border border-tntc-admin/50 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider items-center gap-2 transition-colors shadow-sm">
                 <i data-lucide="shield-alert" class="w-4 h-4 inline-block"></i> Admin Panel
             </button>
@@ -135,7 +142,7 @@
             <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]"><div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-tntc-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Frame</h3><span class="text-[9px] bg-tntc-main border border-tntc-muted/20 px-2 py-1 rounded text-tntc-textSecondary uppercase tracking-widest">Past Members</span></div><div id="pastLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
         </div>
 
-        <!-- NEW TRACKER DOWNLOAD BANNER -->
+        <!-- TRACKER DOWNLOAD BANNER -->
         <div class="bg-tntc-card p-6 md:p-8 rounded-xl border border-tntc-accent/30 shadow-[0_0_20px_rgba(56,189,248,0.05)] mt-2 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-tntc-accent/5 rounded-full blur-3xl"></div>
             <div class="relative z-10 flex-1 text-center md:text-left">
@@ -339,18 +346,12 @@
     <script src="liveriders.js"></script>
     <script src="init.js"></script>
     
-    <!-- SECURE ROLE VERIFICATION SCRIPT -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // 1. Role-Based Access Control
             const role = sessionStorage.getItem('tntc_role');
-            
-            // Show standard admin tools to both Leaders and Admins
             if (role === 'leader' || role === 'admin') {
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
             }
-
-            // 2. Fetch Dynamic Assets from Google Sheets (if function exists in api.js)
             if (typeof fetchSiteAssets === 'function') {
                 fetchSiteAssets();
             }

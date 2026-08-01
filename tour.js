@@ -15,7 +15,6 @@ async function fetchTourData() {
         complete: async function(results) {
             let rows = results.data;
             
-            // Error Handling: If the sheet is empty or we read the wrong tab
             if (rows.length <= 1 || rows[0][0] !== "TOUR NAME") {
                 document.getElementById('dynamic-campaign-container').innerHTML = 
                     `<div class="text-center p-10 bg-tntc-admin/10 border border-tntc-admin/30 rounded-xl">
@@ -28,9 +27,8 @@ async function fetchTourData() {
             }
 
             masterToursList = [];
-            // Parse Master Index (Skip Row 0 Headers)
             for(let i=1; i<rows.length; i++) {
-                if(!rows[i][0]) continue; // Skip truly empty rows
+                if(!rows[i][0]) continue;
                 masterToursList.push({
                     name: rows[i][0] || "Unnamed Tour",
                     startDate: rows[i][1] || "TBD",
@@ -42,10 +40,8 @@ async function fetchTourData() {
                 });
             }
 
-            // Generate Shell UI
             generateTourShells();
             
-            // Fetch individual route data for each tour concurrently
             for (let tour of masterToursList) {
                 if (tour.gid) {
                     await fetchSpecificTourData(tour);
@@ -61,7 +57,6 @@ function generateTourShells() {
     let container = document.getElementById('dynamic-campaign-container');
     let html = "";
     
-    // SECURITY CHECK: Get current user role
     let role = sessionStorage.getItem('tntc_role');
     let isAdmin = (role === 'leader' || role === 'admin');
     
@@ -71,7 +66,6 @@ function generateTourShells() {
     masterToursList.forEach((tour, index) => {
         let safeId = "tour-" + index;
         
-        // DATE LOGIC: Check if tour is in the future & validate dates
         let startDate = new Date(tour.startDate);
         startDate.setHours(0, 0, 0, 0); // TIMEZONE FIX
         
@@ -85,7 +79,6 @@ function generateTourShells() {
         let displayDate = isValidDate ? startDate.toLocaleDateString() : "TBD";
         let displayEndDate = tour.endDate ? (isNaN(new Date(tour.endDate)) ? tour.endDate : new Date(tour.endDate).toLocaleDateString()) : 'Ongoing';
         
-        // Status Styling & Dynamic Overlays
         let statusBadge = "";
         let bannerOverlay = "";
         
@@ -95,18 +88,15 @@ function generateTourShells() {
         } else if (tour.status === "LIVE") {
             statusBadge = `<span class="bg-tntc-active text-[#05070a] px-2.5 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(34,197,94,0.5)] mb-3 inline-block">🟢 LIVE CAMPAIGN</span>`;
             
-            // 🔥 LIVE ANIMATED BANNER OVERLAY
+            // CLEAN STATIC BANNER (Animation moved to Progress Bar below!)
             bannerOverlay = `
-            <div class="bg-tntc-active/10 border border-tntc-active/30 text-tntc-distance p-4 rounded-xl text-sm font-bold flex items-center justify-between mb-6 shadow-lg shadow-tntc-active/10 relative overflow-hidden group">
-                <div class="flex items-center gap-3 relative z-10">
+            <div class="bg-tntc-active/10 border border-tntc-active/30 text-tntc-distance p-4 rounded-xl text-sm font-bold flex items-center justify-between mb-4 shadow-lg shadow-tntc-active/10">
+                <div class="flex items-center gap-3">
                     <span class="relative flex h-3 w-3 shrink-0">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-active opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-3 w-3 bg-tntc-active"></span>
                     </span>
                     <p>The campaign is <span class="text-[#f8fafc] font-black tracking-wide uppercase">Officially Live!</span> Start logging your deliveries.</p>
-                </div>
-                <div class="relative z-10 hidden sm:block overflow-hidden w-12 h-6">
-                    <i data-lucide="truck" class="w-6 h-6 text-tntc-active absolute top-0 -left-6 animate-truck-marquee"></i>
                 </div>
             </div>`;
         } else if (tour.status === "PAUSED") {
@@ -120,7 +110,7 @@ function generateTourShells() {
         html += `
         <div class="mb-10 relative">
             <!-- Header Card -->
-            <div onclick="toggleCampaign('${safeId}', ${isLockedForUser})" class="cursor-pointer group relative bg-tntc-card border ${tour.status==='LIVE' && !isComingSoon ? 'border-tntc-active/30 shadow-[0_10px_40px_-10px_rgba(34,197,94,0.15)] hover:border-tntc-active' : 'border-tntc-muted/30 shadow-lg hover:border-tntc-muted'} rounded-2xl overflow-hidden transition-all mb-6">
+            <div onclick="toggleCampaign('${safeId}', ${isLockedForUser})" class="cursor-pointer group relative bg-tntc-card border ${tour.status==='LIVE' && !isComingSoon ? 'border-tntc-active/30 shadow-[0_10px_40px_-10px_rgba(34,197,94,0.15)] hover:border-tntc-active' : 'border-tntc-muted/30 shadow-lg hover:border-tntc-muted'} rounded-2xl overflow-hidden transition-all mb-4">
                 <div class="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity duration-500" style="background-image: url('${tour.banner}')"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-[#05070a]/90 to-transparent"></div>
                 
@@ -139,25 +129,41 @@ function generateTourShells() {
                     </div>
                 </div>
                 
-                <!-- Progress Bar Shell -->
-                <div class="px-6 md:px-8 pb-6 relative z-10">
-                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-1.5 uppercase tracking-wider"><span id="prog-title-${safeId}">Overall Division Progress</span><span id="prog-txt-${safeId}">Loading...</span></div>
-                    <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 overflow-hidden shadow-inner"><div id="prog-bar-${safeId}" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out" style="width: 0%;"></div></div>
+               <!-- PROGRESS BAR WITH DRIVING TRUCK (PERFECT PROPORTION FIX) -->
+                <div class="px-6 md:px-8 pb-10 relative z-10">
+                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider"><span id="prog-title-${safeId}">Overall Division Progress</span><span id="prog-txt-${safeId}">Loading...</span></div>
+                    
+                    <!-- PROGRESS BAR WITH TRUCK LEADING THE TIP -->
+                <div class="px-6 md:px-8 pb-10 relative z-10">
+                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider"><span id="prog-title-${safeId}">Overall Division Progress</span><span id="prog-txt-${safeId}">Loading...</span></div>
+                    
+                    <!-- Progress track container -->
+                    <div class="w-full bg-[#05070a] border border-tntc-muted/20 rounded-full h-3 shadow-inner relative overflow-visible">
+                        
+                        <!-- Green Fill Bar (Pinnadi color fill aagum) -->
+                        <div id="prog-bar-${safeId}" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out relative" style="width: 0%;">
+                            
+                            <!-- 🔥 TRUCK DIRECTLY ON THE TIP (No circle, facing right, leading the fill) 🔥 -->
+                            <div class="absolute -right-4 -top-3.5 z-30 pointer-events-none drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]">
+                                <img src="https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/Bar%20truck.png?raw=true" alt="Truck" class="w-9 h-10 object-contain block max-w-none">
+                            </div>
+                            
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <!-- LIVE/COMING SOON BANNER (MOVED OUTSIDE SO IT IS ALWAYS VISIBLE) -->
+
+            <!-- LIVE / STATUS BANNER IS MOVED OUTSIDE COLLAPSE AREA HERE -->
             ${bannerOverlay}
 
             <!-- Content Area (Hidden by Default) -->
             <div id="${safeId}-content" class="collapse-content">
-            
-            <!-- Filter & Stats Grid -->
+                
+                <!-- Filter & Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div class="bg-tntc-card p-4 rounded-xl border border-tntc-accent/30 shadow-[0_0_15px_rgba(56,189,248,0.05)] flex flex-col justify-center">
                         <label class="text-tntc-accent text-[10px] font-black uppercase tracking-wider mb-2 flex items-center gap-1.5"><i data-lucide="filter" class="w-3 h-3"></i> Filter Campaign Driver</label>
                         <select id="tour-filter-${safeId}" onchange="renderTourManifest('${safeId}')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm font-semibold rounded-lg p-2.5 outline-none focus:border-tntc-accent focus:ring-1 focus:ring-tntc-accent transition-all">
                             <option value="ALL">All Drivers (Global Progress)</option>
-                            <!-- Injected Dynamically -->
                         </select>
                     </div>
                     <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center"><p class="text-tntc-textSecondary text-[10px] font-bold uppercase tracking-wider mb-1">Routes Done</p><h2 class="text-2xl font-black text-tntc-accent"><span id="stat-routes-${safeId}">0</span> <span class="text-sm font-bold text-tntc-textSecondary">/ <span id="stat-tot-routes-${safeId}">0</span></span></h2></div>
@@ -196,7 +202,6 @@ function fetchSpecificTourData(tourObj) {
     return new Promise((resolve) => {
         let index = masterToursList.indexOf(tourObj);
         let safeId = "tour-" + index;
-        // Inject the specific GID for this route tab
         let specificUrl = TOUR_SHEET_CSV_URL.replace(/gid=\d+/, 'gid=' + tourObj.gid);
 
         Papa.parse(specificUrl, {
@@ -212,7 +217,6 @@ function fetchSpecificTourData(tourObj) {
                 
                 let headers = data[0];
                 let driverCols = [];
-                // Dynamically map drivers starting from Column H (index 7)
                 for (let i = 7; i < headers.length; i++) {
                     if (headers[i] && headers[i] !== 'UNKNOWN' && !headers[i].includes('ATTENDANCE')) {
                         driverCols.push({ index: i, name: headers[i].trim() });
@@ -246,7 +250,6 @@ function fetchSpecificTourData(tourObj) {
                     });
                 }
 
-                // Save to memory for local filtering
                 loadedTourData[safeId] = {
                     tourObj: tourObj,
                     drivers: driverCols.map(dc => dc.name).sort(),
@@ -254,7 +257,6 @@ function fetchSpecificTourData(tourObj) {
                     baseTargetDist: totalBaseDist
                 };
 
-                // Populate the Dropdown Filter
                 let selectEl = document.getElementById(`tour-filter-${safeId}`);
                 if (selectEl) {
                     loadedTourData[safeId].drivers.forEach(d => {
@@ -262,7 +264,6 @@ function fetchSpecificTourData(tourObj) {
                     });
                 }
 
-                // Render the initial UI
                 renderTourManifest(safeId);
                 resolve();
             }
@@ -284,7 +285,6 @@ function renderTourManifest(safeId) {
     let distanceCovered = 0;
     let tableHtml = "";
 
-    // The Critical Math Engine
     if (selectedDriver === "ALL") {
         targetRoutes = tourData.routes.length * numDrivers;
         targetDist = tourData.baseTargetDist * numDrivers;
@@ -323,7 +323,6 @@ function renderTourManifest(safeId) {
 
         let isRowHighlighted = selectedDriver === "ALL" ? route.completedBy.length > 0 : isCompletedForIndividual;
 
-        // Ensure safe HTML injection
         let safeTourName = tourData.tourObj.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         let safeSrc = route.src.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         let safeSrcCo = route.srcCo.replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -356,7 +355,6 @@ function renderTourManifest(safeId) {
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
     
-    // Inject the math into the DOM
     document.getElementById(`stat-routes-${safeId}`).innerText = routesCompleted;
     document.getElementById(`stat-tot-routes-${safeId}`).innerText = targetRoutes;
     document.getElementById(`stat-targ-${safeId}`).innerText = targetDist.toLocaleString();
@@ -367,7 +365,6 @@ function renderTourManifest(safeId) {
         document.getElementById(`stat-dist-${safeId}`).innerText = distanceCovered.toLocaleString();
     }
     
-    // Progress Bar Update
     let percent = targetDist > 0 ? Math.min(100, (distanceCovered / targetDist) * 100) : 0;
     let displayPercent = percent % 1 === 0 ? percent : percent.toFixed(1); 
     
@@ -378,7 +375,6 @@ function renderTourManifest(safeId) {
 
 function toggleCampaign(id, isLocked) {
     if (isLocked) {
-        // Show inline professional access denied alert instead of browser prompt
         let existingAlert = document.getElementById(id + "-alert");
         if (existingAlert) {
             existingAlert.remove();
