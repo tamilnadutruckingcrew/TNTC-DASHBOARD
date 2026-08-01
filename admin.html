@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNTC - Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- MUKKIYAM: Added PapaParse for fetching CSV Data -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { 
+                    colors: { 
+                        tntc: { 
+                            main: '#05070a', card: '#0c1017', hover: '#161f30',
+                            accent: '#38bdf8', muted: '#0284c7', textPrimary: '#f8fafc',
+                            textSecondary: '#94a3b8', distance: '#4ade80', revenue: '#facc15',
+                            active: '#22c55e', admin: '#ef4444'
+                        } 
+                    } 
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #05070a; color: #f8fafc; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #05070a; }
+        ::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        .glass-panel { background: rgba(12, 16, 23, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(2, 132, 199, 0.2); }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #38bdf8; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Custom Alert Animation */
+        .msg-box-enter { animation: slideIn 0.3s ease-out forwards; }
+        .msg-box-exit { animation: slideOut 0.3s ease-in forwards; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-20px); opacity: 0; } }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <header class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-tntc-admin/10 border border-tntc-admin/30 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                <i data-lucide="shield-alert" class="w-6 h-6 text-tntc-admin"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black text-tntc-textPrimary uppercase tracking-tight">Control Center</h1>
+                <p class="text-tntc-textSecondary text-xs tracking-widest uppercase mt-1">Role: <span id="roleBadge" class="text-tntc-admin font-bold">VERIFYING...</span></p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.location.href='dashboard.html'" class="px-5 py-2.5 bg-tntc-card hover:bg-tntc-hover border border-tntc-muted/30 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+            </button>
+            <button onclick="logoutStaff()" class="px-5 py-2.5 bg-tntc-admin/10 hover:bg-tntc-admin/20 border border-tntc-admin/50 text-tntc-admin rounded-lg text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Lock Terminal
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto glass-panel rounded-2xl shadow-2xl overflow-hidden flex flex-col relative min-h-[70vh]">
+        
+        <div id="adminLoadingOverlay" class="absolute inset-0 bg-tntc-main/90 backdrop-blur-sm z-50 hidden flex-col items-center justify-center gap-4">
+            <div class="loader"></div>
+            <p id="adminLoadingText" class="text-tntc-accent font-black text-sm tracking-widest uppercase">Processing Request...</p>
+        </div>
+
+        <div class="flex border-b border-tntc-muted/30 overflow-x-auto custom-scrollbar bg-[#0a0d14]">
+            <button onclick="switchAdminTab('assets')" id="adm-btn-assets" class="hidden flex-1 py-4 px-6 text-sm font-black text-tntc-accent border-b-2 border-tntc-accent bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase"><i data-lucide="image" class="w-4 h-4 inline-block mr-1"></i> Site Assets</button>
+            
+            <button onclick="switchAdminTab('event')" id="adm-btn-event" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Post Event</button>
+            <button onclick="switchAdminTab('tour')" id="adm-btn-tour" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Create Tour</button>
+            <button onclick="switchAdminTab('manage')" id="adm-btn-manage" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Manage Tours</button>
+            <button onclick="switchAdminTab('news')" id="adm-btn-news" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Post News</button>
+            <button onclick="switchAdminTab('gallery')" id="adm-btn-gallery" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Add Gallery</button>
+            <button onclick="switchAdminTab('recruit')" id="adm-btn-recruit" class="flex-1 py-4 px-6 text-sm font-bold text-yellow-500 border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Requests</button>
+        </div>
+
+        <div class="p-6 md:p-8 flex-1">
+            
+            <!-- Assets Tab -->
+            <div id="adm-tab-assets" class="hidden space-y-6">
+                <div class="bg-tntc-accent/10 border border-tntc-accent/30 p-5 rounded-xl flex items-start gap-4">
+                    <i data-lucide="info" class="w-6 h-6 text-tntc-accent shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-tntc-accent font-black text-sm uppercase tracking-wider mb-1">Leader CMS Engine</h3>
+                        <p class="text-xs text-tntc-textSecondary leading-relaxed">Update website imagery or promotional videos. The system automatically handles YouTube formatting.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-tntc-card p-6 rounded-xl border border-tntc-muted/20 shadow-lg">
+                    <div>
+                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Select Site Asset</label>
+                        <select id="assetKey" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent focus:ring-1 focus:ring-tntc-accent transition-all">
+                            <option value="TNTC_LOGO">Main TNTC Logo</option>
+                            <option value="TNL_LOGO">Parent TNL Logo</option>
+                            <option value="HOME_BG">Homepage Background</option>
+                            <option value="DASHBOARD_BANNER">Dashboard Banner</option>
+                            <option value="PROMO_VIDEO">YouTube Promo Video</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">New Direct Link / YouTube URL</label>
+                        <div class="flex gap-3">
+                            <input type="text" id="assetUrl" class="flex-1 bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent focus:ring-1 focus:ring-tntc-accent transition-all" placeholder="Image link or YouTube video URL">
+                            <button onclick="submitAssetUpdate()" class="bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black px-6 py-3 rounded-lg shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-all uppercase tracking-wider text-xs">Update Site</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Tab -->
+            <div id="adm-tab-event" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Event Name</label><input type="text" id="addEvName" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Date</label><input type="date" id="addEvDate" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Category</label>
+                        <select id="addEvCat" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent">
+                            <option value="DIVISION EVENT">DIVISION EVENT</option>
+                            <option value="TNL PUBLIC EVENT">TNL PUBLIC EVENT</option>
+                            <option value="TNL PRIVATE EVENT">TNL PRIVATE EVENT</option>
+                            <option value="OTHER PUBLIC EVENTS">OTHER PUBLIC EVENTS</option>
+                            <option value="OTHER DIVISION EVENTS">OTHER DIVISION EVENTS</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">TMP Event Link</label><input type="text" id="addEvLink" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                </div>
+                <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Image Link (Column F)</label><input type="text" id="addEvImage" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                
+                <div class="pt-4 border-t border-tntc-muted/20">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="block text-xs font-bold text-tntc-accent uppercase tracking-wider"><i data-lucide="users" class="w-4 h-4 inline-block mr-1"></i> Attended Drivers Checklist</label>
+                        <button onclick="populateAdminDriverChecklist()" class="text-xs bg-tntc-card border border-tntc-muted/30 px-3 py-1.5 rounded hover:text-white transition-colors"><i data-lucide="refresh-cw" class="w-3 h-3 inline-block mr-1"></i> Load Drivers</button>
+                    </div>
+                    <div id="adminDriverChecklist" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-60 overflow-y-auto custom-scrollbar p-2 bg-tntc-card/50 rounded-xl border border-tntc-muted/10">
+                        <p class="text-tntc-textSecondary text-xs col-span-full text-center py-4">Click "Load Drivers" to fetch from database.</p>
+                    </div>
+                </div>
+                <button onclick="submitNewEvent()" class="w-full mt-6 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="upload-cloud" class="w-5 h-5"></i> Publish Event to Database</button>
+            </div>
+
+            <!-- Tour Tab -->
+            <div id="adm-tab-tour" class="hidden space-y-6">
+                <div class="bg-amber-500/10 border border-amber-500/30 p-5 rounded-xl flex items-start gap-4">
+                    <i data-lucide="map" class="w-6 h-6 text-amber-500 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-amber-500 font-black text-sm uppercase tracking-wider mb-1">Campaign Builder</h3>
+                        <p class="text-xs text-tntc-textSecondary leading-relaxed">Define tour parameters and build the route manifest below. This creates a new dedicated tab in the database.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-tntc-card p-6 rounded-xl border border-tntc-muted/20">
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Tour Name</label><input type="text" id="addTourName" placeholder="e.g. Summer Haul 2026" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Banner Image URL</label><input type="text" id="addTourBanner" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Start Date</label><input type="date" id="addTourStart" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">End Date (Target)</label><input type="date" id="addTourEnd" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                </div>
+
+                <div id="route-container" class="space-y-3 pt-4">
+                    <label class="block text-xs font-black text-tntc-accent uppercase tracking-wider mb-2"><i data-lucide="milestone" class="w-4 h-4 inline-block mr-1"></i> Route Manifest</label>
+                </div>
+                
+                <button onclick="addRouteRow()" class="text-xs font-bold text-tntc-textPrimary bg-tntc-card border border-tntc-muted/30 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-tntc-hover transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4 text-tntc-distance"></i> Add Another Route
+                </button>
+
+                <button onclick="submitNewTour()" class="w-full mt-6 bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="folder-plus" class="w-5 h-5"></i> Generate Tour Manifest</button>
+            </div>
+
+            <!-- Manage Tour Tab -->
+            <div id="adm-tab-manage" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-tntc-card p-6 rounded-xl border border-tntc-muted/20">
+                    <div>
+                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Select Active Tour</label>
+                        <select id="manageTourSelect" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Change Status</label>
+                        <select id="manageTourStatus" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent">
+                            <option value="LIVE">🟢 LIVE</option>
+                            <option value="PAUSED">🟡 PAUSED (Hold)</option>
+                            <option value="ENDED">🔴 ENDED (Archived)</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Reason / Annoucement</label>
+                        <input type="text" id="manageTourReason" placeholder="E.g. Server maintenance, Tour completed..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent">
+                    </div>
+                </div>
+                <button onclick="submitTourStatusUpdate()" class="w-full mt-4 bg-tntc-revenue hover:bg-tntc-revenue/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="radio" class="w-5 h-5"></i> Broadcast Status</button>
+            </div>
+
+            <!-- News Tab -->
+            <div id="adm-tab-news" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">News Title</label><input type="text" id="addNewsTitle" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Date (e.g. Aug 15, 2026)</label><input type="text" id="addNewsDate" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Category (e.g. MILESTONE)</label><input type="text" id="addNewsCat" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                    <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Image URL</label><input type="text" id="addNewsImg" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                </div>
+                <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Description</label><textarea id="addNewsDesc" rows="4" class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></textarea></div>
+                <div><label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider">Read More Link</label><input type="text" id="addNewsLink" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-3 text-sm outline-none focus:border-tntc-accent"></div>
+                <button onclick="submitNewNews()" class="w-full mt-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="newspaper" class="w-5 h-5"></i> Publish Dispatch</button>
+            </div>
+
+            <!-- Gallery Tab -->
+            <div id="adm-tab-gallery" class="hidden space-y-6">
+                <div class="bg-tntc-card p-8 rounded-xl border border-tntc-muted/20 text-center max-w-xl mx-auto mt-10 shadow-lg">
+                    <div class="w-16 h-16 bg-tntc-distance/10 border border-tntc-distance/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="image-plus" class="w-8 h-8 text-tntc-distance"></i>
+                    </div>
+                    <label class="block text-sm font-bold text-white mb-4 uppercase tracking-wider">Direct Image URL</label>
+                    <input type="text" id="addGalleryImg" placeholder="https://..." class="w-full bg-tntc-main border border-tntc-muted/50 text-white rounded-lg p-4 text-center text-sm outline-none focus:border-tntc-distance focus:ring-1 focus:ring-tntc-distance mb-6">
+                    <button onclick="submitNewGallery()" class="w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all flex items-center justify-center gap-2">Add to Fleet Gallery</button>
+                </div>
+            </div>
+
+            <!-- Driver Recruitment Tab -->
+            <div id="adm-tab-recruit" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+                    <div>
+                        <h3 class="text-yellow-500 font-black text-lg uppercase tracking-wider">Driver Applications</h3>
+                        <p class="text-xs text-tntc-textSecondary">Review incoming requests from the official website.</p>
+                    </div>
+                    <button onclick="fetchApplications()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2.5 rounded-lg font-black tracking-wider uppercase transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync Data</button>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar border border-tntc-muted/30 rounded-xl bg-tntc-card shadow-lg">
+                    <table class="w-full text-left text-sm text-tntc-textSecondary whitespace-nowrap">
+                        <thead class="text-xs font-black uppercase tracking-wider bg-tntc-main border-b border-tntc-muted/30 text-white">
+                            <tr>
+                                <th class="p-5">Date</th>
+                                <th class="p-5">Name</th>
+                                <th class="p-5">Discord</th>
+                                <th class="p-5">TMP ID</th>
+                                <th class="p-5">Status</th>
+                                <th class="p-5 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsTableBody" class="divide-y divide-tntc-muted/10 text-sm">
+                            <tr><td colspan="6" class="p-10 text-center text-tntc-textSecondary">Click sync to load applications from database.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="customAlertBox" class="fixed top-6 right-6 max-w-sm w-full bg-tntc-card border border-tntc-muted/50 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] z-[100] hidden flex-col overflow-hidden msg-box-enter">
+        <div id="alertHeader" class="px-4 py-2 bg-tntc-accent/20 border-b border-tntc-accent/30 flex items-center gap-2">
+            <i id="alertIcon" data-lucide="info" class="w-4 h-4 text-tntc-accent"></i>
+            <span id="alertTitle" class="text-xs font-black uppercase tracking-wider text-tntc-accent">Notification</span>
+        </div>
+        <div class="p-5 overflow-y-auto max-h-[60vh] custom-scrollbar">
+            <p id="alertMessage" class="text-sm text-white leading-relaxed whitespace-pre-wrap">Message goes here.</p>
+        </div>
+        <div class="px-5 py-3 bg-[#0a0d14] flex justify-end">
+            <button onclick="closeCustomAlert()" class="bg-tntc-muted hover:bg-tntc-accent text-white px-6 py-2 rounded font-bold text-xs uppercase tracking-wider transition-colors">Acknowledge</button>
+        </div>
+    </div>
+
+    <script src="core.js"></script>
+    <script src="api.js"></script>
+    
+    <script>
+        // 🔴 PASTE YOUR NEW GOOGLE APPS SCRIPT DEPLOYMENT URL HERE! 🔴
+        const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const role = sessionStorage.getItem('tntc_role');
+            if (role !== 'leader' && role !== 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('roleBadge').innerText = role;
+            if (role === 'leader') {
+                const assetBtn = document.getElementById('adm-btn-assets');
+                assetBtn.classList.remove('hidden');
+                switchAdminTab('assets'); 
+            } else {
+                switchAdminTab('event'); 
+            }
+
+            lucide.createIcons();
+            addRouteRow();
+        });
+
+        function showCustomAlert(title, message, isError = false) {
+            const box = document.getElementById('customAlertBox');
+            const header = document.getElementById('alertHeader');
+            const titleEl = document.getElementById('alertTitle');
+            const msgEl = document.getElementById('alertMessage');
+            
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            
+            if (isError) {
+                header.className = "px-4 py-2 bg-red-500/20 border-b border-red-500/30 flex items-center gap-2";
+                titleEl.className = "text-xs font-black uppercase tracking-wider text-red-500";
+                document.getElementById('alertIcon').setAttribute('data-lucide', 'alert-triangle');
+            } else {
+                header.className = "px-4 py-2 bg-tntc-distance/20 border-b border-tntc-distance/30 flex items-center gap-2";
+                titleEl.className = "text-xs font-black uppercase tracking-wider text-tntc-distance";
+                document.getElementById('alertIcon').setAttribute('data-lucide', 'check-circle');
+            }
+            
+            lucide.createIcons();
+            box.classList.remove('hidden', 'msg-box-exit');
+            box.classList.add('flex', 'msg-box-enter');
+        }
+
+        function closeCustomAlert() {
+            const box = document.getElementById('customAlertBox');
+            box.classList.remove('msg-box-enter');
+            box.classList.add('msg-box-exit');
+            setTimeout(() => { box.classList.remove('flex', 'msg-box-exit'); box.classList.add('hidden'); }, 300);
+        }
+
+        function logoutStaff() {
+            sessionStorage.removeItem('tntc_role');
+            window.location.href = 'index.html';
+        }
+
+        function switchAdminTab(tab) {
+            const role = sessionStorage.getItem('tntc_role');
+            
+            ['assets', 'event', 'tour', 'manage', 'news', 'gallery', 'recruit'].forEach(t => {
+                const el = document.getElementById(`adm-tab-${t}`);
+                if(el) el.classList.toggle('hidden', tab !== t);
+            });
+            
+            const activeClass = "flex-1 py-4 px-6 text-sm font-black text-tntc-accent border-b-2 border-tntc-accent bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase";
+            const inactiveClass = "flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase";
+            
+            ['assets', 'event', 'tour', 'manage', 'news', 'gallery', 'recruit'].forEach(t => {
+                const btn = document.getElementById(`adm-btn-${t}`);
+                if(btn) {
+                    if (t === 'assets' && role !== 'leader') {
+                        btn.className = "hidden"; 
+                        return;
+                    }
+                    if (t === 'recruit') {
+                         btn.className = tab === t ? activeClass.replace('text-tntc-accent border-tntc-accent', 'text-yellow-500 border-yellow-500') : inactiveClass.replace('text-tntc-textSecondary', 'text-yellow-500 opacity-70');
+                    } else {
+                         btn.className = tab === t ? activeClass : inactiveClass;
+                    }
+                }
+            });
+
+            // Trigger Data Fetches based on Active Tab
+            if (tab === 'recruit') fetchApplications();
+            if (tab === 'manage') loadToursForAdmin();
+        }
+
+        function loadToursForAdmin() {
+            let select = document.getElementById('manageTourSelect');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Fetching tours from database...</option>';
+
+            if (typeof TOUR_SHEET_CSV_URL === 'undefined') {
+                select.innerHTML = '<option value="">Error: TOUR_SHEET_CSV_URL not found</option>';
+                return;
+            }
+
+            Papa.parse(TOUR_SHEET_CSV_URL, {
+                download: true,
+                header: false,
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    let rows = results.data;
+                    
+                    if (rows.length <= 1) {
+                        select.innerHTML = '<option value="">No active tours found in Database</option>';
+                        return;
+                    }
+                    
+                    let html = '<option value="">-- Select Active Tour --</option>';
+                    
+                    for (let i = 1; i < rows.length; i++) {
+                        let tName = String(rows[i][0]).trim();
+                        let tStatus = String(rows[i][3]).trim().toUpperCase();
+                        
+                        if (!tName) continue;
+                        
+                        let emoji = '🔴';
+                        if (tStatus === 'LIVE') emoji = '🟢';
+                        else if (tStatus === 'PAUSED') emoji = '🟡';
+                        else if (tStatus === 'COMING SOON') emoji = '🟠';
+                        
+                        html += `<option value="${tName}">${emoji} ${tName} (${tStatus})</option>`;
+                    }
+                    
+                    select.innerHTML = html;
+                },
+                error: function(err) {
+                    console.error("Failed to fetch tours:", err);
+                    select.innerHTML = '<option value="">Error connecting to Google Sheets</option>';
+                }
+            });
+        }
+
+        function populateAdminDriverChecklist() {
+            let container = document.getElementById('adminDriverChecklist');
+            if(!container) return;
+            
+            if(typeof globalEventData !== 'undefined' && globalEventData.headers && globalEventData.headers.length > 6) {
+                let html = "";
+                for(let i = 6; i < globalEventData.headers.length; i++) {
+                    let name = String(globalEventData.headers[i] || '').trim();
+                    let norm = typeof normalizeKey === 'function' ? normalizeKey(name) : name.toUpperCase();
+                    if(norm && norm !== 'UNKNOWN' && !norm.includes('ATTENDANCE')) {
+                        html += `
+                        <label class="flex items-center gap-3 cursor-pointer p-2.5 bg-tntc-main hover:bg-tntc-hover rounded-lg border border-tntc-muted/20 hover:border-tntc-accent/50 transition-colors">
+                            <input type="checkbox" value="${name.toUpperCase()}" class="admin-drv-chk accent-tntc-accent w-4 h-4 rounded border-gray-600 focus:ring-tntc-accent">
+                            <span class="text-xs font-bold text-white truncate">${name}</span>
+                        </label>`;
+                    }
+                }
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: Global Event Data not loaded yet. Make sure API is fetching.</p>';
+            }
+        }
+
+        function addRouteRow() {
+            let container = document.getElementById('route-container');
+            if(!container) return;
+            let div = document.createElement('div');
+            
+            div.className = "grid grid-cols-2 md:grid-cols-6 gap-3 route-row bg-[#0a0d14] p-4 rounded-xl border border-tntc-muted/30 mb-3 relative group";
+            div.innerHTML = `
+                <input type="text" placeholder="Source City" class="route-src bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Source Co." class="route-src-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Dest City" class="route-dst bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Dest Co." class="route-dst-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="number" placeholder="Distance (KM)" class="route-km bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Image URL" class="route-img bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 text-xs text-white outline-none focus:border-tntc-accent">
+                
+                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_rgba(220,38,38,0.5)]" title="Remove Route">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                </button>
+            `;
+            container.appendChild(div);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function sendAdminRequest(payload, loadingMsg) {
+            let overlay = document.getElementById('adminLoadingOverlay');
+            let txt = document.getElementById('adminLoadingText');
+            overlay.classList.remove('hidden'); overlay.classList.add('flex');
+            txt.innerText = loadingMsg;
+
+            try {
+                await fetch(ADMIN_WEBAPP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+                
+                showCustomAlert("Database Updated", "Success! The data was published successfully.\n\nChanges may take 1-3 minutes to sync across the live website.", false);
+                
+                document.querySelectorAll('input[type="text"], input[type="url"], input[type="date"], input[type="number"], textarea').forEach(el => el.value = '');
+                document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
+                let routeContainer = document.getElementById('route-container');
+                if(routeContainer) {
+                    routeContainer.innerHTML = '<label class="block text-xs font-black text-tntc-accent uppercase tracking-wider mb-2"><i data-lucide="milestone" class="w-4 h-4 inline-block mr-1"></i> Route Manifest</label>';
+                    addRouteRow();
+                }
+                
+            } catch (error) {
+                showCustomAlert("Connection Error", "Failed to reach the database. Please check your internet connection and try again.", true);
+                console.error("Fetch Error:", error);
+            } finally {
+                overlay.classList.add('hidden'); overlay.classList.remove('flex');
+            }
+        }
+
+        async function submitAssetUpdate() {
+            let payload = {
+                action: "UPDATE_ASSET",
+                data: {
+                    assetKey: document.getElementById('assetKey').value,
+                    newUrl: document.getElementById('assetUrl').value
+                }
+            };
+            if(!payload.data.newUrl) { showCustomAlert("Validation Failed", "Please enter a valid Image/Video URL.", true); return; }
+            await sendAdminRequest(payload, "Updating Site Assets...");
+        }
+
+        async function submitNewEvent() {
+            let payload = {
+                action: "ADD_EVENT",
+                data: {
+                    eventName: document.getElementById('addEvName').value,
+                    date: document.getElementById('addEvDate').value,
+                    category: document.getElementById('addEvCat').value,
+                    link: document.getElementById('addEvLink').value,
+                    imageLink: document.getElementById('addEvImage').value,
+                    attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
+                }
+            };
+            if(!payload.data.eventName || !payload.data.date) { showCustomAlert("Validation Failed", "Event Name and Date are required!", true); return; }
+            await sendAdminRequest(payload, "Publishing Event Data...");
+        }
+
+        async function submitNewTour() {
+            let routes = [];
+            document.querySelectorAll('.route-row').forEach(row => {
+                routes.push({
+                    source: row.querySelector('.route-src').value, sourceCo: row.querySelector('.route-src-co').value,
+                    dest: row.querySelector('.route-dst').value, destCo: row.querySelector('.route-dst-co').value,
+                    dist: row.querySelector('.route-km').value, img: row.querySelector('.route-img').value
+                });
+            });
+
+            let tName = document.getElementById('addTourName').value;
+            let sDate = document.getElementById('addTourStart').value;
+            if(!tName || !sDate) { showCustomAlert("Validation Failed", "Tour Name and Start Date are required!", true); return; }
+            let sD = new Date(sDate);
+
+            let payload = { 
+                action: "CREATE_TOUR", 
+                data: { 
+                    tourName: tName, startDate: sDate, endDate: document.getElementById('addTourEnd').value,
+                    bannerUrl: document.getElementById('addTourBanner').value, startYear: sD.getFullYear(),
+                    startMonth: sD.getMonth() + 1, startDay: sD.getDate(), routes: routes 
+                } 
+            };
+            await sendAdminRequest(payload, "Generating Tour Manifest...");
+        }
+
+        async function submitTourStatusUpdate() {
+            let payload = { action: "UPDATE_TOUR_STATUS", data: { tourName: document.getElementById('manageTourSelect').value, status: document.getElementById('manageTourStatus').value, reason: document.getElementById('manageTourReason').value } };
+            if(!payload.data.tourName) { showCustomAlert("Validation Failed", "Please select a tour.", true); return; }
+            if(payload.data.status === 'PAUSED' && !payload.data.reason) { showCustomAlert("Validation Failed", "A reason is required when pausing a tour.", true); return; }
+            await sendAdminRequest(payload, "Updating Tour Status...");
+        }
+
+        async function submitNewNews() {
+            let payload = { action: "ADD_NEWS", data: { title: document.getElementById('addNewsTitle').value, date: document.getElementById('addNewsDate').value, category: document.getElementById('addNewsCat').value, image: document.getElementById('addNewsImg').value, desc: document.getElementById('addNewsDesc').value, link: document.getElementById('addNewsLink').value } };
+            if(!payload.data.title || !payload.data.date) { showCustomAlert("Validation Failed", "Title and Date are required!", true); return; }
+            await sendAdminRequest(payload, "Publishing News Dispatch...");
+        }
+
+        async function submitNewGallery() {
+            let payload = { action: "ADD_GALLERY", data: { image: document.getElementById('addGalleryImg').value } };
+            if(!payload.data.image) { showCustomAlert("Validation Failed", "Image URL is required!", true); return; }
+            await sendAdminRequest(payload, "Adding Media to Gallery...");
+        }
+
+        async function fetchApplications() {
+            let tbody = document.getElementById('applicationsTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-yellow-500 font-bold"><i data-lucide="loader" class="w-5 h-5 inline animate-spin mr-2"></i> Syncing records from cloud...</td></tr>';
+            lucide.createIcons();
+
+            // 🔴 PASTE YOUR PUBLISHED CSV LINK HERE 🔴
+            const APPLICATIONS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=188998109&single=true&output=csv";
+
+            Papa.parse(APPLICATIONS_CSV_URL, {
+                download: true,
+                header: true, // Uses row 1 as object keys
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    let data = results.data;
+                    let pendingApps = data.filter(app => app.STATUS && app.STATUS.toUpperCase() === 'PENDING');
+
+                    if (pendingApps.length > 0) {
+                        let html = '';
+                        pendingApps.forEach(app => {
+                            let safeDate = String(app.DATE || '').split(',')[0];
+                            let name = app.NAME || 'N/A';
+                            let discord = app.DISCORD || 'N/A';
+                            let tmpId = app.TMP || 'N/A';
+                            let status = app.STATUS || 'PENDING';
+                            let steamId = app.STEAM || 'N/A';
+                            let reason = app.REASON || 'N/A';
+
+                            html += `
+                            <tr class="hover:bg-tntc-hover transition-colors">
+                                <td class="p-5 font-mono text-tntc-textSecondary">${safeDate}</td>
+                                <td class="p-5 font-black text-white">${name}</td>
+                                <td class="p-5 font-bold text-yellow-500">${discord}</td>
+                                <td class="p-5 font-mono">${tmpId}</td>
+                                <td class="p-5"><span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest shadow-sm">${status}</span></td>
+                                <td class="p-5 text-right">
+                                    <button onclick="viewApplicationDetails('${name}', '${discord}', '${steamId}', '${tmpId}', '${reason.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover hover:border-tntc-accent/50 rounded-lg text-xs font-semibold text-tntc-accent inline-flex items-center gap-1.5 transition-all shadow-sm">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
+                                    </button>
+                                </td>
+                            </tr>`;
+                        });
+                        tbody.innerHTML = html;
+                        lucide.createIcons();
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-tntc-textSecondary">No pending applications found.</td></tr>';
+                    }
+                },
+                error: function(err) {
+                    console.error("Fetch Error:", err);
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Error loading data.</td></tr>';
+                    lucide.createIcons();
+                }
+            });
+        }
+
+        function viewApplicationDetails(name, discord, steamId, tmpId, reason) {
+            const title = `Application: ${name}`;
+            const message = `
+Discord: ${discord}
+Steam ID: ${steamId}
+TMP ID: ${tmpId}
+
+Reason for joining:
+${reason}
+            `;
+            showCustomAlert(title, message, false);
+        }
+    </script>
+</body>
+</html>

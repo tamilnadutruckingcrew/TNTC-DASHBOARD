@@ -1,123 +1,255 @@
+// ==========================================
+// DATA FETCHING & API ROUTING (api.js)
+// ==========================================
 
-        function fetchData(isInitialLoad = false) {
-            let syncStatus = document.getElementById('syncStatus');
-            if (isInitialLoad && syncStatus) {
-                syncStatus.innerText = "Syncing with Cloud...";
+async function fetchVTCData(isInitialLoad = false) {
+    if(isInitialLoad) {
+        let jobBody = document.getElementById('filteredJobTableBody');
+        let eventBody = document.getElementById('filteredEventTableBody');
+        if (jobBody) jobBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-tntc-textSecondary"><div class="loader inline-block mr-2 relative top-1"></div> Fetching database...</td></tr>`;
+        if (eventBody) eventBody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary"><div class="loader inline-block mr-2 relative top-1"></div> Fetching events...</td></tr>`;
+    }
+
+    let syncEl = document.getElementById('syncStatus');
+    if (syncEl) {
+        syncEl.innerText = "Syncing...";
+        syncEl.classList.add('animate-pulse');
+        syncEl.classList.remove('text-tntc-admin');
+        syncEl.classList.add('text-tntc-textPrimary');
+    }
+
+    let jobsLoaded = false;
+    let eventsLoaded = false;
+
+    function checkAndRenderOverview() {
+        if (jobsLoaded && eventsLoaded) {
+            if(typeof applyOverviewFilter === "function") applyOverviewFilter();
+            if(typeof updateOverviewTab === 'function') updateOverviewTab();
+            if(typeof updateJobLogsTab === 'function') updateJobLogsTab();
+        }
+    }
+
+    try {
+        Papa.parse(EVENT_COVERS_CSV_URL, {
+            download: true,
+            header: true,
+            skipEmptyLines: 'greedy',
+            complete: function(results) {
+                globalEventCovers = {};
+                results.data.forEach(row => {
+                    if(row.MONTH_YEAR && row.IMAGE_URL) {
+                        globalEventCovers[row.MONTH_YEAR.toUpperCase()] = row.IMAGE_URL;
+                    }
+                });
             }
-            
-            let timeParam = "t=" + new Date().getTime() + "_" + Math.floor(Math.random() * 100000); // Super cache buster
-            let fetchCount = 0;
-            
-            const checkSyncDone = () => {
-                fetchCount++;
-                if(fetchCount >= 3) { 
-                    let finalSyncStatus = document.getElementById('syncStatus');
-                    if (isInitialLoad && finalSyncStatus) finalSyncStatus.innerText = "Live Cloud Sync Active";
-                    if (typeof refreshActiveTab === "function") refreshActiveTab();
+        });
+
+        Papa.parse(EVENT_SHEET_CSV_URL, {
+            download: true,
+            header: false,
+            skipEmptyLines: 'greedy', 
+            complete: function(results) {
+                if (results.data.length > 0) {
+                    let headerIndex = 0;
+                    for (let i = 0; i < Math.min(5, results.data.length); i++) {
+                        let colB = String(results.data[i][1]).toUpperCase();
+                        let colC = String(results.data[i][2]).toUpperCase();
+                        if (colB.includes('DATE') || colC.includes('EVENT')) {
+                            headerIndex = i;
+                            break;
+                        }
+                    }
+                    globalEventData.headers = results.data[headerIndex];
+                    globalEventData.rows = results.data.slice(headerIndex + 1);
+                    
+                    if(typeof populateEventCategoryDropdown === "function") populateEventCategoryDropdown();
+                    if(typeof populateEventDriverDropdown === "function") populateEventDriverDropdown();
+                    if(typeof applyEventFilters === "function") applyEventFilters(); 
                 }
-            };
-
-            // 1. Fetch Event Cover Images (From New Sheet)
-            if (EVENT_COVERS_CSV_URL && EVENT_COVERS_CSV_URL !== "YOUR_NEW_COVER_SHEET_URL_HERE") {
-                let coverUrl = EVENT_COVERS_CSV_URL + (EVENT_COVERS_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-                Papa.parse(coverUrl, {
-                    download: true, header: false, skipEmptyLines: true,
+                eventsLoaded = true;
+                checkAndRenderOverview();
+            }
+        });
+        
+        let fetchPromises = DASHBOARD_JOB_URLS.map(url => {
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: false,
+                    skipEmptyLines: 'greedy',
                     complete: function(results) {
-                        if (results.data && results.data.length > 0) {
-                            results.data.forEach(row => {
-                                let monthYear = String(row[0] || '').trim().toUpperCase(); // e.g. "JUNE 2026"
-                                let imgLink = String(row[1] || '').trim();
-                                if (monthYear && imgLink) globalEventCovers[monthYear] = imgLink;
-                            });
-                        }
-                        checkSyncDone();
+                        let startIdx = String(results.data[0][0]).toUpperCase().includes('TIME') ? 1 : 0;
+                        if(startIdx === 0 && String(results.data[0][1]).toUpperCase().includes('DATE')) startIdx = 1; 
+                        
+                        resolve(results.data.slice(startIdx));
                     },
-                    error: function() { checkSyncDone(); }
+                    error: function(err) {
+                        console.error("PapaParse Job Fetch Error for URL:", url, err);
+                        resolve([]); 
+                    }
                 });
-            } else {
-                checkSyncDone(); 
+            });
+        });
+
+        Promise.all(fetchPromises).then(allResults => {
+            let combinedRows = [];
+            allResults.forEach(rows => {
+                combinedRows = combinedRows.concat(rows);
+            });
+
+            combinedRows.sort((a, b) => {
+                let dateA = new Date(a[0]).getTime() || 0; 
+                let dateB = new Date(b[0]).getTime() || 0;
+                return dateA - dateB;
+            });
+
+            globalJobData = combinedRows;
+            
+            if(typeof populateDriverDropdowns === "function") populateDriverDropdowns();
+            if(typeof applyLogFilters === "function") applyLogFilters();
+            
+            jobsLoaded = true;
+            checkAndRenderOverview();
+            
+            if (syncEl) {
+                syncEl.innerText = "Database Synced";
+                syncEl.classList.remove('animate-pulse');
+                setTimeout(() => { syncEl.innerText = "Live Connected"; }, 3000);
+            }
+        }).catch(err => {
+            console.error("Dashboard Promise Array Error:", err);
+            jobsLoaded = true;
+            checkAndRenderOverview();
+            if (syncEl) {
+                syncEl.innerText = "Sync Error";
+                syncEl.classList.replace('text-tntc-textPrimary', 'text-tntc-admin');
+            }
+        });
+
+    } catch (error) {
+        console.error("API Fetch Error:", error);
+        if (syncEl) {
+            syncEl.innerText = "Sync Error";
+            syncEl.classList.replace('text-tntc-textPrimary', 'text-tntc-admin');
+        }
+    }
+}
+
+function populateDriverDropdowns() {
+    let jobDriverFilter = document.getElementById('filterDriver');
+    if(!jobDriverFilter) return;
+
+    let drivers = new Set();
+    globalJobData.forEach(row => {
+        let name = String(row[2] || '').trim();
+        if(name && name.toUpperCase() !== 'UNKNOWN') {
+            drivers.add(normalizeKey(name));
+        }
+    });
+    
+    let currentJobDriver = jobDriverFilter.value;
+    jobDriverFilter.innerHTML = '<option value="ALL">All Drivers</option>';
+    Array.from(drivers).sort().forEach(d => { 
+        jobDriverFilter.innerHTML += `<option value="${d}">${d}</option>`; 
+    });
+    jobDriverFilter.value = currentJobDriver || 'ALL';
+}
+
+// ==========================================
+// DYNAMIC ASSETS (CMS ENGINE)
+// ==========================================
+
+function fetchSiteAssets() {
+    if (typeof ASSETS_CSV_URL === 'undefined') return;
+
+    if (typeof Papa !== 'undefined') {
+        Papa.parse(ASSETS_CSV_URL, {
+            download: true,
+            header: false,
+            skipEmptyLines: 'greedy',
+            complete: function(results) {
+                if (results.data && results.data.length > 0) {
+                    globalSiteAssets = {};
+                    
+                    results.data.forEach(row => {
+                        let assetName = String(row[0]).trim().toUpperCase();
+                        let assetUrl = String(row[1]).trim();
+                        if (assetName && assetUrl) {
+                            globalSiteAssets[assetName] = assetUrl;
+                        }
+                    });
+                    
+                    applyDynamicAssets(); 
+                }
+            },
+            error: function(err) {
+                console.error("Assets Fetch Error:", err);
+            }
+        });
+    }
+}
+
+function applyDynamicAssets() {
+    // 1. Update standard <img> tags
+    document.querySelectorAll('img[data-asset]').forEach(img => {
+        let key = img.getAttribute('data-asset').toUpperCase();
+        if (globalSiteAssets[key]) {
+            img.src = globalSiteAssets[key];
+        }
+    });
+
+    // 2. Update background images
+    document.querySelectorAll('[data-bg-asset]').forEach(el => {
+        let key = el.getAttribute('data-bg-asset').toUpperCase();
+        if (globalSiteAssets[key]) {
+            el.style.backgroundImage = `url('${globalSiteAssets[key]}')`;
+        }
+    });
+
+    // 3. Update YouTube Promo Video iframe (Professional Mode)
+    document.querySelectorAll('iframe[data-video-asset]').forEach(iframe => {
+        let key = iframe.getAttribute('data-video-asset').toUpperCase();
+        let rawUrl = globalSiteAssets[key];
+        
+        if (rawUrl) {
+            let videoId = "";
+            if (rawUrl.includes("youtu.be/")) {
+                videoId = rawUrl.split("youtu.be/")[1].split("?")[0];
+            } else if (rawUrl.includes("youtube.com/shorts/")) {
+                videoId = rawUrl.split("shorts/")[1].split("?")[0];
+            } else if (rawUrl.includes("watch?v=")) {
+                videoId = rawUrl.split("watch?v=")[1].split("&")[0];
+            } else if (rawUrl.includes("embed/")) {
+                videoId = rawUrl.split("embed/")[1].split("?")[0];
             }
 
-            // 2. Fetch Jobs (PURE ARRAY FOR 100% STABILITY)
-            let jobUrl = GOOGLE_SHEET_CSV_URL + (GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-            Papa.parse(jobUrl, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        globalJobData = results.data.slice(1); // Keep as clean 2D array!
-                        try {
-                            if (typeof populateDriverDropdown === "function") populateDriverDropdown(globalJobData);
-                        } catch(e) { console.error("Dropdown error:", e); }
-                    }
-                    checkSyncDone();
-                },
-                error: function(err) { console.error("Job Sync Error:", err); checkSyncDone(); }
-            });
-
-            // 3. Fetch Events
-            let eventUrl = EVENT_SHEET_CSV_URL + (EVENT_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-            Papa.parse(eventUrl, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        let headerIndex = -1;
-                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
-                            let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("EVENT NAME") && (rowStr.includes("CATEGORY") || rowStr.includes("DATE"))) {
-                                headerIndex = i; break;
-                            }
-                        }
-                        if (headerIndex !== -1) {
-                            globalEventData.headers = results.data[headerIndex];
-                            globalEventData.rows = results.data.slice(headerIndex + 1);
-                            try {
-                                if (typeof populateEventCategoryDropdown === "function") populateEventCategoryDropdown();
-                                if (typeof populateEventDriverDropdown === "function") populateEventDriverDropdown();
-                            } catch(e) { console.error("Event Dropdown error:", e); }
-                        }
-                    }
-                    checkSyncDone();
-                },
-                error: function(err) { console.error("Event Sync Error:", err); checkSyncDone(); }
-            });
-        }
-
-        function fetchTourData() {
-            let timeParam = "t=" + new Date().getTime() + "_" + Math.floor(Math.random() * 100000);
-            let tourUrl = TOUR_SHEET_CSV_URL + (TOUR_SHEET_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-            Papa.parse(tourUrl, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 1) {
-                        let headerIndex = -1;
-                        for(let i = 0; i < Math.min(20, results.data.length); i++) {
-                            let rowStr = results.data[i].join(" ").toUpperCase();
-                            if(rowStr.includes("SOURCE CITY") && rowStr.includes("DESTINATION CITY")) {
-                                headerIndex = i; break;
-                            }
-                        }
-                        if (headerIndex !== -1) {
-                            globalTourData.headers = results.data[headerIndex];
-                            globalTourData.rows = results.data.slice(headerIndex + 1);
-                            isTourDataFetched = true;
-                            if (typeof processCampaignData === "function") processCampaignData();
-                        }
-                    }
-                },
-                error: function(err) { console.error("Campaign Sync Error:", err); }
-            });
-        }
-
-        function fetchLiveRidersOnly() {
-            if (LIVE_RIDERS_CSV_URL && !LIVE_RIDERS_CSV_URL.includes("🔴")) {
-                let timeParam = "t=" + new Date().getTime() + "_" + Math.floor(Math.random() * 100000);
-                let liveUrl = LIVE_RIDERS_CSV_URL + (LIVE_RIDERS_CSV_URL.includes('?') ? '&' : '?') + timeParam;
-                Papa.parse(liveUrl, {
-                    download: true, header: false, skipEmptyLines: true,
-                    complete: function(results) {
-                        if (typeof renderLiveRiders === "function") renderLiveRiders(results.data);
-                    },
-                    error: function(err) { console.error("Live Rider Sync Failed:", err); }
-                });
+            if (videoId) {
+                // PROFESSIONAL CONFIGURATION:
+                // rel=0 -> Suggests only YOUR channel videos.
+                // iv_load_policy=3 -> No annotations.
+                // modestbranding=1 -> Minimal YouTube logo.
+                iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1`;
             }
         }
+    });
+}
+
+function fetchLiveRidersOnly() {
+    if (typeof LIVE_RIDERS_CSV_URL === 'undefined') return;
+    
+    if (typeof Papa !== 'undefined') {
+        Papa.parse(LIVE_RIDERS_CSV_URL, {
+            download: true,
+            header: false,
+            skipEmptyLines: 'greedy',
+            complete: function(results) {
+                if (results.data && typeof renderLiveRiders === "function") {
+                    renderLiveRiders(results.data);
+                }
+            },
+            error: function(err) {
+                console.error("Live Riders Fetch Error:", err);
+            }
+        });
+    }
+}

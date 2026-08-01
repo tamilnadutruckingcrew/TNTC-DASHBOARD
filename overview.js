@@ -1,277 +1,224 @@
+// ==========================================
+// OVERVIEW DASHBOARD ENGINE (overview.js)
+// ==========================================
 
-        function populateDriverDropdown(rows) {
-            let dropdown = document.getElementById('filterDriver');
-            if(!dropdown) return;
+function applyOverviewFilter() {
+    let timeFilterEl = document.getElementById('overviewTimeFilter');
+    let overviewDatePickerEl = document.getElementById('overviewDatePicker');
 
-            let driverMap = new Map();
-            rows.forEach(row => { 
-                let orig = String(row[2] || '').trim(); 
-                let norm = normalizeKey(orig);
-                if(norm && norm !== 'UNKNOWN') {
-                    if (!driverMap.has(norm)) driverMap.set(norm, orig);
-                } 
-            });
+    if(!timeFilterEl || !overviewDatePickerEl) return;
+
+    let timeFilter = timeFilterEl.value;
+    let customDate = overviewDatePickerEl.value;
+    
+    let totalKm = 0;
+    let totalJobs = 0;
+    let totalRevenue = 0;
+    let activeDrivers = new Set();
+    
+    let driverKmMap = {}; 
+    let driverEventMap = {}; 
+    let hallOfFame = [];
+    
+    // Safety check
+    if (!globalJobData || globalJobData.length === 0) return;
+
+    globalJobData.forEach(row => {
+        let name = String(row[2] || '').trim();
+        let normName = normalizeKey(name);
+        
+        if(!normName || normName === 'UNKNOWN') return;
+        
+        let timeStr = String(row[0] || '');
+        if (!checkDateFilter(timeStr, timeFilter, customDate)) return;
+
+        let drivenKm = cleanNumber(row[12]);
+        let rev = cleanNumber(row[15]);
+
+        if (drivenKm > 0) {
+            totalKm += drivenKm;
+            totalJobs++;
+            totalRevenue += rev;
+            activeDrivers.add(normName);
             
-            let currentVal = dropdown.value; 
-            dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
-            let sortedKeys = Array.from(driverMap.keys()).sort();
-            sortedKeys.forEach(norm => { 
-                dropdown.innerHTML += `<option value="${norm}">${driverMap.get(norm)}</option>`; 
-            });
-            dropdown.value = currentVal || 'ALL';
+            if(!driverKmMap[name]) driverKmMap[name] = { km: 0, jobs: 0 };
+            driverKmMap[name].km += drivenKm;
+            driverKmMap[name].jobs += 1;
+        }
+    });
+
+    let filteredEventsCount = 0;
+    
+    if (globalEventData && globalEventData.rows && globalEventData.headers) {
+        let headers = globalEventData.headers;
+        
+        // Pre-compute valid driver columns starting from index 6[cite: 11]
+        let driverCols = [];
+        for (let i = 6; i < headers.length; i++) {
+            let dName = String(headers[i] || '').trim();
+            let normKey = normalizeKey(dName);
+            
+            if (normKey && normKey !== 'UNKNOWN' && !normKey.includes('ATTENDANCE')) {
+                driverCols.push({ index: i, name: dName });
+            }
         }
 
-        function applyOverviewFilter() {
-            let timeFilterEl = document.getElementById('overviewTimeFilter');
-            let customDateEl = document.getElementById('overviewDatePicker');
+        globalEventData.rows.forEach(row => {
+            let dateStr = String(row[1] || '');
+            if (dateStr.trim() === '') return;
             
-            if (!timeFilterEl || !customDateEl) return;
-            
-            let timeFilter = timeFilterEl.value;
-            let customDate = customDateEl.value;
-            
-            let filteredJobs = globalJobData.filter(row => checkDateFilter(row[0] || '', timeFilter, customDate));
-            
-            let thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            
-            let driverLastJobDate = {};
-            let originalDriverNames = {}; 
-            let driverAllTimeKm = {};
-            let driverAllTimeEvents = {};
-            
-            globalJobData.forEach(row => {
-                let origName = String(row[2] || '').trim();
-                let normKey = normalizeKey(origName);
-                if (!normKey || normKey === 'UNKNOWN') return;
-
-                if (!originalDriverNames[normKey]) originalDriverNames[normKey] = origName;
+            if (checkDateFilter(dateStr, timeFilter, customDate)) {
+                filteredEventsCount++;
                 
-                let dateStr = String(row[0] || '');
-                let jobDate = new Date(dateStr.replace(/-/g, ' '));
-                if (!isNaN(jobDate)) {
-                    if (!driverLastJobDate[normKey] || jobDate > driverLastJobDate[normKey]) {
-                        driverLastJobDate[normKey] = jobDate;
-                    }
-                }
-                
-                if (!driverAllTimeKm[normKey]) driverAllTimeKm[normKey] = 0;
-                driverAllTimeKm[normKey] += cleanNumber(row[12]);
-            });
-
-            globalEventData.rows.forEach(row => {
-                for(let i = 6; i < globalEventData.headers.length; i++) {
-                    let origName = String(globalEventData.headers[i] || '').trim();
-                    let normKey = normalizeKey(origName);
+                // Iterate through pre-computed driver columns
+                driverCols.forEach(dc => {
+                    // Strip out quotes, extra spaces, and enforce uppercase for robust matching
+                    let val = String(row[dc.index] || '').replace(/["']/g, '').trim().toUpperCase();
                     
-                    if (!normKey || normKey === 'UNKNOWN' || normKey.includes('ATTENDANCE')) continue;
-
-                    let val = String(row[i] || '').trim().toUpperCase();
-                    if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                        if (!originalDriverNames[normKey]) originalDriverNames[normKey] = origName;
-                        if (!driverLastJobDate[normKey]) driverLastJobDate[normKey] = new Date(0); 
-                        if (!driverAllTimeEvents[normKey]) driverAllTimeEvents[normKey] = 0;
-                        driverAllTimeEvents[normKey]++;
+                    // Explicit check for checked box values exported by Google Sheets CSV[cite: 11]
+                    if (val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
+                        if (!driverEventMap[dc.name]) driverEventMap[dc.name] = 0;
+                        driverEventMap[dc.name]++;
                     }
-                }
-            });
-
-            let activeDriversSet = new Set();
-            let pastDriversSet = new Set();
-
-            Object.keys(driverLastJobDate).forEach(normKey => {
-                if (driverLastJobDate[normKey] >= thirtyDaysAgo) {
-                    activeDriversSet.add(normKey);
-                } else {
-                    pastDriversSet.add(normKey);
-                }
-            });
-
-            let statDriversEl = document.getElementById('statDrivers');
-            if (statDriversEl) animateValue("statDrivers", parseInt(statDriversEl.innerText) || 0, activeDriversSet.size, 500);
-
-            let pastStats = {};
-            pastDriversSet.forEach(normKey => {
-                pastStats[normKey] = {
-                    name: originalDriverNames[normKey],
-                    km: driverAllTimeKm[normKey] || 0,
-                    events: driverAllTimeEvents[normKey] || 0
-                };
-            });
-            renderPastDrivers(pastStats);
-
-            processTelemetryData(filteredJobs, activeDriversSet, originalDriverNames);
-            processEventData(timeFilter, customDate, activeDriversSet, originalDriverNames);
-        }
-
-        function processTelemetryData(rows, activeDriversSet, originalDriverNames) {
-            let totalKm = 0, totalRev = 0, totalJobs = rows.length;
-            let driverMap = {};
-            
-            rows.forEach((row) => {
-                let normKey = normalizeKey(row[2]);
-                if(!normKey || normKey === 'UNKNOWN') return;
-
-                let drivenKm = cleanNumber(row[12]);
-                let revenue = cleanNumber(row[15]);
-                
-                totalKm += drivenKm; 
-                totalRev += revenue;
-                
-                if (!driverMap[normKey]) driverMap[normKey] = { km: 0, jobs: 0 };
-                driverMap[normKey].km += drivenKm;
-                driverMap[normKey].jobs += 1;
-            });
-
-            let statDistEl = document.getElementById('statDistance');
-            let statJobsEl = document.getElementById('statJobs');
-            let statRevEl = document.getElementById('statRevenue');
-
-            if (statDistEl) animateValue("statDistance", parseInt(statDistEl.innerText.replace(/,/g, '')) || 0, totalKm, 1000);
-            if (statJobsEl) animateValue("statJobs", parseInt(statJobsEl.innerText.replace(/,/g, '')) || 0, totalJobs, 800);
-            if (statRevEl) animateValue("statRevenue", parseInt(statRevEl.innerText.replace(/,/g, '')) || 0, totalRev, 1000);
-
-            let activeKMDrivers = [];
-
-            Object.keys(driverMap).forEach(normKey => {
-                if (activeDriversSet.has(normKey)) {
-                    activeKMDrivers.push({ name: originalDriverNames[normKey] || normKey, km: driverMap[normKey].km, jobs: driverMap[normKey].jobs });
-                }
-            });
-
-            activeKMDrivers.sort((a, b) => b.km - a.km);
-
-            let leaderboardHTML = "";
-            if (activeKMDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No active logs found.</p>`;
-            else {
-                activeKMDrivers.forEach((d, rank) => {
-                    let badgeClass = rank === 0 ? 'text-tntc-revenue font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p><p class="text-[10px] text-tntc-textSecondary">${d.jobs} Jobs</p></div></div><p class="text-xs font-mono font-bold text-tntc-distance">${d.km.toLocaleString()} km</p></div>`;
                 });
             }
-            updateDOMIfChanged('kmLeaderboardList', leaderboardHTML);
-            renderKmChart(activeKMDrivers.slice(0, 8)); 
-        }
+        });
+    }
 
-        function processEventData(timeFilter, customDate, activeDriversSet, originalDriverNames) {
-            if(!globalEventData.rows.length) return;
-            let totalEvents = 0;
-            let driverEventMap = {};
-            let headers = globalEventData.headers;
+    animateValue('statDistance', parseInt(document.getElementById('statDistance').innerText.replace(/,/g,'')) || 0, totalKm, 1000);
+    animateValue('statJobs', parseInt(document.getElementById('statJobs').innerText) || 0, totalJobs, 1000);
+    animateValue('statRevenue', parseInt(document.getElementById('statRevenue').innerText.replace(/,/g,'')) || 0, totalRevenue, 1000);
+    document.getElementById('statDrivers').innerText = activeDrivers.size;
+    document.getElementById('statEvents').innerText = filteredEventsCount;
 
-            globalEventData.rows.forEach(row => {
-                let dateStr = String(row[1] || ''); 
-                let nameStr = String(row[2] || '');
-                if (dateStr.trim() === '' || nameStr.trim() === '') return; 
-
-                if(checkDateFilter(dateStr, timeFilter, customDate)) {
-                    totalEvents++; 
-                    for(let i = 6; i < headers.length; i++) { 
-                        let normKey = normalizeKey(headers[i]);
-                        if(!normKey || normKey === 'UNKNOWN' || normKey.includes('ATTENDANCE')) continue;
-                        
-                        let val = String(row[i] || '').trim().toUpperCase();
-                        if(val !== '' && val !== 'FALSE' && val !== '0' && val !== '☐' && val !== 'NO') {
-                            if(!driverEventMap[normKey]) driverEventMap[normKey] = 0;
-                            driverEventMap[normKey]++;
-                        }
-                    }
-                }
-            });
-
-            let statEventsEl = document.getElementById('statEvents');
-            if (statEventsEl) animateValue("statEvents", parseInt(statEventsEl.innerText) || 0, totalEvents, 800);
-
-            let activeEventDrivers = [];
-
-            Object.keys(driverEventMap).forEach(normKey => {
-                if (activeDriversSet.has(normKey)) {
-                    activeEventDrivers.push({ name: originalDriverNames[normKey] || normKey, events: driverEventMap[normKey] });
-                }
-            });
-
-            activeEventDrivers.sort((a, b) => b.events - a.events);
-
-            let leaderboardHTML = "";
-            if (activeEventDrivers.length === 0) leaderboardHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No events found.</p>`;
-            else {
-                activeEventDrivers.forEach((d, rank) => {
-                    let badgeClass = rank === 0 ? 'text-tntc-accent font-black' : (rank === 1 ? 'text-slate-300 font-bold' : (rank === 2 ? 'text-amber-600 font-bold' : 'text-slate-500 font-semibold'));
-                    leaderboardHTML += `<div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/20 hover:bg-tntc-hover transition-colors"><div class="flex items-center gap-3"><span class="text-sm ${badgeClass}">#${rank + 1}</span><div><p class="text-xs font-bold text-tntc-textPrimary">${d.name}</p></div></div><p class="text-xs font-mono font-bold text-tntc-accent">${d.events} Convoys</p></div>`;
-                });
+    let kmLeaderboard = [];
+    for(let d in driverKmMap) kmLeaderboard.push({ name: d, km: driverKmMap[d].km, jobs: driverKmMap[d].jobs });
+    kmLeaderboard.sort((a,b) => b.km - a.km);
+    
+    let eventLeaderboard = [];
+    for(let d in driverEventMap) eventLeaderboard.push({ name: d, events: driverEventMap[d] });
+    eventLeaderboard.sort((a,b) => b.events - a.events);
+    
+    // Sort logic for Hall of Fame based on events
+    // This looks for past members who are no longer active in the job sheet
+    if (globalJobData && globalJobData.length > 0) {
+        let allCurrentDrivers = new Set(globalJobData.map(r => normalizeKey(r[2])));
+        for (let d in driverEventMap) {
+            if (!allCurrentDrivers.has(normalizeKey(d))) {
+                hallOfFame.push({ name: d, events: driverEventMap[d] });
             }
-            updateDOMIfChanged('eventLeaderboardList', leaderboardHTML);
-            renderEventChart(activeEventDrivers.slice(0, 8)); 
         }
+        hallOfFame.sort((a,b) => b.events - a.events);
+    }
 
-        function renderPastDrivers(pastStats) {
-            let pastArray = Object.keys(pastStats).map(normKey => ({
-                name: pastStats[normKey].name || normKey,
-                km: pastStats[normKey].km || 0,
-                events: pastStats[normKey].events || 0
-            })).filter(d => String(d.name).toUpperCase() !== 'UNKNOWN' && d.name !== ''); 
+    renderLeaderboardList('kmLeaderboardList', kmLeaderboard, 'km');
+    renderLeaderboardList('eventLeaderboardList', eventLeaderboard, 'events');
+    renderHallOfFame('pastLeaderboardList', hallOfFame);
 
-            pastArray.sort((a, b) => b.km - a.km);
+    updateCharts(kmLeaderboard, eventLeaderboard);
+}
 
-            let pastHTML = "";
-            if (pastArray.length === 0) {
-                pastHTML = `<p class="text-tntc-textSecondary text-sm text-center mt-4">No past members found.</p>`;
-            } else {
-                pastArray.forEach(d => {
-                    pastHTML += `
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-tntc-main border border-tntc-muted/10 opacity-70 hover:opacity-100 transition-opacity">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="user-minus" class="w-4 h-4 text-tntc-textSecondary"></i>
-                            <div>
-                                <p class="text-xs font-bold text-tntc-textSecondary">${d.name}</p>
-                                <p class="text-[9px] text-tntc-textSecondary/60">${d.events} Events</p>
-                            </div>
-                        </div>
-                        <p class="text-xs font-mono font-semibold text-tntc-textSecondary">${d.km.toLocaleString()} km</p>
-                    </div>`;
-                });
-            }
-            updateDOMIfChanged('pastLeaderboardList', pastHTML);
-        }
-
-        function renderKmChart(topDrivers) {
-            let canvasEl = document.getElementById('kmBarChart');
-            if(!canvasEl) return;
-
-            const labels = topDrivers.map(d => d.name);
-            const dataKm = topDrivers.map(d => d.km);
+function renderLeaderboardList(elementId, data, type) {
+    let container = document.getElementById(elementId);
+    if (!container) return;
+    
+    let html = "";
+    if(data.length === 0) {
+        html = `<p class="text-xs text-tntc-textSecondary italic text-center mt-10">No data found for this period.</p>`;
+    } else {
+        data.slice(0, 10).forEach((item, index) => {
+            let rankColor = index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-amber-600' : 'text-tntc-textSecondary';
+            let valStr = type === 'km' ? `<span class="text-tntc-distance font-mono font-bold">${item.km.toLocaleString()} km</span>` : `<span class="text-tntc-accent font-bold">${item.events} Convoys</span>`;
+            let subStr = type === 'km' ? `${item.jobs} Jobs` : ``;
             
-            if (kmChartInstance) {
-                kmChartInstance.data.labels = labels;
-                kmChartInstance.data.datasets[0].data = dataKm;
-                kmChartInstance.update(); 
-                return;
-            }
+            html += `
+            <div class="flex items-center justify-between p-3 bg-tntc-main border border-tntc-muted/20 rounded-lg hover:border-tntc-muted/50 transition-colors shadow-sm">
+                <div class="flex items-center gap-3">
+                    <span class="font-black ${rankColor} w-5">#${index+1}</span>
+                    <div>
+                        <p class="text-sm font-bold text-tntc-textPrimary leading-tight">${item.name}</p>
+                        ${subStr ? `<p class="text-[10px] text-tntc-textSecondary">${subStr}</p>` : ''}
+                    </div>
+                </div>
+                ${valStr}
+            </div>`;
+        });
+    }
+    container.innerHTML = html;
+}
 
-            const ctx = canvasEl.getContext('2d');
-            let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(74, 222, 128, 0.8)'); 
-            gradient.addColorStop(1, 'rgba(74, 222, 128, 0.1)');
-            kmChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataKm, backgroundColor: gradient, borderColor: '#4ade80', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(2, 132, 199, 0.2)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
+function renderHallOfFame(elementId, data) {
+    let container = document.getElementById(elementId);
+    if (!container) return;
+    
+    let html = "";
+    if(data.length === 0) {
+        html = `<p class="text-xs text-tntc-textSecondary italic text-center mt-10">No past members found.</p>`;
+    } else {
+        data.slice(0, 10).forEach(item => {
+            html += `
+            <div class="flex items-center justify-between p-3 bg-tntc-main/50 border border-tntc-muted/10 rounded-lg opacity-70 hover:opacity-100 transition-opacity">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="user-minus" class="w-4 h-4 text-tntc-textSecondary"></i>
+                    <div>
+                        <p class="text-xs font-bold text-tntc-textSecondary leading-tight">${item.name}</p>
+                        <p class="text-[9px] text-tntc-textSecondary/70">${item.events} Events</p>
+                    </div>
+                </div>
+                <span class="text-tntc-textSecondary text-[10px] font-mono">Inactive</span>
+            </div>`;
+        });
+    }
+    container.innerHTML = html;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function updateCharts(kmData, eventData) {
+    const kmTop5 = kmData.slice(0,5);
+    const evTop5 = eventData.slice(0,5);
+
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1017', titleColor: '#f8fafc', bodyColor: '#38bdf8', borderColor: '#334155', borderWidth: 1 } },
+        scales: { 
+            y: { beginAtZero: true, grid: { color: 'rgba(51,65,85,0.2)' }, border: { display: false } },
+            x: { grid: { display: false }, border: { display: false }, ticks: { maxRotation: 0, minRotation: 0, font: { size: 9 } } }
         }
+    };
 
-        function renderEventChart(topEventDrivers) {
-            let canvasEl = document.getElementById('eventBarChart');
-            if(!canvasEl) return;
+    if (kmChartInstance) kmChartInstance.destroy();
+    let kmCtx = document.getElementById('kmBarChart');
+    if (kmCtx) {
+        let grad = kmCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+        grad.addColorStop(0, 'rgba(74,222,128,0.8)'); grad.addColorStop(1, 'rgba(74,222,128,0.2)');
+        
+        kmChartInstance = new Chart(kmCtx, {
+            type: 'bar',
+            data: {
+                labels: kmTop5.map(d => { let parts = d.name.split(' '); return parts[0]; }), 
+                datasets: [{ data: kmTop5.map(d => d.km), backgroundColor: grad, borderRadius: 4, barThickness: 40 }]
+            },
+            options: commonOptions
+        });
+    }
 
-            const labels = topEventDrivers.map(d => d.name);
-            const dataEvents = topEventDrivers.map(d => d.events);
-            
-            if (eventChartInstance) {
-                eventChartInstance.data.labels = labels;
-                eventChartInstance.data.datasets[0].data = dataEvents;
-                eventChartInstance.update();
-                return;
-            }
-
-            const ctx = canvasEl.getContext('2d');
-            let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(56, 189, 248, 0.8)'); 
-            gradient.addColorStop(1, 'rgba(56, 189, 248, 0.1)');
-            eventChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: dataEvents, backgroundColor: gradient, borderColor: '#38bdf8', borderWidth: 1, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(2, 132, 199, 0.2)' }, ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } } });
-        }
+    if (eventChartInstance) eventChartInstance.destroy();
+    let evCtx = document.getElementById('eventBarChart');
+    if (evCtx) {
+        let grad2 = evCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+        grad2.addColorStop(0, 'rgba(56,189,248,0.8)'); grad2.addColorStop(1, 'rgba(56,189,248,0.2)');
+        
+        eventChartInstance = new Chart(evCtx, {
+            type: 'bar',
+            data: {
+                labels: evTop5.map(d => { let parts = d.name.split(' '); return parts[0]; }),
+                datasets: [{ data: evTop5.map(d => d.events), backgroundColor: grad2, borderRadius: 4, barThickness: 40 }]
+            },
+            options: commonOptions
+        });
+    }
+}
