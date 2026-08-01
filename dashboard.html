@@ -63,6 +63,12 @@
             display: inline-block;
             animation: driveTruck 3s linear infinite;
         }
+
+        /* PREMIUM VTC FILTER CALENDAR FIX */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="month"]::-webkit-calendar-picker-indicator {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
@@ -110,19 +116,27 @@
 
     <!-- TAB 1: OVERVIEW DASHBOARD -->
     <div id="tab-overview" class="block">
-        <div class="flex flex-col sm:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-lg mb-6 gap-4">
-            <h2 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 w-full sm:w-auto"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Overall Division Stats</h2>
-            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-                <label class="text-xs font-semibold text-tntc-textSecondary">Filter By:</label>
-                <select id="overviewTimeFilter" onchange="handleTimeChange('overviewTimeFilter', 'overviewDatePicker', 'applyOverviewFilter')" class="bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 focus:ring-tntc-accent outline-none">
-                    <option value="ALL">All Time</option>
-                    <option value="TODAY">Today</option>
-                    <option value="WEEK">This Week</option>
-                    <option value="MONTH">This Month</option>
-                    <option value="CUSTOM">Select Date 🗓️</option>
-                </select>
-                <input type="date" id="overviewDatePicker" onchange="applyOverviewFilter()" class="hidden bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-1.5 focus:ring-tntc-accent outline-none">
+        <div class="flex flex-col xl:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-lg mb-6 gap-4">
+            <h2 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 w-full xl:w-auto"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Overall Division Stats</h2>
+            
+            <!-- PREMIUM VTC FILTER (OVERVIEW) -->
+            <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end" data-target="overview">
+                <div class="flex items-center bg-[#05070a] border border-tntc-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
+                    <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-revenue bg-[#161f30] border-r border-tntc-muted/30 transition-colors" data-mode="ALL">All time</button>
+                    <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] border-r border-tntc-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
+                    <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily <i data-lucide="info" class="w-3 h-3 inline ml-1"></i></button>
+                </div>
+                <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
+                    <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
+                    <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
+                        <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
+                        <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
+                        <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                        <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                    </div>
+                </div>
             </div>
+            
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 mb-8">
             <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors"><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Total Distance</p><h2 class="text-2xl sm:text-3xl font-black text-tntc-textPrimary"><span id="statDistance">0</span> <span class="text-xs font-normal text-tntc-textSecondary">km</span></h2></div>
@@ -161,21 +175,37 @@
     <div id="tab-logs" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
             <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</h3>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Select Driver</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Drivers</option></select>
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Select Driver</label>
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Drivers</option></select>
                 </div>
-                <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Time Period</label>
-                    <div class="flex gap-2">
-                        <select id="filterTime" onchange="handleTimeChange('filterTime', 'jobDatePicker', 'applyLogFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Time</option><option value="TODAY">Today's Jobs</option><option value="WEEK">This Week</option><option value="MONTH">This Month</option><option value="CUSTOM">Select Date 🗓️</option></select>
-                        <input type="date" id="jobDatePicker" onchange="applyLogFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 outline-none">
+                
+                <!-- PREMIUM VTC FILTER (JOB LOGS) -->
+                <div class="col-span-2 lg:col-span-2">
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Time Period</label>
+                    <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full" data-target="logs">
+                        <div class="flex items-center bg-[#05070a] border border-tntc-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
+                            <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-revenue bg-[#161f30] border-r border-tntc-muted/30 transition-colors" data-mode="ALL">All time</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] border-r border-tntc-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                        </div>
+                        <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
+                            <!-- 🔥 ADDED MISSING LABEL HERE 🔥 -->
+                            <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
+                            <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
+                                <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
+                                <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
+                                <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Rows</label>
-                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
+
+                <div class="col-span-1 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Rows</label>
+                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
                         <option value="10">10 / page</option>
                         <option value="25" selected>25 / page</option>
                         <option value="50">50 / page</option>
@@ -216,25 +246,41 @@
     <div id="tab-events" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
             <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Event Records</h3>
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Event Category</label>
-                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Categories</option></select>
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Category</label>
+                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Events</option></select>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Select Driver</label>
-                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Drivers</option></select>
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Select Driver</label>
+                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Drivers</option></select>
                 </div>
-                <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Time Period</label>
-                    <div class="flex gap-2">
-                        <select id="filterEventTime" onchange="handleTimeChange('filterEventTime', 'eventDatePicker', 'applyEventFilters')" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none"><option value="ALL">All Time</option><option value="WEEK">This Week</option><option value="MONTH">This Month</option><option value="CUSTOM">Select Date 🗓️</option></select>
-                        <input type="date" id="eventDatePicker" onchange="applyEventFilters()" class="hidden w-1/2 bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2 outline-none">
+
+                <!-- PREMIUM VTC FILTER (EVENTS) -->
+                <div class="col-span-2 lg:col-span-2">
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Time Period</label>
+                    <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full" data-target="events">
+                        <div class="flex items-center bg-[#05070a] border border-tntc-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
+                            <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-revenue bg-[#161f30] border-r border-tntc-muted/30 transition-colors" data-mode="ALL">All time</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] border-r border-tntc-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                        </div>
+                        <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
+                            <!-- 🔥 ADDED MISSING LABEL HERE 🔥 -->
+                            <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
+                            <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
+                                <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
+                                <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
+                                <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-1">Rows</label>
-                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg p-2.5 outline-none">
+
+                <div class="col-span-1 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Rows</label>
+                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
                         <option value="10">10 / page</option>
                         <option value="25" selected>25 / page</option>
                         <option value="50">50 / page</option>
@@ -298,11 +344,7 @@
     
     <!-- EVENT MODAL -->
     <div id="eventModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center modal-closed">
-        
-        <!-- 🔥 FIX 1: Dedicated Background Overlay (This layer handles the outside click) 🔥 -->
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('eventModal')"></div>
-        
-        <!-- 🔥 FIX 2: Elevated Content Layer (z-10 makes sure touches here never hit the background) 🔥 -->
         <div class="custom-modal-content relative z-10 bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div id="modalImageContainer" class="w-full h-40 sm:h-48 shrink-0 bg-tntc-main relative bg-cover bg-center border-b border-tntc-muted/30">
                 <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
@@ -324,11 +366,7 @@
 
     <!-- CAMPAIGN ROUTE MODAL -->
     <div id="campaignModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center modal-closed">
-        
-        <!-- 🔥 FIX 1: Dedicated Background Overlay (This layer handles the outside click) 🔥 -->
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('campaignModal')"></div>
-        
-        <!-- 🔥 FIX 2: Elevated Content Layer (z-10 makes sure touches here never hit the background) 🔥 -->
         <div class="custom-modal-content relative z-10 bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden relative">
             <div id="campModalHeader" class="w-full h-32 relative border-b border-tntc-muted/30 overflow-hidden bg-cover bg-center">
                 <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
@@ -356,7 +394,106 @@
     <script src="liveriders.js"></script>
     <script src="init.js"></script>
     
+    <!-- 🟢 PREMIUM VTC FILTER LOGIC (UPDATED & BUG-FIXED) 🟢 -->
     <script>
+        // GLOBAL VTC FILTER STATE
+        window.vtcFilterStates = { overview: { mode: 'ALL', value: '' }, logs: { mode: 'ALL', value: '' }, events: { mode: 'ALL', value: '' } };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.tntc-vtc-filter').forEach(container => {
+                const tabs = container.querySelectorAll('.filter-tab');
+                const pickerContainer = container.querySelector('.picker-container');
+                const pickerLabel = container.querySelector('.picker-label');
+                const pickerDisplay = container.querySelector('.picker-display');
+                const monthInput = container.querySelector('.month-input');
+                const dateInput = container.querySelector('.date-input');
+                const targetFunc = container.dataset.target; // 'overview', 'logs', 'events'
+
+                // Initial Set Date/Month logic
+                const now = new Date();
+                const curMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                const curDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                monthInput.value = curMonth; 
+                dateInput.value = curDate;
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        
+                        tabs.forEach(t => {
+                            t.classList.remove('text-tntc-revenue', 'bg-[#161f30]');
+                            t.classList.add('text-tntc-textSecondary', 'bg-[#05070a]');
+                        });
+                        tab.classList.remove('text-tntc-textSecondary', 'bg-[#05070a]');
+                        tab.classList.add('text-tntc-revenue', 'bg-[#161f30]');
+
+                        let mode = tab.dataset.mode;
+                        
+                        // 🔥 AUTO-APPLY FRESH CURRENT DATES WHEN TABS ARE CLICKED 🔥
+                        const freshNow = new Date();
+                        const freshMonth = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}`;
+                        const freshDate = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}-${String(freshNow.getDate()).padStart(2, '0')}`;
+
+                        if (mode === 'ALL') {
+                            pickerContainer.classList.add('hidden');
+                            triggerFilter(targetFunc, mode, '');
+                        } else if (mode === 'MONTHLY') {
+                            pickerContainer.classList.remove('hidden');
+                            if (pickerLabel) pickerLabel.innerText = 'MONTH'; // Safety Check!
+                            monthInput.classList.remove('hidden'); 
+                            dateInput.classList.add('hidden');
+                            
+                            // Auto Apply Current Month and Filter!
+                            monthInput.value = freshMonth;
+                            updateDisplay(monthInput.value, 'month');
+                            triggerFilter(targetFunc, mode, monthInput.value);
+                            
+                        } else if (mode === 'DAILY') {
+                            pickerContainer.classList.remove('hidden');
+                            if (pickerLabel) pickerLabel.innerText = 'DATE'; // Safety Check!
+                            monthInput.classList.add('hidden'); 
+                            dateInput.classList.remove('hidden');
+                            
+                            // Auto Apply Today's Date and Filter!
+                            dateInput.value = freshDate;
+                            updateDisplay(dateInput.value, 'date');
+                            triggerFilter(targetFunc, mode, dateInput.value);
+                        }
+                    });
+                });
+
+                monthInput.addEventListener('change', (e) => { 
+                    updateDisplay(e.target.value, 'month'); 
+                    triggerFilter(targetFunc, 'MONTHLY', e.target.value); 
+                });
+                
+                dateInput.addEventListener('change', (e) => { 
+                    updateDisplay(e.target.value, 'date'); 
+                    triggerFilter(targetFunc, 'DAILY', e.target.value); 
+                });
+
+                function updateDisplay(val, type) {
+                    if (!val) { pickerDisplay.innerText = "Select..."; return; }
+                    const parts = val.split('-');
+                    let d;
+                    if (type === 'month') {
+                        d = new Date(parts[0], parseInt(parts[1]) - 1, 1);
+                        pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                    } else {
+                        d = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
+                        pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    }
+                }
+            });
+        });
+
+        function triggerFilter(target, mode, value) {
+            window.vtcFilterStates[target] = { mode: mode, value: value };
+            if (target === 'overview' && typeof applyOverviewFilter === 'function') applyOverviewFilter();
+            if (target === 'logs' && typeof applyLogFilters === 'function') applyLogFilters();
+            if (target === 'events' && typeof applyEventFilters === 'function') applyEventFilters();
+        }
+
+        // Original DOMContentLoaded for Auth & Assets
         document.addEventListener("DOMContentLoaded", () => {
             const role = sessionStorage.getItem('tntc_role');
             if (role === 'leader' || role === 'admin') {

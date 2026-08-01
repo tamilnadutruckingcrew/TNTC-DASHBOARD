@@ -141,7 +141,7 @@ function generateTourShells() {
                         <div id="prog-bar-${safeId}" class="bg-tntc-distance h-full rounded-full transition-all duration-[1500ms] ease-out relative" style="width: 0%;">
                             
                             <div class="absolute -right-4 -top-3.5 z-30 pointer-events-none drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]">
-                                <img src="https://cdn-icons-png.flaticon.com/512/3366/3366116.png" alt="Truck" class="w-7 h-7 object-contain block max-w-none">
+                                <img src="https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/Bar%20truck.png?raw=true" alt="Truck" class="w-9 h-10 object-contain block max-w-none">
                             </div>
                             
                         </div>

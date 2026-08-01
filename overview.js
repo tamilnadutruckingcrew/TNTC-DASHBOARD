@@ -3,13 +3,14 @@
 // ==========================================
 
 function applyOverviewFilter() {
-    let timeFilterEl = document.getElementById('overviewTimeFilter');
-    let overviewDatePickerEl = document.getElementById('overviewDatePicker');
-
-    if(!timeFilterEl || !overviewDatePickerEl) return;
-
-    let timeFilter = timeFilterEl.value;
-    let customDate = overviewDatePickerEl.value;
+    // NEW: Dynamic UI State Reader (Premium Filter Logic)
+    let timeFilter = 'ALL';
+    let customDate = '';
+    if (window.vtcFilterStates && window.vtcFilterStates['overview']) {
+        let state = window.vtcFilterStates['overview'];
+        if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
+        else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
+    }
     
     let totalKm = 0;
     let totalJobs = 0;
@@ -52,7 +53,7 @@ function applyOverviewFilter() {
     if (globalEventData && globalEventData.rows && globalEventData.headers) {
         let headers = globalEventData.headers;
         
-        // Pre-compute valid driver columns starting from index 6[cite: 11]
+        // Pre-compute valid driver columns starting from index 6
         let driverCols = [];
         for (let i = 6; i < headers.length; i++) {
             let dName = String(headers[i] || '').trim();
@@ -75,7 +76,7 @@ function applyOverviewFilter() {
                     // Strip out quotes, extra spaces, and enforce uppercase for robust matching
                     let val = String(row[dc.index] || '').replace(/["']/g, '').trim().toUpperCase();
                     
-                    // Explicit check for checked box values exported by Google Sheets CSV[cite: 11]
+                    // Explicit check for checked box values exported by Google Sheets CSV
                     if (val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
                         if (!driverEventMap[dc.name]) driverEventMap[dc.name] = 0;
                         driverEventMap[dc.name]++;

@@ -44,15 +44,18 @@ function populateEventDriverDropdown() {
 
 function applyLogFilters() {
     let filterDriverEl = document.getElementById('filterDriver');
-    let filterTimeEl = document.getElementById('filterTime');
-    let jobDatePickerEl = document.getElementById('jobDatePicker');
-
-    if(!filterDriverEl || !filterTimeEl || !jobDatePickerEl) return;
-
+    if(!filterDriverEl) return;
     let driverFilter = filterDriverEl.value; 
-    let timeFilter = filterTimeEl.value;
-    let customDate = jobDatePickerEl.value;
-    
+
+    // NEW: Dynamic UI State Reader (Premium Filter Logic)
+    let timeFilter = 'ALL';
+    let customDate = '';
+    if (window.vtcFilterStates && window.vtcFilterStates['logs']) {
+        let state = window.vtcFilterStates['logs'];
+        if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
+        else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
+    }
+
     let filteredKm = 0;
     globalFilteredJobs = [];
     let recentRows = [...globalJobData].reverse(); 
@@ -130,16 +133,20 @@ function prevJobPage() {
 function applyEventFilters() {
     let catFilterEl = document.getElementById('filterEventCategory');
     let driverFilterEl = document.getElementById('filterEventDriver');
-    let timeFilterEl = document.getElementById('filterEventTime');
-    let eventDatePickerEl = document.getElementById('eventDatePicker');
-
-    if(!catFilterEl || !driverFilterEl || !timeFilterEl || !eventDatePickerEl) return;
+    if(!catFilterEl || !driverFilterEl) return;
 
     let catFilter = catFilterEl.value;
     let driverFilter = driverFilterEl.value; 
-    let timeFilter = timeFilterEl.value;
-    let customDate = eventDatePickerEl.value;
-    
+
+    // NEW: Dynamic UI State Reader (Premium Filter Logic)
+    let timeFilter = 'ALL';
+    let customDate = '';
+    if (window.vtcFilterStates && window.vtcFilterStates['events']) {
+        let state = window.vtcFilterStates['events'];
+        if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
+        else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
+    }
+
     window.currentFilteredEvents = []; 
 
     let recentEvents = [...globalEventData.rows].reverse();

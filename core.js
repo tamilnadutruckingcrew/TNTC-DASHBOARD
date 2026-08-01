@@ -132,14 +132,19 @@ function checkDateFilter(timeStr, filterType, customDateStr) {
         return rowDate >= startOfWeek && rowDate <= endOfWeek;
     } else if (filterType === 'MONTH') {
         return rowDate.getMonth() === now.getMonth() && rowDate.getFullYear() === now.getFullYear();
-    } else if (filterType === 'CUSTOM') {
+    } else if (filterType === 'CUSTOM') { // Exact Date (Daily)
         if (!customDateStr) return true; 
-        let selectedDate = new Date(customDateStr);
+        let parts = customDateStr.split('-');
+        let selectedDate = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]); // Prevents Safari Timezone shift
         return rowDate.toDateString() === selectedDate.toDateString();
+    } else if (filterType === 'CUSTOM_MONTH') { // Monthly Filter
+        if (!customDateStr) return true; 
+        let parts = customDateStr.split('-');
+        if(parts.length !== 2) return true;
+        return rowDate.getFullYear() == parts[0] && rowDate.getMonth() == (parseInt(parts[1]) - 1);
     }
     return true;
 }
-
 function handleTimeChange(selectId, datePickerId, applyFuncName) {
     let val = document.getElementById(selectId).value;
     let dp = document.getElementById(datePickerId);
