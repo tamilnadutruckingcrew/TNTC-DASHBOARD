@@ -107,6 +107,7 @@
                             <option value="HOME_BG">Homepage Background</option>
                             <option value="DASHBOARD_BANNER">Dashboard Banner</option>
                             <option value="PROMO_VIDEO">YouTube Promo Video</option>
+                            <option value="JOB_MODAL_BG">Job Modal Background</option>
                         </select>
                     </div>
                     <div class="md:col-span-2">
@@ -165,7 +166,25 @@
                         <p class="text-tntc-textSecondary text-xs col-span-full text-center py-4">Click "Load Drivers" to fetch from database.</p>
                     </div>
                 </div>
-                <button onclick="submitNewEvent()" class="w-full mt-6 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="upload-cloud" class="w-5 h-5"></i> Publish Event to Database</button>
+                
+                <div class="flex gap-4 mt-6">
+                    <button id="btnCancelEditEvent" onclick="cancelEventEdit()" class="hidden w-1/3 bg-tntc-muted hover:bg-tntc-muted/80 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all">Cancel</button>
+                    <button id="btnSubmitEvent" onclick="submitNewEvent()" class="flex-1 w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i id="submitEventIcon" data-lucide="upload-cloud" class="w-5 h-5"></i> <span id="submitEventText">Publish Event to Database</span></button>
+                </div>
+
+                <!-- LEADER PREVIEW SECTION -->
+                <div id="leaderEventManagement" class="hidden mt-12 pt-8 border-t border-tntc-muted/20">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h4 class="text-xs font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2"><i data-lucide="crown" class="w-4 h-4"></i> Leader Privilege: Event Management</h4>
+                            <p class="text-[10px] text-tntc-textSecondary mt-1">Live database preview. Edit or delete existing division events.</p>
+                        </div>
+                        <button onclick="fetchAdminEvents()" class="bg-tntc-card border border-tntc-muted/30 hover:border-yellow-500 hover:text-yellow-500 text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors flex items-center gap-2"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync Events</button>
+                    </div>
+                    <div id="adminEventGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cards injected here -->
+                    </div>
+                </div>
             </div>
 
             <!-- Tour Tab -->
@@ -494,6 +513,12 @@
             if (tab === 'manage') loadToursForAdmin();
             if (tab === 'news') fetchAdminNews();
             if (tab === 'gallery') fetchAdminGallery();
+            
+            if (tab === 'event' && role === 'leader') {
+                let ldrMgmt = document.getElementById('leaderEventManagement');
+                if (ldrMgmt) ldrMgmt.classList.remove('hidden');
+                fetchAdminEvents();
+            }
         }
 
         function loadToursForAdmin() {
@@ -536,23 +561,55 @@
             let container = document.getElementById('adminDriverChecklist');
             if(!container) return;
             
-            if(typeof globalEventData !== 'undefined' && globalEventData.headers && globalEventData.headers.length > 6) {
-                let html = "";
-                for(let i = 6; i < globalEventData.headers.length; i++) {
-                    let name = String(globalEventData.headers[i] || '').trim();
-                    let norm = typeof normalizeKey === 'function' ? normalizeKey(name) : name.toUpperCase();
-                    if(norm && norm !== 'UNKNOWN' && !norm.includes('ATTENDANCE')) {
-                        html += `
-                        <label class="flex items-center gap-3 cursor-pointer p-2.5 bg-tntc-main hover:bg-tntc-hover rounded-lg border border-tntc-muted/20 hover:border-tntc-accent/50 transition-colors">
-                            <input type="checkbox" value="${name.toUpperCase()}" class="admin-drv-chk accent-tntc-accent w-4 h-4 rounded border-gray-600 focus:ring-tntc-accent">
-                            <span class="text-xs font-bold text-white truncate">${name}</span>
-                        </label>`;
-                    }
-                }
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: Event Data not loaded. Check dashboard connection.</p>';
+            container.innerHTML = '<p class="text-tntc-textSecondary text-xs col-span-full py-4 text-center font-bold"><i data-lucide="loader" class="w-4 h-4 inline animate-spin mr-2"></i> Syncing drivers from Database...</p>';
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            if (typeof EVENT_SHEET_CSV_URL === 'undefined') {
+                container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: EVENT_SHEET_CSV_URL not found in core.js</p>';
+                return;
             }
+
+            Papa.parse(EVENT_SHEET_CSV_URL, {
+                download: true,
+                header: false,
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        let headerRow = [];
+                        for(let i=0; i<Math.min(5, results.data.length); i++) {
+                            let colB = String(results.data[i][1]).toUpperCase();
+                            let colC = String(results.data[i][2]).toUpperCase();
+                            if(colB.includes('DATE') || colC.includes('EVENT')) {
+                                headerRow = results.data[i];
+                                break;
+                            }
+                        }
+
+                        if(headerRow.length > 6) {
+                            let html = "";
+                            for(let i = 6; i < headerRow.length; i++) {
+                                let name = String(headerRow[i] || '').trim();
+                                let norm = typeof normalizeKey === 'function' ? normalizeKey(name) : name.toUpperCase();
+                                if(norm && norm !== 'UNKNOWN' && !norm.includes('ATTENDANCE')) {
+                                    html += `
+                                    <label class="flex items-center gap-3 cursor-pointer p-2.5 bg-tntc-main hover:bg-tntc-hover rounded-lg border border-tntc-muted/20 hover:border-tntc-accent/50 transition-colors">
+                                        <input type="checkbox" value="${name.toUpperCase()}" class="admin-drv-chk accent-tntc-accent w-4 h-4 rounded border-gray-600 focus:ring-tntc-accent">
+                                        <span class="text-xs font-bold text-white truncate">${name}</span>
+                                    </label>`;
+                                }
+                            }
+                            container.innerHTML = html;
+                        } else {
+                            container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: Invalid Database Structure.</p>';
+                        }
+                    } else {
+                        container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: Database is empty.</p>';
+                    }
+                },
+                error: function(err) {
+                    container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error connecting to Database.</p>';
+                }
+            });
         }
 
         function addRouteRow() {
@@ -609,9 +666,17 @@
             await sendAdminRequest(payload, "Updating Site Assets...", () => { document.getElementById('assetUrl').value = ''; });
         }
 
+        // ==========================================
+        // EVENT MANAGEMENT SYSTEM (LEADER PRIVILEGES)
+        // ==========================================
+        window.editEventMode = false;
+        window.editOriginalDate = "";
+        window.editOriginalName = "";
+        window.adminEventsList = [];
+
         async function submitNewEvent() {
             let payload = {
-                action: "ADD_EVENT",
+                action: window.editEventMode ? "UPDATE_EVENT" : "ADD_EVENT",
                 data: {
                     eventName: document.getElementById('addEvName').value,
                     date: document.getElementById('addEvDate').value,
@@ -621,13 +686,176 @@
                     attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
                 }
             };
+            
+            if(window.editEventMode) {
+                payload.data.originalDate = window.editOriginalDate;
+                payload.data.originalName = window.editOriginalName;
+            }
+
             if(!payload.data.eventName || !payload.data.date) { showCustomAlert("Validation Failed", "Event Name and Date are required!", true); return; }
-            await sendAdminRequest(payload, "Publishing Event Data...", () => {
-                document.getElementById('addEvName').value = ''; document.getElementById('addEvDate').value = '';
-                document.getElementById('addEvLink').value = ''; document.getElementById('addEvImage').value = '';
-                updateDateDisplay(document.getElementById('addEvDate'), 'display-addEvDate');
-                document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
+            
+            let loadMsg = window.editEventMode ? "Updating Event Record..." : "Publishing Event Data...";
+            
+            await sendAdminRequest(payload, loadMsg, () => {
+                cancelEventEdit(); 
+                if(sessionStorage.getItem('tntc_role') === 'leader') {
+                    setTimeout(fetchAdminEvents, 3000);
+                }
             });
+        }
+
+        function fetchAdminEvents() {
+            let grid = document.getElementById('adminEventGrid');
+            if(!grid) return;
+            grid.innerHTML = '<div class="col-span-full py-10 text-center text-tntc-textSecondary bg-tntc-card border border-tntc-muted/20 rounded-xl"><i data-lucide="loader" class="w-5 h-5 inline animate-spin mr-2"></i> Syncing live events...</div>';
+            lucide.createIcons();
+
+            if (typeof EVENT_SHEET_CSV_URL === 'undefined') return;
+
+            Papa.parse(EVENT_SHEET_CSV_URL, {
+                download: true,
+                header: false,
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    let rows = results.data;
+                    if (rows && rows.length > 0) {
+                        let headerIndex = 0;
+                        for (let i = 0; i < Math.min(5, rows.length); i++) {
+                            let colB = String(rows[i][1]).toUpperCase();
+                            let colC = String(rows[i][2]).toUpperCase();
+                            if (colB.includes('DATE') || colC.includes('EVENT')) {
+                                headerIndex = i;
+                                break;
+                            }
+                        }
+                        let headers = rows[headerIndex];
+                        let eventRows = rows.slice(headerIndex + 1);
+
+                        window.adminEventsList = [];
+                        let html = "";
+                        let validEvents = [];
+
+                        eventRows.forEach(row => {
+                            if (String(row[1]).trim() && String(row[2]).trim()) {
+                                let attended = [];
+                                for(let col = 6; col < headers.length; col++) {
+                                    let val = String(row[col]).trim().toUpperCase();
+                                    if(val === 'TRUE' || val === '1' || val === 'YES') {
+                                        attended.push(String(headers[col]).trim());
+                                    }
+                                }
+                                validEvents.push({
+                                    date: String(row[1]).trim(), name: String(row[2]).trim(), link: String(row[3]).trim(),
+                                    category: String(row[4]).trim(), image: String(row[5]).trim(), drivers: attended
+                                });
+                            }
+                        });
+
+                        validEvents.reverse(); // Newest first
+                        window.adminEventsList = validEvents;
+
+                        validEvents.forEach((ev, idx) => {
+                            let safeName = ev.name.replace(/'/g, "\\'");
+                            let safeDate = ev.date.replace(/'/g, "\\'");
+                            html += `
+                            <div class="bg-[#0a0d14] border border-tntc-muted/30 rounded-xl overflow-hidden shadow-lg flex flex-col relative group">
+                                <div class="p-4 border-b border-tntc-muted/20 bg-tntc-card flex justify-between items-start">
+                                    <div>
+                                        <span class="text-[9px] text-yellow-500 font-black uppercase tracking-widest bg-yellow-500/10 px-2 py-1 rounded shadow-sm border border-yellow-500/20">${ev.category}</span>
+                                        <h3 class="text-sm font-bold text-white mt-2 leading-tight">${ev.name}</h3>
+                                        <p class="text-[10px] text-tntc-textSecondary mt-1 font-mono">${ev.date}</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-tntc-main flex-1">
+                                    <p class="text-[10px] text-tntc-textSecondary mb-2 uppercase tracking-widest font-bold">Attendance: <span class="text-white">${ev.drivers.length}</span></p>
+                                    <div class="flex flex-wrap gap-1 max-h-16 overflow-y-auto custom-scrollbar">
+                                        ${ev.drivers.map(d => `<span class="bg-tntc-card border border-tntc-muted/30 text-tntc-textSecondary px-1.5 py-0.5 rounded text-[8px] font-bold uppercase">${d}</span>`).join('')}
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-[#0a0d14] border-t border-tntc-muted/20 flex justify-between gap-2">
+                                    <button onclick="loadEventForEdit(${idx})" class="flex-1 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-500 hover:text-[#05070a] border border-yellow-500/30 py-1.5 rounded-md text-[10px] font-black uppercase tracking-wider transition-colors"><i data-lucide="edit-2" class="w-3 h-3 inline-block mr-1"></i> Edit</button>
+                                    <button onclick="confirmDeleteEvent('${safeDate}', '${safeName}')" class="flex-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 py-1.5 rounded-md text-[10px] font-black uppercase tracking-wider transition-colors"><i data-lucide="trash-2" class="w-3 h-3 inline-block mr-1"></i> Delete</button>
+                                </div>
+                            </div>`;
+                        });
+
+                        grid.innerHTML = html || '<div class="col-span-full py-10 text-center text-tntc-textSecondary bg-tntc-card border border-tntc-muted/20 rounded-xl">No events found in database.</div>';
+                        lucide.createIcons();
+                    }
+                },
+                error: () => { grid.innerHTML = '<div class="col-span-full py-10 text-center text-red-500 font-bold bg-tntc-card border border-red-500/20 rounded-xl">Failed to connect.</div>'; lucide.createIcons(); }
+            });
+        }
+
+        function loadEventForEdit(index) {
+            let ev = window.adminEventsList[index];
+            if(!ev) return;
+
+            if(document.querySelectorAll('.admin-drv-chk').length === 0) {
+                showCustomAlert("Drivers Loading", "Auto-fetching drivers from database. Please wait a moment and click Edit again.", false);
+                populateAdminDriverChecklist();
+                return;
+            }
+
+            document.getElementById('addEvName').value = ev.name;
+            document.getElementById('addEvCat').value = ev.category || 'DIVISION EVENT';
+            document.getElementById('addEvLink').value = ev.link;
+            document.getElementById('addEvImage').value = ev.image;
+
+            let d = new Date(ev.date);
+            if(!isNaN(d)) { document.getElementById('addEvDate').value = d.toISOString().split('T')[0]; } 
+            else { document.getElementById('addEvDate').value = ""; }
+            updateDateDisplay(document.getElementById('addEvDate'), 'display-addEvDate');
+
+            document.querySelectorAll('.admin-drv-chk').forEach(cb => {
+                cb.checked = ev.drivers.map(d => d.toUpperCase()).includes(cb.value.toUpperCase());
+            });
+
+            window.editEventMode = true;
+            window.editOriginalDate = ev.date; 
+            window.editOriginalName = ev.name;
+
+            document.getElementById('btnSubmitEvent').classList.remove('bg-tntc-accent');
+            document.getElementById('btnSubmitEvent').classList.add('bg-yellow-500');
+            document.getElementById('submitEventText').innerText = "UPDATE EVENT";
+            document.getElementById('submitEventIcon').setAttribute('data-lucide', 'save');
+            document.getElementById('btnCancelEditEvent').classList.remove('hidden');
+
+            lucide.createIcons();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEventEdit() {
+            window.editEventMode = false;
+            window.editOriginalDate = "";
+            window.editOriginalName = "";
+
+            document.getElementById('addEvName').value = '';
+            document.getElementById('addEvDate').value = '';
+            document.getElementById('addEvCat').value = 'DIVISION EVENT';
+            document.getElementById('addEvLink').value = '';
+            document.getElementById('addEvImage').value = '';
+            updateDateDisplay(document.getElementById('addEvDate'), 'display-addEvDate');
+            document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
+
+            document.getElementById('btnSubmitEvent').classList.add('bg-tntc-accent');
+            document.getElementById('btnSubmitEvent').classList.remove('bg-yellow-500');
+            document.getElementById('submitEventText').innerText = "Publish Event to Database";
+            document.getElementById('submitEventIcon').setAttribute('data-lucide', 'upload-cloud');
+            document.getElementById('btnCancelEditEvent').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        function confirmDeleteEvent(date, name) {
+            showCustomAlert(
+                "Confirm Deletion", 
+                `Are you sure you want to permanently delete this event?\n\nName: "${name}"\nDate: "${date}"\n\nThis action cannot be undone.`, 
+                false, 
+                async () => {
+                    let payload = { action: "DELETE_EVENT", data: { date: date, eventName: name } };
+                    await sendAdminRequest(payload, "Removing Event...", () => { setTimeout(fetchAdminEvents, 3000); });
+                }
+            );
         }
 
         async function submitNewTour() {

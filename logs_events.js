@@ -1,15 +1,186 @@
 // ==========================================
-// JOB LOGS & EVENT RECORDS WITH PAGINATION
+// JOB LOGS & EVENT RECORDS WITH PAGINATION & AUTO-SYNC
 // ==========================================
 
+// 🛡️ Safety Functions (To prevent ANY crashes)
+function safeCleanNumber(val) {
+    if (typeof val === 'number') return val;
+    return parseInt(String(val).replace(/[^\d]/g, '')) || 0;
+}
+
+function safeNormalize(val) {
+    return String(val || '').trim().toUpperCase();
+}
+
+function escapeHtml(val) {
+    return String(val ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// ==========================================
+// JOB LOGS SYSTEM
+// ==========================================
+
+function populateJobDriverDropdown() {
+    let dropdown = document.getElementById('filterDriver');
+    if(!dropdown || !globalJobData) return;
+    
+    let driverMap = new Map();
+    
+    globalJobData.forEach(rawRow => {
+        let row = Array.isArray(rawRow) ? rawRow : Object.values(rawRow);
+        if (row.length < 5) return;
+        let orig = String(row[2] || '').trim();
+        let norm = safeNormalize(orig);
+        if(norm && norm !== 'UNKNOWN' && !norm.includes('DRIVER')) {
+            if (!driverMap.has(norm)) driverMap.set(norm, orig);
+        }
+    });
+    
+    let currentVal = dropdown.value; 
+    dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
+    Array.from(driverMap.keys()).sort().forEach(norm => { 
+        dropdown.innerHTML += `<option value="${norm}">${driverMap.get(norm)}</option>`; 
+    });
+    dropdown.value = currentVal || 'ALL';
+}
+
+function applyLogFilters() {
+    try {
+        let filterDriverEl = document.getElementById('filterDriver');
+        let driverFilter = filterDriverEl ? filterDriverEl.value : 'ALL'; 
+
+        let timeFilter = 'ALL';
+        let customDate = '';
+        if (window.vtcFilterStates && window.vtcFilterStates['logs']) {
+            let state = window.vtcFilterStates['logs'];
+            if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
+            else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
+        }
+
+        let filteredKm = 0;
+        globalFilteredJobs = [];
+        
+        if (globalJobData && globalJobData.length > 0) {
+            let recentRows = [...globalJobData].reverse(); 
+
+            recentRows.forEach(rawRow => {
+                let row = Array.isArray(rawRow) ? rawRow : Object.values(rawRow);
+                if (row.length < 5) return; 
+                
+                let origName = String(row[2] || '').trim();
+                let normName = safeNormalize(origName);
+                if(!normName || normName === 'UNKNOWN' || normName.includes('DRIVER')) return;
+                
+                let timeStr = String(row[0] || '');
+                let drivenKm = safeCleanNumber(row[12]);
+                
+                let driverMatch = (driverFilter === 'ALL' || normName === safeNormalize(driverFilter));
+                let dateMatch = true;
+                
+                if (typeof checkDateFilter === 'function') {
+                    try { dateMatch = checkDateFilter(timeStr, timeFilter, customDate); } catch(e) {}
+                }
+                
+                if (driverMatch && dateMatch) {
+                    filteredKm += drivenKm;
+                    globalFilteredJobs.push(row); 
+                }
+            });
+        }
+
+        let filteredTotalKmEl = document.getElementById('filteredTotalKm');
+        if(filteredTotalKmEl) filteredTotalKmEl.innerText = filteredKm.toLocaleString() + " km";
+        
+        renderJobPage(1);
+    } catch(err) {
+        let tbody = document.getElementById('filteredJobTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-red-500 font-bold p-6 text-center">System Error: ${err.message}</td></tr>`;
+    }
+}
+
+function renderJobPage(page) {
+    let tbody = document.getElementById('filteredJobTableBody');
+    if (!tbody) return;
+
+    try {
+        let limitEl = document.getElementById('jobPageLimit');
+        const rowsPerPage = parseInt(limitEl?.value, 10) || 10;
+        const totalPages = Math.max(1, Math.ceil(globalFilteredJobs.length / rowsPerPage));
+        
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentJobPage = page;
+
+        const startIndex = (page - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const pageJobs = globalFilteredJobs.slice(startIndex, endIndex);
+
+        let tableHTML = "";
+        if(pageJobs.length === 0) {
+            tableHTML = `
+            <tr>
+                <td colspan="6" class="p-10 text-center text-tntc-textSecondary bg-[#05070a]">
+                    <i data-lucide="folder-search" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+                    <p class="font-bold text-sm">No job records found.</p>
+                    <p class="text-xs opacity-70 mt-1">Try adjusting your date or driver filters.</p>
+                </td>
+            </tr>`;
+        } else {
+            pageJobs.forEach((row, index) => {
+                let dName = String(row[2] || '').trim();
+                let dateShort = String(row[0] || '').split(' ')[0] || '--';
+                let realIndex = startIndex + index;
+
+                tableHTML += `
+                <tr class="hover:bg-tntc-hover transition-colors border-b border-tntc-muted/5">
+                    <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs whitespace-nowrap">${escapeHtml(dateShort)}</td>
+                    <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${escapeHtml(dName)}</td>
+                    <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold truncate max-w-[150px] sm:max-w-[200px]" title="${escapeHtml(row[5])} -> ${escapeHtml(row[7])}">${escapeHtml(row[5] || '--')} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-accent mx-1"></i> ${escapeHtml(row[7] || '--')}</td>
+                    <td class="p-3 sm:p-4 text-tntc-textSecondary text-xs truncate max-w-[150px]" title="${escapeHtml(row[3])}">${escapeHtml(row[3] || '--')}</td>
+                    <td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold whitespace-nowrap">${safeCleanNumber(row[12]).toLocaleString()} km</td>
+                    <td class="p-3 sm:p-4 text-right">
+                        <button onclick="openJobModal(${realIndex})" class="px-3 py-1.5 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-500 hover:text-[#05070a] border border-yellow-500/30 rounded-lg text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 shadow-sm">
+                            View <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        tbody.innerHTML = tableHTML;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        let infoEl = document.getElementById('jobPageInfo');
+        let prevBtn = document.getElementById('btnPrevPage');
+        let nextBtn = document.getElementById('btnNextPage');
+        
+        if (infoEl) infoEl.innerText = `Page ${page} of ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = (page === 1);
+        if (nextBtn) nextBtn.disabled = (page === totalPages);
+        
+    } catch(err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-red-500 font-bold p-6 text-center">Render Error: ${err.message}</td></tr>`;
+    }
+}
+
+// ==========================================
+// EVENT RECORDS SYSTEM
+// ==========================================
 function populateEventCategoryDropdown() {
     let dropdown = document.getElementById('filterEventCategory');
-    if(!dropdown) return;
-
+    if(!dropdown || !globalEventData || !globalEventData.rows) return;
+    
     let categories = new Set();
-    globalEventData.rows.forEach(row => {
+    
+    globalEventData.rows.forEach(rawRow => {
+        let row = Array.isArray(rawRow) ? rawRow : Object.values(rawRow);
         let dateStr = String(row[1] || ''); let nameStr = String(row[2] || '');
-        if (dateStr.trim() === '' || nameStr.trim() === '') return;
+        if (dateStr.trim() === '' || nameStr.trim() === '' || nameStr.includes('EVENT NAME')) return;
         let cat = String(row[4] || ''); 
         if(cat.trim() !== '') categories.add(cat.trim().toUpperCase());
     });
@@ -22,12 +193,15 @@ function populateEventCategoryDropdown() {
 
 function populateEventDriverDropdown() {
     let dropdown = document.getElementById('filterEventDriver');
-    if(!dropdown) return;
-
+    if(!dropdown || !globalEventData || !globalEventData.headers) return;
+    
+    let headers = globalEventData.headers;
+    if (!headers || headers.length === 0) return;
+    
     let driverMap = new Map();
-    for(let i = 6; i < globalEventData.headers.length; i++) {
-        let orig = String(globalEventData.headers[i] || '').trim();
-        let norm = normalizeKey(orig);
+    for(let i = 6; i < headers.length; i++) {
+        let orig = String(headers[i] || '').trim();
+        let norm = safeNormalize(orig);
         if(norm && norm !== 'UNKNOWN' && !norm.includes('ATTENDANCE')) {
             if (!driverMap.has(norm)) driverMap.set(norm, orig);
         }
@@ -35,234 +209,198 @@ function populateEventDriverDropdown() {
     
     let currentVal = dropdown.value; 
     dropdown.innerHTML = '<option value="ALL">All Drivers</option>';
-    let sortedKeys = Array.from(driverMap.keys()).sort();
-    sortedKeys.forEach(norm => { 
+    Array.from(driverMap.keys()).sort().forEach(norm => { 
         dropdown.innerHTML += `<option value="${norm}">${driverMap.get(norm)}</option>`; 
     });
     dropdown.value = currentVal || 'ALL';
 }
 
-function applyLogFilters() {
-    let filterDriverEl = document.getElementById('filterDriver');
-    if(!filterDriverEl) return;
-    let driverFilter = filterDriverEl.value; 
-
-    // NEW: Dynamic UI State Reader (Premium Filter Logic)
-    let timeFilter = 'ALL';
-    let customDate = '';
-    if (window.vtcFilterStates && window.vtcFilterStates['logs']) {
-        let state = window.vtcFilterStates['logs'];
-        if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
-        else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
-    }
-
-    let filteredKm = 0;
-    globalFilteredJobs = [];
-    let recentRows = [...globalJobData].reverse(); 
-
-    recentRows.forEach(row => {
-        let origName = String(row[2] || '').trim();
-        let normName = normalizeKey(origName);
-        if(!normName || normName === 'UNKNOWN') return;
-        
-        let timeStr = String(row[0] || '');
-        let drivenKm = cleanNumber(row[12]);
-        
-        if (driverFilter !== 'ALL' && normName !== driverFilter) return;
-        if (!checkDateFilter(timeStr, timeFilter, customDate)) return;
-        
-        filteredKm += drivenKm;
-        globalFilteredJobs.push(row);
-    });
-
-    let filteredTotalKmEl = document.getElementById('filteredTotalKm');
-    if(filteredTotalKmEl) filteredTotalKmEl.innerText = filteredKm.toLocaleString() + " km";
-    
-    renderJobPage(1);
-}
-
-function renderJobPage(page) {
-    let limitEl = document.getElementById('jobPageLimit');
-    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 10; 
-    const totalPages = Math.ceil(globalFilteredJobs.length / rowsPerPage) || 1;
-    
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    currentJobPage = page;
-
-    const startIndex = (page - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    const pageJobs = globalFilteredJobs.slice(startIndex, endIndex);
-
-    let tableHTML = "";
-    if(pageJobs.length === 0) {
-        tableHTML = `<tr><td colspan="6" class="p-6 text-center text-tntc-textSecondary">No jobs found.</td></tr>`;
-    } else {
-        pageJobs.forEach(row => {
-            let dName = String(row[2] || '').trim();
-            tableHTML += `
-            <tr class="hover:bg-tntc-hover transition-colors border-b border-tntc-muted/5">
-                <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${row[0] || '--'}</td>
-                <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold">${dName}</td>
-                <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold truncate max-w-[200px]" title="${row[5]} -> ${row[7]}">${row[5] || '--'} <i data-lucide="arrow-right" class="w-3 h-3 inline text-tntc-accent mx-1"></i> ${row[7] || '--'}</td>
-                <td class="p-3 sm:p-4 text-tntc-textSecondary text-xs truncate max-w-[150px]" title="${row[3]}">${row[3] || '--'}</td>
-                <td class="p-3 sm:p-4 text-tntc-distance font-mono font-bold">${cleanNumber(row[12]).toLocaleString()} km</td>
-                <td class="p-3 sm:p-4 text-tntc-revenue font-mono font-bold">€ ${cleanNumber(row[15]).toLocaleString()}</td>
-            </tr>`;
-        });
-    }
-    updateDOMIfChanged('filteredJobTableBody', tableHTML);
-
-    let infoEl = document.getElementById('jobPageInfo');
-    if (infoEl) infoEl.innerText = `Page ${page} of ${totalPages}`;
-
-    let prevBtn = document.getElementById('btnPrevPage');
-    let nextBtn = document.getElementById('btnNextPage');
-    if (prevBtn) prevBtn.disabled = (page === 1);
-    if (nextBtn) nextBtn.disabled = (page === totalPages);
-}
-
-function nextJobPage() {
-    renderJobPage(currentJobPage + 1);
-}
-
-function prevJobPage() {
-    renderJobPage(currentJobPage - 1);
-}
-
 function applyEventFilters() {
-    let catFilterEl = document.getElementById('filterEventCategory');
-    let driverFilterEl = document.getElementById('filterEventDriver');
-    if(!catFilterEl || !driverFilterEl) return;
+    try {
+        let catFilterEl = document.getElementById('filterEventCategory');
+        let driverFilterEl = document.getElementById('filterEventDriver');
+        let catFilter = catFilterEl ? catFilterEl.value : 'ALL';
+        let driverFilter = driverFilterEl ? driverFilterEl.value : 'ALL'; 
 
-    let catFilter = catFilterEl.value;
-    let driverFilter = driverFilterEl.value; 
+        let timeFilter = 'ALL';
+        let customDate = '';
+        if (window.vtcFilterStates && window.vtcFilterStates['events']) {
+            let state = window.vtcFilterStates['events'];
+            if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
+            else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
+        }
 
-    // NEW: Dynamic UI State Reader (Premium Filter Logic)
-    let timeFilter = 'ALL';
-    let customDate = '';
-    if (window.vtcFilterStates && window.vtcFilterStates['events']) {
-        let state = window.vtcFilterStates['events'];
-        if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
-        else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
-    }
+        currentFilteredEvents = []; 
+        if(!globalEventData || !globalEventData.rows || !globalEventData.headers) return;
+        
+        let sourceEvents = globalEventData.rows;
+        let headers = globalEventData.headers;
+        
+        if (sourceEvents.length > 0) {
+            let recentEvents = [...sourceEvents].reverse();
 
-    window.currentFilteredEvents = []; 
+            recentEvents.forEach(rawRow => {
+                let row = Array.isArray(rawRow) ? rawRow : Object.values(rawRow);
+                if (row.length < 3) return;
+                
+                let dateStr = String(row[1] || ''); 
+                let nameStr = String(row[2] || '');
+                if (dateStr.trim() === '' || nameStr.trim() === '' || nameStr.includes('EVENT NAME')) return; 
 
-    let recentEvents = [...globalEventData.rows].reverse();
-    let headers = globalEventData.headers;
-
-    if (!headers || headers.length === 0) return;
-
-    recentEvents.forEach(row => {
-        let dateStr = String(row[1] || ''); 
-        let nameStr = String(row[2] || '');
-        if (dateStr.trim() === '' || nameStr.trim() === '') return; 
-
-        let category = String(row[4] || '').trim().toUpperCase(); 
-        if (catFilter !== 'ALL' && category !== catFilter) return;
-        if (!checkDateFilter(dateStr, timeFilter, customDate)) return;
-
-        if (driverFilter !== 'ALL') {
-            let matchingCols = [];
-            for (let i = 6; i < headers.length; i++) {
-                if (normalizeKey(headers[i]) === driverFilter) matchingCols.push(i);
-            }
-            if (matchingCols.length === 0) return;
-            
-            let driverAttended = false;
-            matchingCols.forEach(colIdx => {
-                let val = String(row[colIdx] || '').replace(/["']/g, '').trim().toUpperCase();
-                if(val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
-                    driverAttended = true;
+                let category = String(row[4] || '').trim().toUpperCase(); 
+                if (catFilter !== 'ALL' && category !== catFilter) return;
+                
+                let dateMatch = true;
+                if (typeof checkDateFilter === 'function') {
+                    try { dateMatch = checkDateFilter(dateStr, timeFilter, customDate); } catch(e) {}
                 }
+                if (!dateMatch) return;
+
+                if (driverFilter !== 'ALL') {
+                    let matchingCols = [];
+                    for (let i = 6; i < headers.length; i++) {
+                        if (safeNormalize(headers[i]) === safeNormalize(driverFilter)) matchingCols.push(i);
+                    }
+                    if (matchingCols.length === 0) return;
+                    
+                    let driverAttended = false;
+                    matchingCols.forEach(colIdx => {
+                        let val = String(row[colIdx] || '').replace(/["']/g, '').trim().toUpperCase();
+                        if(['TRUE', '1', 'YES', '✓'].some(v => val.includes(v))) driverAttended = true;
+                    });
+                    if (!driverAttended) return;
+                }
+
+                let driversAttended = [];
+                for(let i = 6; i < headers.length; i++) {
+                    let origName = String(headers[i] || '').trim();
+                    let normKey = safeNormalize(origName);
+                    if(!normKey || normKey === 'UNKNOWN' || normKey.includes('ATTENDANCE')) continue;
+                    
+                    let val = String(row[i] || '').replace(/["']/g, '').trim().toUpperCase();
+                    if(['TRUE', '1', 'YES', '✓'].some(v => val.includes(v))) {
+                        driversAttended.push(origName); 
+                    }
+                }
+
+                currentFilteredEvents.push({
+                    date: dateStr, name: String(row[2] || 'Unknown Event'), link: String(row[3] || '#'),
+                    category: category, image: String(row[5] || ''), attendance: driversAttended.length, drivers: driversAttended
+                });
             });
-            if (!driverAttended) return;
         }
 
-        let driversAttended = [];
-        for(let i = 6; i < headers.length; i++) {
-            let origName = String(headers[i] || '').trim();
-            let normKey = normalizeKey(origName);
-            if(!normKey || normKey === 'UNKNOWN' || normKey.includes('ATTENDANCE')) continue;
-            
-            let val = String(row[i] || '').replace(/["']/g, '').trim().toUpperCase();
-            if(val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
-                driversAttended.push(origName); 
-            }
-        }
+        let filteredTotalEventsEl = document.getElementById('filteredTotalEvents');
+        if(filteredTotalEventsEl) filteredTotalEventsEl.innerText = currentFilteredEvents.length;
 
-        window.currentFilteredEvents.push({
-            date: dateStr,
-            name: String(row[2] || 'Unknown Event'),
-            link: String(row[3] || '#'),
-            category: category,
-            image: String(row[5] || ''),
-            attendance: driversAttended.length,
-            drivers: driversAttended
-        });
-    });
-
-    let filteredTotalEventsEl = document.getElementById('filteredTotalEvents');
-    if(filteredTotalEventsEl) filteredTotalEventsEl.innerText = window.currentFilteredEvents.length;
-
-    renderEventPage(1);
+        renderEventPage(1);
+    } catch (err) {
+        let tbody = document.getElementById('filteredEventTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-red-500 font-bold p-6 text-center">System Error: ${err.message}</td></tr>`;
+    }
 }
 
 function renderEventPage(page) {
-    let limitEl = document.getElementById('eventPageLimit');
-    const rowsPerPage = limitEl ? parseInt(limitEl.value) : 10; 
-    const totalPages = Math.ceil(window.currentFilteredEvents.length / rowsPerPage) || 1;
-    
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    currentEventPage = page;
+    let tbody = document.getElementById('filteredEventTableBody');
+    if (!tbody) return;
 
-    const startIndex = (page - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    const pageEvents = window.currentFilteredEvents.slice(startIndex, endIndex);
+    try {
+        let limitEl = document.getElementById('eventPageLimit');
+        const rowsPerPage = parseInt(limitEl?.value, 10) || 10;
+        const totalPages = Math.max(1, Math.ceil(currentFilteredEvents.length / rowsPerPage));
+        
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentEventPage = page;
 
-    let tableHTML = "";
-    if(pageEvents.length === 0) {
-        tableHTML = `<tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">No events found.</td></tr>`;
-    } else {
-        pageEvents.forEach((ev, index) => {
-            let realIndex = startIndex + index; 
-            let badgeColor = ev.category.includes('PRIVATE') ? 'bg-purple-900/30 text-purple-400 border border-purple-500/30' : 'bg-tntc-muted/20 text-tntc-accent border border-tntc-muted/30';
-            tableHTML += `
-            <tr class="hover:bg-tntc-hover transition-colors">
-                <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${ev.date}</td>
-                <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider ${badgeColor}">${ev.category}</span></td>
-                <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold text-sm max-w-[200px] truncate" title="${ev.name}">${ev.name}</td>
-                <td class="p-3 sm:p-4 text-center text-tntc-accent font-black">${ev.attendance} <i data-lucide="users" class="w-4 h-4 inline ml-1 opacity-70"></i></td>
-                <td class="p-3 sm:p-4 text-right">
-                    <button onclick="openEventModal(${realIndex})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
-                        <i data-lucide="eye" class="w-3 h-3 text-tntc-accent"></i> View
-                    </button>
+        const startIndex = (page - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const pageEvents = currentFilteredEvents.slice(startIndex, endIndex);
+
+        let tableHTML = "";
+        if(pageEvents.length === 0) {
+            tableHTML = `
+            <tr>
+                <td colspan="5" class="p-10 text-center text-tntc-textSecondary bg-[#05070a]">
+                    <i data-lucide="calendar-x" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+                    <p class="font-bold text-sm">No events found.</p>
+                    <p class="text-xs opacity-70 mt-1">Try adjusting your date or category filters.</p>
                 </td>
             </tr>`;
-        });
+        } else {
+            pageEvents.forEach((ev, index) => {
+                let realIndex = startIndex + index; 
+                let badgeColor = (ev.category || '').includes('PRIVATE') ? 'bg-purple-900/30 text-purple-400 border border-purple-500/30' : 'bg-tntc-muted/20 text-tntc-accent border border-tntc-muted/30';
+                tableHTML += `
+                <tr class="hover:bg-tntc-hover transition-colors border-b border-tntc-muted/5">
+                    <td class="p-3 sm:p-4 text-tntc-textSecondary font-mono text-[10px] sm:text-xs">${escapeHtml(ev.date)}</td>
+                    <td class="p-3 sm:p-4"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider ${badgeColor}">${escapeHtml(ev.category)}</span></td>
+                    <td class="p-3 sm:p-4 text-tntc-textPrimary font-bold text-sm max-w-[200px] truncate" title="${escapeHtml(ev.name)}">${escapeHtml(ev.name)}</td>
+                    <td class="p-3 sm:p-4 text-center text-tntc-accent font-black">${ev.attendance} <i data-lucide="users" class="w-4 h-4 inline ml-1 opacity-70"></i></td>
+                    <td class="p-3 sm:p-4 text-right">
+                        <button onclick="openEventModal(${realIndex})" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover rounded text-xs font-semibold text-tntc-textPrimary flex items-center justify-center gap-1 transition-colors ml-auto shadow-sm">
+                            <i data-lucide="eye" class="w-3 h-3 text-tntc-accent"></i> View
+                        </button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        tbody.innerHTML = tableHTML;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        let infoEl = document.getElementById('eventPageInfo');
+        let prevBtn = document.getElementById('btnPrevEventPage');
+        let nextBtn = document.getElementById('btnNextEventPage');
+        
+        if (infoEl) infoEl.innerText = `Page ${page} of ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = (page === 1);
+        if (nextBtn) nextBtn.disabled = (page === totalPages);
+    } catch(err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-red-500 font-bold p-6 text-center">Render Error: ${err.message}</td></tr>`;
     }
-    updateDOMIfChanged('filteredEventTableBody', tableHTML);
-
-    let infoEl = document.getElementById('eventPageInfo');
-    if (infoEl) infoEl.innerText = `Page ${page} of ${totalPages}`;
-
-    let prevBtn = document.getElementById('btnPrevEventPage');
-    let nextBtn = document.getElementById('btnNextEventPage');
-    if (prevBtn) prevBtn.disabled = (page === 1);
-    if (nextBtn) nextBtn.disabled = (page === totalPages);
 }
 
-function nextEventPage() {
-    renderEventPage(currentEventPage + 1);
-}
+// ==========================================
+// 🚀 THE MAGIC WATCHER (Fixes Empty Table Issue)
+// ==========================================
+let hasSyncedJobs = false;
+let hasSyncedEvents = false;
+let syncAttempts = 0;
 
-function prevEventPage() {
-    renderEventPage(currentEventPage - 1);
-}
+let syncTimer = setInterval(() => {
+    syncAttempts++;
 
-function openEventModal(index) {
+    if (!hasSyncedJobs && globalJobData && globalJobData.length > 0) {
+        populateJobDriverDropdown();
+        applyLogFilters();
+        hasSyncedJobs = true;
+        console.log("[TNTC Sync] Job Logs successfully synced to UI!");
+    }
+    
+    if (!hasSyncedEvents && globalEventData && globalEventData.rows && globalEventData.rows.length > 0) {
+        populateEventCategoryDropdown();
+        populateEventDriverDropdown();
+        applyEventFilters();
+        hasSyncedEvents = true;
+        console.log("[TNTC Sync] Event Records successfully synced to UI!");
+    }
+    
+    if (hasSyncedJobs && hasSyncedEvents) {
+        clearInterval(syncTimer);
+    }
+
+    if (syncAttempts > 120) {
+        clearInterval(syncTimer);
+    }
+}, 500); 
+
+// Global Exposes for HTML buttons
+window.nextJobPage = function() { renderJobPage(currentJobPage + 1); };
+window.prevJobPage = function() { renderJobPage(currentJobPage - 1); };
+window.nextEventPage = function() { renderEventPage(currentEventPage + 1); };
+window.prevEventPage = function() { renderEventPage(currentEventPage - 1); };
+window.openEventModal = function(index) {
     if(!window.currentFilteredEvents) return;
     let ev = window.currentFilteredEvents[index];
     if(!ev) return;
@@ -289,7 +427,8 @@ function openEventModal(index) {
             monthYearKey = ev.date.toUpperCase();
         }
 
-        let coverUrl = globalEventCovers[monthYearKey];
+        // Fetch dynamic monthly cover banner from core.js global
+        let coverUrl = window.globalEventCovers ? window.globalEventCovers[monthYearKey] : null;
         let imgContainer = document.getElementById('modalImageContainer');
         
         if (imgContainer) {
@@ -336,8 +475,14 @@ function openEventModal(index) {
 
         let modal = document.getElementById('eventModal');
         if(modal) {
-            modal.classList.remove('modal-closed');
-            modal.classList.add('modal-open');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Animate it smoothly into view
+            requestAnimationFrame(() => {
+                modal.classList.remove('modal-closed');
+                modal.classList.add('modal-open');
+            });
         }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (err) { console.error("Event Modal Error:", err); }
-}
+};
