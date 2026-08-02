@@ -21,6 +21,7 @@
     <style>body { background-color: #05070a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }</style>
 </head>
 <body class="min-h-screen p-6 md:p-12 relative">
+
     <div class="max-w-6xl mx-auto mb-10 flex justify-between items-center border-b border-tntc-muted/30 pb-6">
         <div>
             <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Division News Archive</h1>
@@ -100,14 +101,22 @@
                 complete: function(results) {
                     if(results.data && results.data.length > 0) {
                         let html = "";
-                        results.data.forEach(item => {
+                        
+                        // Thelivaana Date Based Sorting (Newest First)
+                        let sortedNews = [...results.data].sort((a, b) => {
+                            let dateA = new Date(a.DATE).getTime() || 0;
+                            let dateB = new Date(b.DATE).getTime() || 0;
+                            return dateB - dateA; 
+                        });
+                        
+                        sortedNews.forEach(item => {
                             if(item.TITLE) {
-                                // FIXED: Replace both single AND double quotes to prevent breaking the onclick attribute
+                                // FIXED: Safe string escape for modal interaction
                                 let safeTitle = (item.TITLE || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                                 let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                                 let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                                let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
-                                let safeLink = (item.LINK || '').replace(/'/g, "\\'");
+                                let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/gm, " ");
+                                let safeLink = (item.LINK || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
                                 html += `
                                 <div class="bg-tntc-card border border-tntc-muted/50 rounded-xl overflow-hidden hover:border-tntc-accent/50 transition-colors group flex flex-col justify-between">

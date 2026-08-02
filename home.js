@@ -177,16 +177,24 @@ function loadNews() {
                 let newsSection = document.getElementById('news');
                 if(newsSection) newsSection.classList.remove('hidden');
                 
+                // Thelivaana Date Based Sorting (Newest First)
+                let sortedNews = [...results.data].sort((a, b) => {
+                    let dateA = new Date(a.DATE).getTime() || 0;
+                    let dateB = new Date(b.DATE).getTime() || 0;
+                    return dateB - dateA; 
+                });
+                
                 let html = "";
-                let previewItems = results.data.slice(0, 3);
+                let previewItems = sortedNews.slice(0, 3);
                 
                 previewItems.forEach(item => {
                     if(item.TITLE) {
-                        let safeTitle = (item.TITLE || '').replace(/'/g, "\\'");
-                        let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'");
-                        let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'");
-                        let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
-                        let safeLink = (item.LINK || '').replace(/'/g, "\\'");
+                        // FIXED: Safe string escape for modal interaction
+                        let safeTitle = (item.TITLE || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/gm, " ");
+                        let safeLink = (item.LINK || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
                         html += `
                         <div class="bg-tntc-card border border-tntc-muted/50 rounded-xl overflow-hidden hover:border-tntc-accent/50 transition-colors group flex flex-col justify-between">
@@ -227,7 +235,8 @@ function loadGallery() {
                 if(gallerySection) gallerySection.classList.remove('hidden');
 
                 let html = "";
-                let previewImages = results.data.slice(0, 4);
+                // Reverse to get the latest uploads first
+                let previewImages = [...results.data].reverse().slice(0, 4);
 
                 previewImages.forEach(item => {
                     if(item.IMAGE_URL) {

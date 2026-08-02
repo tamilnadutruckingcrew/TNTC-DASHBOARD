@@ -34,13 +34,6 @@
     <style>
         body { background-color: #05070a; color: #f8fafc; overflow-x: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .glass-nav { background: rgba(5, 7, 10, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
-        
-        /* Cinematic Hero Background - Fallback Image inside URL */
-        .hero-bg {
-             background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.4), #05070a), url("https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true");
-             background-size: cover;
-             background-position: center;
-        }
 
         /* Marquee Animation */
         .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-top: 1px solid rgba(51,65,85,0.3); border-bottom: 1px solid rgba(51,65,85,0.3); background: #0a0e14; padding: 12px 0; }
@@ -90,29 +83,39 @@
         </div>
     </nav>
 
-    <!-- CINEMATIC HERO -->
-    <main data-bg-asset="HOME_BG" class="hero-bg pt-40 pb-20 px-6 min-h-[85vh] flex flex-col justify-center items-center text-center relative z-10">
+    <!-- CINEMATIC HERO LAYERED (FIXED FOR DYNAMIC ASSET COMPATIBILITY) -->
+    <main class="relative pt-40 pb-20 px-6 min-h-[85vh] flex flex-col justify-center items-center text-center overflow-hidden">
         
-        <div class="inline-flex items-center gap-3 px-5 py-2 border-2 border-yellow-500/40 bg-yellow-500/10 rounded-full mb-8 shadow-[0_0_20px_rgba(234,179,8,0.15)]">
-            <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL" class="w-6 h-6 rounded-full border border-yellow-500">
-            <span class="text-[10px] font-black tracking-widest text-yellow-500 uppercase">An official division of Tamilnadu Logistics</span>
-        </div>
+        <!-- 1. Background Image Layer (Managed by CMS) -->
+        <div data-bg-asset="HOME_BG" class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true');"></div>
+        
+        <!-- 2. Dark Overlay Layer (Always protects text visibility) -->
+        <div class="absolute inset-0 bg-gradient-to-b from-[#05070a]/90 via-[#05070a]/50 to-[#05070a] z-10 pointer-events-none"></div>
+        
+        <!-- 3. Content Layer -->
+        <div class="relative z-20 w-full flex flex-col items-center">
+            
+            <div class="inline-flex items-center gap-3 px-5 py-2 border-2 border-yellow-500/40 bg-yellow-500/10 rounded-full mb-8 shadow-[0_0_20px_rgba(234,179,8,0.15)] reveal">
+                <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL" class="w-6 h-6 rounded-full border border-yellow-500">
+                <span class="text-[10px] font-black tracking-widest text-yellow-500 uppercase">An official division of Tamilnadu Logistics</span>
+            </div>
 
-        <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.05] mb-6 tracking-tighter uppercase">
-            Tamilnadu <br> <span class="text-tntc-textSecondary">Trucking Crew</span>
-        </h1>
-        
-        <p class="text-tntc-textSecondary text-sm md:text-lg mb-10 max-w-2xl font-medium leading-relaxed bg-tntc-main/40 p-4 rounded-xl backdrop-blur-sm border border-tntc-muted/20">
-            The premier Euro Truck Simulator 2 VTC division. Experience professional convoy management, dynamic global tours, and elite telemetry tracking.
-        </p>
-        
-        <div class="flex flex-wrap justify-center gap-4">
-            <button onclick="openAuthModal()" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-sm tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2">
-                Access Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </button>
-            <a href="#stats" class="px-8 py-4 bg-tntc-card/80 backdrop-blur-md border border-tntc-muted hover:border-white hover:text-white text-tntc-textSecondary rounded-xl font-black text-sm tracking-wider uppercase transition-all flex items-center gap-2">
-                Explore Fleet <i data-lucide="chevron-down" class="w-4 h-4"></i>
-            </a>
+            <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.05] mb-6 tracking-tighter uppercase reveal delay-100 drop-shadow-2xl">
+                Tamilnadu <br> <span class="text-tntc-textSecondary">Trucking Crew</span>
+            </h1>
+            
+            <p class="text-tntc-textPrimary text-sm md:text-lg mb-10 max-w-2xl font-medium leading-relaxed bg-tntc-main/30 p-4 rounded-xl backdrop-blur-md border border-tntc-muted/30 reveal delay-200 shadow-xl">
+                The premier Euro Truck Simulator 2 VTC division. Experience professional convoy management, dynamic global tours, and elite telemetry tracking.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 reveal delay-200">
+                <button onclick="openAuthModal()" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-sm tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2">
+                    Access Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+                <a href="#stats" class="px-8 py-4 bg-tntc-card/80 backdrop-blur-md border border-tntc-muted hover:border-white hover:text-white text-tntc-textSecondary rounded-xl font-black text-sm tracking-wider uppercase transition-all flex items-center gap-2">
+                    Explore Fleet <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </a>
+            </div>
         </div>
     </main>
 

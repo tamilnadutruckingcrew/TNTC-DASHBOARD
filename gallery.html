@@ -75,18 +75,15 @@
                 complete: function(results) {
                     if(results.data && results.data.length > 0) {
                         let html = "";
-                        results.data.forEach(item => {
+                        // Reversed Data to show latest uploads first
+                        let reversedData = [...results.data].reverse();
+                        
+                        reversedData.forEach(item => {
                             if(item.IMAGE_URL) {
-                                // Added cursor-pointer and onclick event
                                 let safeUrl = item.IMAGE_URL.replace(/'/g, "\\'");
                                 html += `
                                 <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group cursor-pointer" onclick="openLightbox('${safeUrl}')">
-                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 group-hover:opacity-80 transition-all duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
-                                    
-                                    <!-- Hover Overlay Icon -->
-                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                        <i data-lucide="zoom-in" class="w-8 h-8 text-white drop-shadow-md"></i>
-                                    </div>
+                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
                                 </div>`;
                             }
                         });
