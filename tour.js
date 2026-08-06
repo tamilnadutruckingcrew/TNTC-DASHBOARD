@@ -435,10 +435,16 @@ function openCampModal(tourName, sNo, src, srcCo, dst, dstCo, dist, imgUrl, comp
     let totalEl = document.getElementById('campModalTotalDrivers');
     if(totalEl) totalEl.textContent = totalDriversCount;
     
+    // 🛠️ THE BUG FIX: Remove hidden, add flex, then animate!
     let modal = document.getElementById('campaignModal');
     if(modal) {
-        modal.classList.remove('modal-closed');
-        modal.classList.add('modal-open');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        requestAnimationFrame(() => {
+            modal.classList.remove('modal-closed');
+            modal.classList.add('modal-open');
+        });
     }
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
