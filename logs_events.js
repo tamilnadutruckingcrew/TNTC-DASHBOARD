@@ -99,6 +99,8 @@ function applyLogFilters() {
         renderJobPage(1);
     } catch(err) {
         let tbody = document.getElementById('filteredJobTableBody');
+        let savedPage = typeof currentJobPage !== 'undefined' ? currentJobPage : 1;
+        renderJobPage(savedPage);
         if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-red-500 font-bold p-6 text-center">System Error: ${err.message}</td></tr>`;
     }
 }
@@ -296,6 +298,9 @@ function applyEventFilters() {
         renderEventPage(1);
     } catch (err) {
         let tbody = document.getElementById('filteredEventTableBody');
+        // Keep the user on their current page instead of resetting to 1
+        let savedPage = typeof currentEventPage !== 'undefined' ? currentEventPage : 1;
+        renderEventPage(savedPage);
         if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-red-500 font-bold p-6 text-center">System Error: ${err.message}</td></tr>`;
     }
 }

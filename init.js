@@ -89,11 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 6. Polling Intervals for Live Data
+   // 6. Polling Intervals for Live Data
     if (typeof fetchLiveRidersOnly === "function") {
-        setInterval(fetchLiveRidersOnly, 10000); // Fast 10-sec poll for telemetry (Live Riders)
+        setInterval(fetchLiveRidersOnly, 10000); // 10-sec poll for telemetry
     }
-    if (typeof fetchData === "function") {
-        setInterval(() => fetchData(false), 180000); // 3 min poll for static data (Jobs, Events)
+    if (typeof fetchVTCData === "function") {
+        setInterval(() => fetchVTCData(false), 60000); // 1 MINUTE silent poll for Jobs & Events!
     }
 });

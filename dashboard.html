@@ -108,7 +108,10 @@
     <!-- TAB 1: OVERVIEW DASHBOARD -->
     <div id="tab-overview" class="block">
         <div class="flex flex-col xl:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-lg mb-6 gap-4">
-            <h2 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2 w-full xl:w-auto"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Overall Division Stats</h2>
+            <div class="flex items-center justify-between w-full xl:w-auto gap-4">
+               <h2 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Overall Division Stats</h2>
+               <button onclick="fetchVTCData(false)" class="text-[10px] uppercase font-bold tracking-wider bg-tntc-main border border-tntc-muted/50 hover:bg-tntc-hover hover:text-tntc-accent px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh</button>
+            </div>
             
             <!-- PREMIUM VTC FILTER (OVERVIEW) -->
             <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end" data-target="overview">
@@ -172,7 +175,10 @@
     <!-- TAB 2: JOB LOGS -->
     <div id="tab-logs" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</h3>
+            <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center justify-between">
+            <span class="flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</span>
+            <button onclick="fetchVTCData(false)" class="text-xs text-tntc-textSecondary bg-tntc-main border border-tntc-muted/50 hover:bg-tntc-hover hover:border-tntc-accent hover:text-white px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync Logs</button>
+            </h3>
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Select Driver</label>
@@ -242,7 +248,10 @@
     <!-- TAB 3: EVENT RECORDS -->
     <div id="tab-events" class="hidden">
         <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Event Records</h3>
+            <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center justify-between">
+             <span class="flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Event Records</span>
+             <button onclick="fetchVTCData(false)" class="text-xs text-tntc-textSecondary bg-tntc-main border border-tntc-muted/50 hover:bg-tntc-hover hover:border-tntc-accent hover:text-white px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync Events</button>
+            </h3>
             <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Category</label>
