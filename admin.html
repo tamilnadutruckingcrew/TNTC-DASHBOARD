@@ -88,7 +88,6 @@
 
         <div class="p-6 md:p-8 flex-1">
             
-            <!-- Assets Tab (UPGRADED UI WITH LIVE PREVIEW) -->
             <div id="adm-tab-assets" class="hidden space-y-6">
                 <div class="bg-tntc-accent/10 border border-tntc-accent/30 p-5 rounded-xl flex items-start gap-4 shadow-sm">
                     <i data-lucide="info" class="w-6 h-6 text-tntc-accent shrink-0 mt-0.5"></i>
@@ -99,7 +98,6 @@
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Left Column: Controls -->
                     <div class="lg:col-span-1 bg-tntc-card p-6 rounded-xl border border-tntc-muted/20 shadow-lg flex flex-col gap-5 h-fit">
                         <div>
                             <label class="block text-xs font-bold text-tntc-textSecondary mb-2 uppercase tracking-wider flex items-center justify-between">
@@ -124,14 +122,12 @@
                         </button>
                     </div>
 
-                    <!-- Right Column: Live Preview Monitor -->
                     <div class="lg:col-span-2 bg-[#0a0d14] rounded-xl border border-tntc-muted/30 shadow-lg overflow-hidden flex flex-col relative group">
                         <div class="p-4 border-b border-tntc-muted/20 bg-tntc-card flex justify-between items-center z-10">
                             <h4 class="text-xs font-black text-tntc-textSecondary uppercase tracking-widest flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-tntc-accent"></i> Live Asset Preview</h4>
                             <span id="previewStatusBadge" class="bg-tntc-muted/20 text-tntc-textSecondary px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border border-tntc-muted/30">Current Database</span>
                         </div>
                         
-                        <!-- Checkerboard Background for transparency testing -->
                         <div class="flex-1 p-6 flex items-center justify-center min-h-[300px] relative" style="background-image: repeating-linear-gradient(45deg, #0c1017 25%, transparent 25%, transparent 75%, #0c1017 75%, #0c1017), repeating-linear-gradient(45deg, #0c1017 25%, #05070a 25%, #05070a 75%, #0c1017 75%, #0c1017); background-position: 0 0, 10px 10px; background-size: 20px 20px;">
                             <div id="assetPreviewContainer" class="w-full flex items-center justify-center transition-all duration-300">
                                 <div class="text-center text-tntc-textSecondary">
@@ -144,7 +140,6 @@
                 </div>
             </div>
 
-            <!-- Event Tab -->
             <div id="adm-tab-event" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -196,7 +191,6 @@
                     <button id="btnSubmitEvent" onclick="submitNewEvent()" class="flex-1 w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i id="submitEventIcon" data-lucide="upload-cloud" class="w-5 h-5"></i> <span id="submitEventText">Publish Event to Database</span></button>
                 </div>
 
-                <!-- LEADER PREVIEW SECTION -->
                 <div id="leaderEventManagement" class="hidden mt-12 pt-8 border-t border-tntc-muted/20">
                     <div class="flex items-center justify-between mb-6">
                         <div>
@@ -211,7 +205,6 @@
                 </div>
             </div>
 
-            <!-- Tour Tab -->
             <div id="adm-tab-tour" class="hidden space-y-6">
                 <div class="bg-amber-500/10 border border-amber-500/30 p-5 rounded-xl flex items-start gap-4">
                     <i data-lucide="map" class="w-6 h-6 text-amber-500 shrink-0 mt-0.5"></i>
@@ -261,7 +254,7 @@
                     <button id="btnSubmitTour" onclick="submitNewTour()" class="flex-1 w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all flex items-center justify-center gap-2"><i id="submitTourIcon" data-lucide="folder-plus" class="w-5 h-5"></i> <span id="submitTourText">Generate Tour Manifest</span></button>
                 </div>
 
-                <!-- 🚀 NEW LEADER PREVIEW SECTION FOR TOURS 🚀 -->
+                <!-- 🚀 LEADER PREVIEW SECTION FOR TOURS 🚀 -->
                 <div id="leaderTourManagement" class="hidden mt-12 pt-8 border-t border-tntc-muted/20">
                     <div class="flex items-center justify-between mb-6">
                         <div>
@@ -313,9 +306,7 @@
                 </div>
             </div>
 
-            <!-- News Tab -->
             <div id="adm-tab-news" class="hidden space-y-6">
-                
                 <div class="flex items-center justify-between mb-4 mt-2">
                     <div>
                         <h3 class="text-white font-black text-lg uppercase tracking-wider">Dispatch Center</h3>
@@ -345,7 +336,6 @@
                     <button onclick="submitNewNews()" class="w-full mt-6 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.2)] transition-all flex items-center justify-center gap-2"><i data-lucide="newspaper" class="w-5 h-5"></i> Publish Dispatch</button>
                 </div>
 
-                <!-- Admin News Live Preview Grid -->
                 <div>
                     <h4 class="text-xs font-black text-tntc-textSecondary uppercase tracking-widest mb-4 border-b border-tntc-muted/20 pb-2"><i data-lucide="monitor" class="w-3.5 h-3.5 inline mr-1"></i> Live Website Preview</h4>
                     <div id="adminNewsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -356,7 +346,6 @@
 
             <!-- Gallery Tab -->
             <div id="adm-tab-gallery" class="hidden space-y-6">
-                
                 <div class="flex items-center justify-between mb-4 mt-2">
                     <div>
                         <h3 class="text-white font-black text-lg uppercase tracking-wider">Media Center</h3>
@@ -374,7 +363,6 @@
                     <button onclick="submitNewGallery()" class="w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all flex items-center justify-center gap-2">Add to Fleet Gallery</button>
                 </div>
 
-                <!-- Admin Gallery Live Preview Grid -->
                 <div>
                     <h4 class="text-xs font-black text-tntc-textSecondary uppercase tracking-widest mb-4 border-b border-tntc-muted/20 pb-2"><i data-lucide="monitor" class="w-3.5 h-3.5 inline mr-1"></i> Live Website Preview</h4>
                     <div id="adminGalleryGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -427,7 +415,6 @@
         </div>
     </div>
 
-    <!-- Script Imports -->
     <script src="core.js"></script>
     <script src="api.js"></script>
     
@@ -435,10 +422,11 @@
         // 🔴 UPDATE YOUR WEBAPP AND CSV URLS HERE! 🔴
         const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
         
-        // CSV Links for Live Preview in Admin Panel (Copy from your home.js)
+        // CSV Links for Live Preview in Admin Panel (Copied from home.js / core.js)
         const ADMIN_NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv";
         const ADMIN_GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
         const ADMIN_APPS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=188998109&single=true&output=csv";
+        const ADMIN_ASSETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1307238988&single=true&output=csv";
 
         document.addEventListener("DOMContentLoaded", () => {
             const role = sessionStorage.getItem('tntc_role');
@@ -471,7 +459,6 @@
                 return;
             }
             
-            // Format strictly without timezone shift issues
             let parts = inputEl.value.split('-');
             if (parts.length === 3) {
                 let d = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
@@ -577,7 +564,7 @@
                 fetchAdminEvents();
             }
 
-            // 🚀 NEW: Tour Leader Management Auto-Fetch 🚀
+            // 🚀 Leader Tour Management Auto-Fetch
             if (tab === 'tour' && role === 'leader') {
                 let ldrTourMgmt = document.getElementById('leaderTourManagement');
                 if (ldrTourMgmt) ldrTourMgmt.classList.remove('hidden');
@@ -733,13 +720,10 @@
             if(!payload.data.newUrl) { showCustomAlert("Validation Failed", "Please enter a valid Image/Video URL.", true); return; }
             await sendAdminRequest(payload, "Updating Site Assets...", () => { 
                 document.getElementById('assetUrl').value = '';
-                refreshAssetPreview();
+                refreshAssetPreview(); 
             });
         }
 
-        // ==========================================
-        // EVENT MANAGEMENT SYSTEM (LEADER PRIVILEGES)
-        // ==========================================
         window.editEventMode = false;
         window.editOriginalDate = "";
         window.editOriginalName = "";
@@ -929,9 +913,6 @@
             );
         }
 
-        // ==========================================
-        // 🚀 TOUR MANAGEMENT SYSTEM (LEADER PRIVILEGES) 🚀
-        // ==========================================
         window.editTourMode = false;
         window.editOriginalTourName = "";
         window.adminToursList = [];
@@ -1019,7 +1000,6 @@
                             });
                         }
 
-                        // Reverse to show newest created tours first
                         window.adminToursList.reverse().forEach((t, idx) => {
                             let safeName = t.name.replace(/'/g, "\\'");
                             let statusColor = t.status === 'LIVE' ? 'text-green-500 bg-green-500/10 border-green-500/20' : 
@@ -1074,7 +1054,6 @@
             window.editTourMode = true;
             window.editOriginalTourName = t.name;
 
-            // Hide Route Builder since we only edit Meta Data to protect DB formulas
             document.getElementById('route-container').classList.add('hidden');
             document.getElementById('btnAddRoute').classList.add('hidden');
 
@@ -1134,9 +1113,6 @@
             await sendAdminRequest(payload, "Updating Tour Status...", () => { document.getElementById('manageTourReason').value = ''; loadToursForAdmin(); });
         }
 
-        // ==========================================
-        // NEWS LIVE PREVIEW & DELETE SYSTEM
-        // ==========================================
         async function submitNewNews() {
             let rawDate = document.getElementById('addNewsDate').value;
             let formattedDate = rawDate;
@@ -1151,7 +1127,7 @@
                 action: "ADD_NEWS", 
                 data: { 
                     title: document.getElementById('addNewsTitle').value, 
-                    date: formattedDate, // Saving nice format to backend
+                    date: formattedDate, 
                     category: document.getElementById('addNewsCat').value, 
                     image: document.getElementById('addNewsImg').value, 
                     desc: document.getElementById('addNewsDesc').value, 
@@ -1180,7 +1156,7 @@
                 complete: function(results) {
                     if(results.data && results.data.length > 0 && results.data[0].TITLE) {
                         let html = "";
-                        let recentItems = results.data.slice(-6).reverse(); // Show last 6 added items
+                        let recentItems = results.data.slice(-6).reverse(); 
                         
                         recentItems.forEach(item => {
                             if(item.TITLE) {
@@ -1224,9 +1200,6 @@
             );
         }
 
-        // ==========================================
-        // GALLERY LIVE PREVIEW & DELETE SYSTEM
-        // ==========================================
         async function submitNewGallery() {
             let payload = { action: "ADD_GALLERY", data: { image: document.getElementById('addGalleryImg').value } };
             if(!payload.data.image) { showCustomAlert("Validation Failed", "Image URL is required!", true); return; }
@@ -1247,7 +1220,7 @@
                 complete: function(results) {
                     if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
                         let html = "";
-                        let recentItems = results.data.slice(-10).reverse(); // Show last 10 added photos
+                        let recentItems = results.data.slice(-10).reverse();
                         
                         recentItems.forEach(item => {
                             if(item.IMAGE_URL) {
@@ -1283,9 +1256,6 @@
             );
         }
 
-        // ==========================================
-        // APPLICATIONS SYSTEM
-        // ==========================================
         async function fetchApplications() {
             let tbody = document.getElementById('applicationsTableBody');
             tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-yellow-500 font-bold"><i data-lucide="loader" class="w-5 h-5 inline animate-spin mr-2"></i> Syncing records from cloud...</td></tr>';
@@ -1351,10 +1321,6 @@ ${reason}
             showCustomAlert(title, message, false);
         }
 
-        // ==========================================
-        // LEADER CMS: LIVE ASSET PREVIEW SYSTEM
-        // ==========================================
-        
         function getYouTubeIdPreview(url) {
             let videoId = "";
             if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
@@ -1402,7 +1368,7 @@ ${reason}
             const inputUrl = document.getElementById('assetUrl');
             inputUrl.value = ""; // Clear input box when switching assets
             
-            // Check if globalSiteAssets exists (from api.js)
+            // Check if globalSiteAssets exists
             let currentUrl = (window.globalSiteAssets && window.globalSiteAssets[key]) ? window.globalSiteAssets[key] : "";
             renderAssetPreview(currentUrl, key === 'PROMO_VIDEO', false);
         }
@@ -1420,11 +1386,40 @@ ${reason}
         }
 
         function refreshAssetPreview() {
-            if(typeof fetchSiteAssets === 'function') {
-                document.getElementById('assetPreviewContainer').innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 opacity-50 animate-spin"></i><p class="text-[10px] font-bold uppercase tracking-wider">Syncing Cloud...</p></div>`;
-                lucide.createIcons();
-                fetchSiteAssets(); // Loads from google sheets via api.js
-                setTimeout(updateAssetPreview, 1500); // Wait for fetch to complete then render
+            let container = document.getElementById('assetPreviewContainer');
+            if(container) {
+                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 opacity-50 animate-spin"></i><p class="text-[10px] font-bold uppercase tracking-wider">Syncing Cloud...</p></div>`;
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Direct fetch guarantees we only update the UI AFTER data successfully arrives
+            if (typeof Papa !== 'undefined' && typeof ADMIN_ASSETS_CSV_URL !== 'undefined') {
+                Papa.parse(ADMIN_ASSETS_CSV_URL, {
+                    download: true,
+                    header: false,
+                    skipEmptyLines: 'greedy',
+                    complete: function(results) {
+                        if (results.data && results.data.length > 0) {
+                            if (!window.globalSiteAssets) window.globalSiteAssets = {};
+                            
+                            results.data.forEach(row => {
+                                let assetName = String(row[0]).trim().toUpperCase();
+                                let assetUrl = String(row[1]).trim();
+                                if (assetName && assetUrl) {
+                                    window.globalSiteAssets[assetName] = assetUrl;
+                                }
+                            });
+                            // Trigger the UI update exactly when data is ready!
+                            updateAssetPreview(); 
+                        } else {
+                            renderAssetPreview("", false, false);
+                        }
+                    },
+                    error: function(err) {
+                        console.error("Preview Sync Error:", err);
+                        renderAssetPreview("", false, false);
+                    }
+                });
             }
         }
     </script>
