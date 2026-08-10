@@ -2,7 +2,6 @@
 // TNTC Admin Backend - Strict Multi-DB Router (OPTIMIZED)
 // ==========================================
 
-// 🔴 MUKKIYAM: Unga 4 Spreadsheet-oda ID-kalaiyum inga podunga! 🔴
 const DB_WEBSITE = "19ryICHTmtAp1dekGdF2wwq5b_oAKkgxxEEzLVApn4GQ"; // TNTC Website Database
 const DB_JOBS    = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y"; // Live Job Logs Sheet
 const DB_TOURS   = "1Z3Y6wf8YyS-15aIf-7PiGXqz5lEbfwHMYXNczWH8Mxg"; // TNTC Tour 1 Sheet
@@ -14,13 +13,95 @@ function doOptions(e) {
 }
 
 function doGet(e) {
-  const headers = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, GET, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" };
-  try {
-    if (e.parameter.action === "GET_APPLICATIONS") return handleGetApplications(headers);
-    return createJsonResponse({ status: "success", message: "TNTC API is Live" }, headers);
-  } catch (error) {
-    return createJsonResponse({ status: "error", message: error.message }, headers);
+  // If the request has an 'action' parameter, it's coming from the website (Login/Register)
+  if (e.parameter.action) {
+    try {
+      var result = handleWebsiteAction(e.parameter);
+      return ContentService.createTextOutput(JSON.stringify(result))
+                           .setMimeType(ContentService.MimeType.JSON);
+    } catch(err) {
+      return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
+                           .setMimeType(ContentService.MimeType.JSON);
+    }
   }
+  
+  // If it's a normal request, run the Admin Applications fetch
+  try {
+    var action = e.parameter.action_admin; 
+    if(action === "GET_APPLICATIONS") {
+      var dbSheetObj = getTargetSheet("USERS_DB");
+      var dbSheet = dbSheetObj.sheet;
+      var data = dbSheet.getDataRange().getValues();
+      var pending = [];
+      if(data.length > 1) {
+        for(var i=1; i<data.length; i++) {
+          if(String(data[i][6]).toUpperCase() === 'PENDING') {
+            pending.push({
+               date: data[i][7], name: data[i][0], discord: data[i][2], 
+               tmpId: data[i][4], status: data[i][6], tracker: data[i][10]
+            });
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({status: "success", data: pending})).setMimeType(ContentService.MimeType.JSON);
+    }
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: "Invalid action"})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// 🚀 HELPER FUNCTION FOR WEBSITE REQUESTS 🚀
+function handleWebsiteAction(params) {
+  var action = params.action;
+  
+  // FIXED: Explicitly unboxing the sheet object so getDataRange works perfectly
+  var dbSheetObj = getTargetSheet("USERS_DB");
+  var dbSheet = dbSheetObj.sheet;
+  
+  if (action === "LOGIN_USER") {
+    var user = params.username;
+    var pass = params.password;
+    
+    var data = dbSheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0]).toUpperCase() === user.toUpperCase() && String(data[i][1]) === pass) {
+        if (String(data[i][6]).toUpperCase() !== 'ACTIVE') {
+          return { status: "error", message: "Account is pending approval or suspended." };
+        }
+        return { 
+          status: "success", 
+          user: { username: data[i][0], role: String(data[i][5]).toLowerCase(), trackerName: data[i][10] } 
+        };
+      }
+    }
+    return { status: "error", message: "Invalid username or password." };
+  }
+  
+  if (action === "REGISTER_USER") {
+    var user = params.username;
+    var data = dbSheet.getDataRange().getValues();
+    
+    // Check if username exists
+    if(data.length > 1) {
+      for(var i=1; i<data.length; i++) {
+        if(String(data[i][0]).toUpperCase() === user.toUpperCase()) {
+          return { status: "error", message: "Username already exists." };
+        }
+      }
+    }
+    
+    // Add new user
+    var today = Utilities.formatDate(new Date(), "GMT+05:30", "MM/dd/yyyy");
+    dbSheet.appendRow([
+      user, params.password, params.discord, params.steamId, params.tmpId, 
+      "driver", "PENDING", today, "", params.reason, params.trackerName
+    ]);
+    
+    return { status: "success", message: "Application Submitted! Wait for Admin Approval." };
+  }
+  
+  return { status: "error", message: "Unknown Action." };
 }
 
 function doPost(e) {
@@ -30,16 +111,28 @@ function doPost(e) {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action;
 
+    // --- NEW USER MANAGEMENT ACTIONS ---
+    if (action === "REGISTER_USER") return handleRegisterUser(payload.data, headers);
+    if (action === "LOGIN_USER") return handleLoginUser(payload.data, headers);
+    if (action === "GET_USERS") return handleGetUsers(headers);
+    if (action === "APPROVE_USER") return handleApproveUser(payload.data, headers);
+    if (action === "MANAGE_USER") return handleManageUser(payload.data, headers);
+
+    // --- EXISTING ACTIONS ---
     if (action === "ADD_EVENT") return handleAddEvent(payload.data, headers);
+    if (action === "UPDATE_EVENT") return handleUpdateEvent(payload.data, headers);
+    if (action === "DELETE_EVENT") return handleDeleteEvent(payload.data, headers);
+    
     if (action === "CREATE_TOUR") return handleCreateTour(payload.data, headers);
     if (action === "UPDATE_TOUR_STATUS") return handleUpdateTourStatus(payload.data, headers);
+    if (action === "UPDATE_TOUR_MASTER") return handleUpdateTourMaster(payload.data, headers);
+    if (action === "DELETE_TOUR") return handleDeleteTour(payload.data, headers);
+    
     if (action === "UPDATE_ASSET") return handleUpdateAsset(payload.data, headers);
     if (action === "ADD_NEWS") return handleAddNews(payload.data, headers);
     if (action === "ADD_GALLERY") return handleAddGallery(payload.data, headers);
     if (action === "SUBMIT_APPLICATION") return handleSubmitApplication(payload.data, headers);
-    if (action === "GET_APPLICATIONS") return handleGetApplications(headers);
     
-    // 🔴 DELETION ACTIONS FOR ADMIN PANEL 🔴
     if (action === "DELETE_NEWS") return handleDeleteNews(payload.data, headers);
     if (action === "DELETE_GALLERY") return handleDeleteGallery(payload.data, headers);
 
@@ -52,8 +145,7 @@ function doPost(e) {
 // --- STRICT MULTI-DB ROUTER ---
 function getTargetSheet(sheetName) {
   let targetId = "";
-  
-  if (["Site_Assets", "Website_News", "Website_Gallery", "APPLICATIONS"].includes(sheetName)) {
+  if (["Site_Assets", "Website_News", "Website_Gallery", "APPLICATIONS", "USERS_DB"].includes(sheetName)) {
     targetId = DB_WEBSITE;
   } else if (["Live_Job_Logs"].includes(sheetName)) {
     targetId = DB_JOBS;
@@ -83,9 +175,141 @@ function getColLetter(colIdx) {
   return letter;
 }
 
-// -----------------------------------------------------------------
-// Action: Update Site Assets
-// -----------------------------------------------------------------
+// ==========================================
+// USER MANAGEMENT SYSTEM
+// ==========================================
+
+function handleRegisterUser(data, headers) {
+  let { sheet } = getTargetSheet("USERS_DB");
+  let headerRow = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  if(headerRow[0] !== "USERNAME") { 
+      sheet.appendRow(["USERNAME", "PASSWORD", "DISCORD", "STEAM", "TMP", "ROLE", "STATUS", "JOIN_DATE", "END_DATE", "REASON", "TRACKER_NAME"]); 
+      sheet.setFrozenRows(1); 
+  }
+
+  let values = sheet.getDataRange().getValues();
+  for(let i = 1; i < values.length; i++) {
+      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
+          throw new Error("Username already taken! Please choose another.");
+      }
+      if(values[i][10] && String(values[i][10]).toUpperCase() === String(data.trackerName).toUpperCase()) {
+          throw new Error("This Tracker Name is already registered to another driver!");
+      }
+  }
+
+  sheet.appendRow([data.username, data.password, data.discord, data.steamId, data.tmpId, "RIDER", "PENDING", "", "", data.reason, data.trackerName || data.username]);
+  return createJsonResponse({status:"success", message: "Application submitted for review!"}, headers);
+}
+
+function handleLoginUser(data, headers) {
+  let { sheet } = getTargetSheet("USERS_DB");
+  let values = sheet.getDataRange().getValues();
+  
+  if (data.username === "MASTER" && data.password === "TNTC@LEADER") {
+      return createJsonResponse({ status: "success", user: { username: "MASTER", trackerName: "MASTER", role: "leader", status: "ACTIVE" } }, headers);
+  }
+
+  for(let i = 1; i < values.length; i++) {
+      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
+          if (String(values[i][1]) === String(data.password)) {
+              let status = String(values[i][6]).toUpperCase();
+              if (status === "PENDING") throw new Error("Your account is still waiting for Admin approval.");
+              if (status === "SUSPENDED" || status === "LEFT") throw new Error("This account has been deactivated.");
+              
+              let roleStr = String(values[i][5]).toLowerCase();
+              let trackerName = values[i][10] || values[i][0];
+
+              return createJsonResponse({ 
+                  status: "success", 
+                  user: { username: values[i][0], trackerName: trackerName, role: roleStr, discord: values[i][2], joinDate: values[i][7] } 
+              }, headers);
+          } else {
+              throw new Error("Invalid password.");
+          }
+      }
+  }
+  throw new Error("User not found.");
+}
+
+function handleGetUsers(headers) {
+  let { sheet } = getTargetSheet("USERS_DB");
+  let values = sheet.getDataRange().getValues();
+  let users = [];
+  
+  for(let i=1; i<values.length; i++) {
+      users.push({
+          username: values[i][0], discord: values[i][2], steam: values[i][3], tmp: values[i][4],
+          role: values[i][5], status: values[i][6], joinDate: values[i][7], reason: values[i][9],
+          trackerName: values[i][10] || values[i][0]
+      });
+  }
+  return createJsonResponse({status:"success", data: users}, headers);
+}
+
+function handleApproveUser(data, headers) {
+  let { sheet } = getTargetSheet("USERS_DB");
+  let values = sheet.getDataRange().getValues();
+  
+  for(let i=1; i<values.length; i++) {
+      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
+          
+          let currentDate = new Date().toLocaleDateString();
+          sheet.getRange(i+1, 6).setValue("RIDER");
+          sheet.getRange(i+1, 7).setValue("ACTIVE");
+          sheet.getRange(i+1, 8).setValue(currentDate);
+          
+          let trackerName = values[i][10] || data.username;
+
+          try {
+              let { sheet: evSheet } = getTargetSheet("ENTRY SHEET");
+              let dataRange = evSheet.getRange(1, 1, 5, evSheet.getLastColumn()).getValues();
+              let headerRowIndex = 1; 
+              
+              for(let r=0; r<5; r++) {
+                 if(String(dataRange[r][1]).toUpperCase().includes('DATE') || String(dataRange[r][2]).toUpperCase().includes('EVENT')) {
+                     headerRowIndex = r + 1; 
+                     break;
+                 }
+              }
+              let nextCol = evSheet.getLastColumn() + 1;
+              evSheet.getRange(headerRowIndex, nextCol).setValue(trackerName);
+          } catch(err) {}
+          
+          return createJsonResponse({status:"success"}, headers);
+      }
+  }
+  throw new Error("User not found in database.");
+}
+
+function handleManageUser(data, headers) {
+  let { sheet } = getTargetSheet("USERS_DB");
+  let values = sheet.getDataRange().getValues();
+  
+  for(let i=1; i<values.length; i++) {
+      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
+          
+          if (data.actionType === "CHANGE_ROLE") {
+              sheet.getRange(i+1, 6).setValue(data.newRole.toUpperCase());
+          } 
+          else if (data.actionType === "SUSPEND") {
+              sheet.getRange(i+1, 7).setValue("SUSPENDED");
+              sheet.getRange(i+1, 9).setValue(new Date().toLocaleString());
+          }
+          else if (data.actionType === "LEFT") {
+              sheet.getRange(i+1, 7).setValue("LEFT");
+              sheet.getRange(i+1, 9).setValue(new Date().toLocaleString());
+          }
+          return createJsonResponse({status:"success"}, headers);
+      }
+  }
+  throw new Error("User not found.");
+}
+
+
+// ==========================================
+// EXISTING ACTIONS
+// ==========================================
+
 function handleUpdateAsset(data, headers) {
   let { sheet } = getTargetSheet("Site_Assets");
   let headerRow = sheet.getRange(1, 1, 1, 2).getValues()[0];
@@ -109,9 +333,6 @@ function handleUpdateAsset(data, headers) {
   return createJsonResponse({ status: "success" }, headers);
 }
 
-// -----------------------------------------------------------------
-// Action: Add Event Record (OPTIMIZED)
-// -----------------------------------------------------------------
 function handleAddEvent(data, headers) {
   let { sheet } = getTargetSheet("ENTRY SHEET"); 
   
@@ -129,7 +350,6 @@ function handleAddEvent(data, headers) {
   if(headerRow.length === 0) headerRow = dataRange[0]; 
 
   let newRow = new Array(headerRow.length).fill("");
-
   newRow[0] = ""; 
   newRow[1] = data.date || "";
   newRow[2] = data.eventName || "";
@@ -163,9 +383,71 @@ function handleAddEvent(data, headers) {
   return createJsonResponse({ status: "success" }, headers);
 }
 
-// -----------------------------------------------------------------
-// Action: Create New Tour Campaign (OPTIMIZED & BULLETPROOF)
-// -----------------------------------------------------------------
+function handleUpdateEvent(data, headers) {
+  let { sheet } = getTargetSheet("ENTRY SHEET");
+  let dataRange = sheet.getRange(1, 1, 5, sheet.getLastColumn()).getValues();
+  let headerRow = [];
+  let headerRowIndex = 1; 
+  
+  for(let i=0; i<5; i++) {
+     if(String(dataRange[i][1]).toUpperCase().includes('DATE') || String(dataRange[i][2]).toUpperCase().includes('EVENT')) {
+         headerRow = dataRange[i];
+         headerRowIndex = i + 1; 
+         break;
+     }
+  }
+  if(headerRow.length === 0) headerRow = dataRange[0];
+
+  let lastDataRow = sheet.getLastRow();
+  let searchLimit = Math.max(lastDataRow, headerRowIndex + 1);
+  let colC = sheet.getRange(1, 3, searchLimit, 1).getValues(); 
+  let targetRow = -1;
+
+  for (let r = headerRowIndex; r < colC.length; r++) {
+      if (String(colC[r][0]).trim() === String(data.originalName).trim()) {
+          targetRow = r + 1;
+          break;
+      }
+  }
+
+  if (targetRow === -1) throw new Error("Original event not found to update.");
+
+  let updateRow = new Array(headerRow.length).fill("");
+  updateRow[0] = ""; 
+  updateRow[1] = data.date || "";
+  updateRow[2] = data.eventName || "";
+  updateRow[3] = data.link || "";
+  updateRow[4] = data.category || "";
+  updateRow[5] = data.imageLink || "";
+
+  if (data.attendedDrivers && Array.isArray(data.attendedDrivers)) {
+      for (let i = 6; i < headerRow.length; i++) {
+        let driverName = String(headerRow[i]).toUpperCase().trim();
+        if (driverName && driverName !== "UNKNOWN" && !driverName.includes('ATTENDANCE')) {
+            if (data.attendedDrivers.includes(driverName)) updateRow[i] = true; 
+            else updateRow[i] = false; 
+        }
+      }
+  }
+
+  sheet.getRange(targetRow, 1, 1, updateRow.length).setValues([updateRow]);
+  return createJsonResponse({ status: "success" }, headers);
+}
+
+function handleDeleteEvent(data, headers) {
+  let { sheet } = getTargetSheet("ENTRY SHEET");
+  let lastDataRow = sheet.getLastRow();
+  let colC = sheet.getRange(1, 3, lastDataRow, 1).getValues(); 
+  
+  for (let r = colC.length - 1; r >= 0; r--) {
+      if (String(colC[r][0]).trim() === String(data.eventName).trim()) {
+          sheet.deleteRow(r + 1);
+          return createJsonResponse({ status: "success" }, headers);
+      }
+  }
+  throw new Error("Event not found to delete.");
+}
+
 function handleCreateTour(data, headers) {
   let { sheet: masterSheet, ss } = getTargetSheet("TOUR_MASTER");
   const tourName = data.tourName || `Tour_${new Date().getTime()}`;
@@ -186,11 +468,8 @@ function handleCreateTour(data, headers) {
           jobData.forEach(row => {
               let dateVal = new Date(row[0]);
               let name = String(row[2]).trim();
-              
               if (name && name.toUpperCase() !== 'UNKNOWN' && !isNaN(dateVal.getTime())) {
-                  if (dateVal >= thirtyDaysAgo) {
-                      driverMap.set(name.toUpperCase(), name);
-                  }
+                  if (dateVal >= thirtyDaysAgo) { driverMap.set(name.toUpperCase(), name); }
               }
           });
           driverNames = Array.from(driverMap.values()).sort();
@@ -209,18 +488,13 @@ function handleCreateTour(data, headers) {
       data.routes.forEach((route, idx) => {
           let rowNum = idx + 2; 
           let row = [idx + 1, route.source, route.sourceCo, route.dest, route.destCo, route.dist, route.img];
-          
           for (let d = 0; d < driverNames.length; d++) {
-              let colLetter = getColLetter(8 + d); // Starts at H
-              
-              // 🔥 THE NEW MASTER BULLETPROOF FORMULA 🔥
+              let colLetter = getColLetter(8 + d);
               let formula = `=IF(COUNTIFS(Live_Job_Logs!$C:$C, ${colLetter}$1, Live_Job_Logs!$F:$F, $B${rowNum}, Live_Job_Logs!$G:$G, $C${rowNum}, Live_Job_Logs!$H:$H, $D${rowNum}, Live_Job_Logs!$I:$I, $E${rowNum}, Live_Job_Logs!$S:$S, ">="&IFERROR(REGEXEXTRACT(TO_TEXT($F${rowNum}), "\\d+")+0, 0)) > 0, TRUE, FALSE)`;
-              
               row.push(formula);
           }
           routesData.push(row);
       });
-      
       newSheet.getRange(2, 1, routesData.length, routesData[0].length).setValues(routesData);
       newSheet.getRange(2, 8, routesData.length, driverNames.length).insertCheckboxes();
   }
@@ -228,13 +502,9 @@ function handleCreateTour(data, headers) {
   if(masterSheet) {
       masterSheet.appendRow([tourName, data.startDate, data.endDate, "LIVE", "", data.bannerUrl, newSheet.getSheetId()]);
   }
-
   return createJsonResponse({ status: "success", sheetName: tourName }, headers);
 }
 
-// -----------------------------------------------------------------
-// Action: Update Tour Status
-// -----------------------------------------------------------------
 function handleUpdateTourStatus(data, headers) {
   let { sheet } = getTargetSheet("TOUR_MASTER");
   let values = sheet.getDataRange().getValues();
@@ -248,9 +518,47 @@ function handleUpdateTourStatus(data, headers) {
   throw new Error("Tour not found in MASTER list");
 }
 
-// -----------------------------------------------------------------
-// Action: Add News
-// -----------------------------------------------------------------
+function handleUpdateTourMaster(data, headers) {
+  let { sheet } = getTargetSheet("TOUR_MASTER");
+  let values = sheet.getDataRange().getValues();
+  
+  for(let i=1; i<values.length; i++) {
+     if(String(values[i][0]).trim() === String(data.originalName).trim()) {
+         sheet.getRange(i+1, 1).setValue(data.tourName);
+         sheet.getRange(i+1, 2).setValue(data.startDate);
+         sheet.getRange(i+1, 3).setValue(data.endDate);
+         sheet.getRange(i+1, 6).setValue(data.bannerUrl);
+         
+         if (data.originalName !== data.tourName) {
+             try {
+                 let ss = sheet.getParent();
+                 let routeSheet = ss.getSheetByName(data.originalName);
+                 if(routeSheet) routeSheet.setName(data.tourName);
+             } catch(e) {}
+         }
+         return createJsonResponse({status: "success"}, headers);
+     }
+  }
+  throw new Error("Tour not found in MASTER list");
+}
+
+function handleDeleteTour(data, headers) {
+  let { sheet, ss } = getTargetSheet("TOUR_MASTER");
+  let values = sheet.getDataRange().getValues();
+  
+  for(let i = values.length - 1; i >= 1; i--) {
+     if(String(values[i][0]).trim() === String(data.tourName).trim()) {
+         sheet.deleteRow(i+1); 
+         try {
+             let routeSheet = ss.getSheetByName(data.tourName);
+             if(routeSheet) ss.deleteSheet(routeSheet); 
+         } catch(e) {}
+         return createJsonResponse({status: "success"}, headers);
+     }
+  }
+  throw new Error("Tour not found to delete");
+}
+
 function handleAddNews(data, headers) {
   let { sheet } = getTargetSheet("Website_News");
   let headerRow = sheet.getRange(1, 1, 1, 1).getValues()[0];
@@ -259,9 +567,6 @@ function handleAddNews(data, headers) {
   return createJsonResponse({status:"success"}, headers);
 }
 
-// -----------------------------------------------------------------
-// Action: Add Gallery
-// -----------------------------------------------------------------
 function handleAddGallery(data, headers) {
   let { sheet } = getTargetSheet("Website_Gallery");
   let headerRow = sheet.getRange(1, 1, 1, 1).getValues()[0];
@@ -270,36 +575,16 @@ function handleAddGallery(data, headers) {
   return createJsonResponse({status:"success"}, headers);
 }
 
-// -----------------------------------------------------------------
-// Action: Driver Recruitment Requests
-// -----------------------------------------------------------------
+// Fallback for old applications (Still here just in case)
 function handleSubmitApplication(data, headers) {
   let { sheet } = getTargetSheet("APPLICATIONS");
-  let headerRow = sheet.getRange(1, 1, 1, 1).getValues()[0];
-  if(headerRow[0] !== "DATE") { sheet.appendRow(["DATE", "NAME", "DISCORD", "STEAM", "TMP", "REASON", "STATUS"]); sheet.setFrozenRows(1); }
   sheet.appendRow([new Date().toLocaleString(), data.name, data.discord, data.steamId, data.tmpId, data.reason, "PENDING"]);
   return createJsonResponse({status:"success"}, headers);
 }
 
-function handleGetApplications(headers) {
-  let { sheet } = getTargetSheet("APPLICATIONS");
-  let values = sheet.getDataRange().getValues();
-  let apps = [];
-  for(let i=1; i<values.length; i++) {
-      if(values[i][6] === "PENDING") {
-          apps.push({ date: values[i][0], name: values[i][1], discord: values[i][2], tmpId: values[i][4], status: values[i][6] });
-      }
-  }
-  return createJsonResponse({status:"success", data: apps}, headers);
-}
-
-// -----------------------------------------------------------------
-// Action: Delete News
-// -----------------------------------------------------------------
 function handleDeleteNews(data, headers) {
   let { sheet } = getTargetSheet("Website_News");
   let values = sheet.getDataRange().getValues();
-  // Reverse search to safely delete rows without messing up indices
   for (let i = values.length - 1; i >= 1; i--) { 
       if (String(values[i][0]).trim() === String(data.title).trim()) {
           sheet.deleteRow(i + 1);
@@ -309,13 +594,9 @@ function handleDeleteNews(data, headers) {
   throw new Error("News item not found.");
 }
 
-// -----------------------------------------------------------------
-// Action: Delete Gallery
-// -----------------------------------------------------------------
 function handleDeleteGallery(data, headers) {
   let { sheet } = getTargetSheet("Website_Gallery");
   let values = sheet.getDataRange().getValues();
-  // Reverse search to safely delete rows without messing up indices
   for (let i = values.length - 1; i >= 1; i--) { 
       if (String(values[i][0]).trim() === String(data.image).trim()) {
           sheet.deleteRow(i + 1);

@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TNTC - Command Center</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -23,15 +25,19 @@
             }
         }
     </script>
+    
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #05070a; color: #f8fafc; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #05070a; }
         ::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        
         .glass-panel { background: rgba(12, 16, 23, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(2, 132, 199, 0.2); }
+        
         .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #38bdf8; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -83,7 +89,7 @@
             <button onclick="switchAdminTab('manage')" id="adm-btn-manage" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Manage Tours</button>
             <button onclick="switchAdminTab('news')" id="adm-btn-news" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Post News</button>
             <button onclick="switchAdminTab('gallery')" id="adm-btn-gallery" class="flex-1 py-4 px-6 text-sm font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Add Gallery</button>
-            <button onclick="switchAdminTab('recruit')" id="adm-btn-recruit" class="flex-1 py-4 px-6 text-sm font-bold text-yellow-500 border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Requests</button>
+            <button onclick="switchAdminTab('recruit')" id="adm-btn-recruit" class="flex-1 py-4 px-6 text-sm font-bold text-yellow-500 border-b-2 border-transparent hover:bg-tntc-hover transition-colors whitespace-nowrap tracking-wider uppercase">Manage Crew</button>
         </div>
 
         <div class="p-6 md:p-8 flex-1">
@@ -254,7 +260,6 @@
                     <button id="btnSubmitTour" onclick="submitNewTour()" class="flex-1 w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all flex items-center justify-center gap-2"><i id="submitTourIcon" data-lucide="folder-plus" class="w-5 h-5"></i> <span id="submitTourText">Generate Tour Manifest</span></button>
                 </div>
 
-                <!-- 🚀 LEADER PREVIEW SECTION FOR TOURS 🚀 -->
                 <div id="leaderTourManagement" class="hidden mt-12 pt-8 border-t border-tntc-muted/20">
                     <div class="flex items-center justify-between mb-6">
                         <div>
@@ -269,7 +274,6 @@
                 </div>
             </div>
 
-            <!-- Manage Tour Tab -->
             <div id="adm-tab-manage" class="hidden space-y-6">
                 <div class="bg-tntc-accent/10 border border-tntc-accent/30 p-5 rounded-xl flex items-start gap-4 shadow-sm mb-6">
                     <i data-lucide="radio" class="w-6 h-6 text-tntc-accent shrink-0 mt-0.5"></i>
@@ -344,7 +348,6 @@
                 </div>
             </div>
 
-            <!-- Gallery Tab -->
             <div id="adm-tab-gallery" class="hidden space-y-6">
                 <div class="flex items-center justify-between mb-4 mt-2">
                     <div>
@@ -371,37 +374,59 @@
                 </div>
             </div>
 
-            <!-- Driver Recruitment Tab -->
-            <div id="adm-tab-recruit" class="hidden space-y-6">
+            <div id="adm-tab-recruit" class="hidden space-y-8">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
                     <div>
-                        <h3 class="text-yellow-500 font-black text-lg uppercase tracking-wider">Driver Applications</h3>
-                        <p class="text-xs text-tntc-textSecondary">Review incoming requests from the official website.</p>
+                        <h3 class="text-yellow-500 font-black text-lg uppercase tracking-wider">Crew Management</h3>
+                        <p class="text-xs text-tntc-textSecondary">Approve new drivers and manage existing VTC roles.</p>
                     </div>
-                    <button onclick="fetchApplications()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2.5 rounded-lg font-black tracking-wider uppercase transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync Data</button>
+                    <button onclick="fetchCrewData()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2.5 rounded-lg font-black tracking-wider uppercase transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync Database</button>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar border border-tntc-muted/30 rounded-xl bg-tntc-card shadow-lg">
-                    <table class="w-full text-left text-sm text-tntc-textSecondary whitespace-nowrap">
-                        <thead class="text-xs font-black uppercase tracking-wider bg-tntc-main border-b border-tntc-muted/30 text-white">
-                            <tr>
-                                <th class="p-5">Date</th>
-                                <th class="p-5">Name</th>
-                                <th class="p-5">Discord</th>
-                                <th class="p-5">TMP ID</th>
-                                <th class="p-5">Status</th>
-                                <th class="p-5 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="applicationsTableBody" class="divide-y divide-tntc-muted/10 text-sm">
-                            <tr><td colspan="6" class="p-10 text-center text-tntc-textSecondary">Click sync to load applications from database.</td></tr>
-                        </tbody>
-                    </table>
+
+                <!-- Pending Applications -->
+                <div>
+                    <h4 class="text-xs font-black text-tntc-textSecondary uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4 text-tntc-accent"></i> Pending Applications</h4>
+                    <div class="overflow-x-auto custom-scrollbar border border-tntc-muted/30 rounded-xl bg-tntc-card shadow-lg">
+                        <table class="w-full text-left text-sm text-tntc-textSecondary whitespace-nowrap">
+                            <thead class="text-xs font-black uppercase tracking-wider bg-tntc-main border-b border-tntc-muted/30 text-white">
+                                <tr>
+                                    <th class="p-4">App Date</th>
+                                    <th class="p-4">Driver Details</th>
+                                    <th class="p-4">Discord / TMP</th>
+                                    <th class="p-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingTableBody" class="divide-y divide-tntc-muted/10 text-sm">
+                                <tr><td colspan="4" class="p-8 text-center text-tntc-textSecondary">Click sync to load data.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Active Roster -->
+                <div id="activeCrewContainer">
+                    <h4 class="text-xs font-black text-tntc-textSecondary uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-tntc-distance"></i> Active Fleet Roster</h4>
+                    <div class="overflow-x-auto custom-scrollbar border border-tntc-muted/30 rounded-xl bg-tntc-card shadow-lg">
+                        <table class="w-full text-left text-sm text-tntc-textSecondary whitespace-nowrap">
+                            <thead class="text-xs font-black uppercase tracking-wider bg-tntc-main border-b border-tntc-muted/30 text-white">
+                                <tr>
+                                    <th class="p-4">Join Date</th>
+                                    <th class="p-4">Driver Name</th>
+                                    <th class="p-4">Current Role</th>
+                                    <th class="p-4 text-right">Management</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeTableBody" class="divide-y divide-tntc-muted/10 text-sm">
+                                <tr><td colspan="4" class="p-8 text-center text-tntc-textSecondary">Click sync to load data.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
         </div>
     </main>
 
-    <!-- Custom System Alert Box -->
     <div id="customAlertBox" class="fixed top-6 right-6 max-w-sm w-full bg-tntc-card border border-tntc-muted/50 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] z-[100] hidden flex-col overflow-hidden msg-box-enter">
         <div id="alertHeader" class="px-4 py-2 bg-tntc-accent/20 border-b border-tntc-accent/30 flex items-center gap-2">
             <i id="alertIcon" data-lucide="info" class="w-4 h-4 text-tntc-accent"></i>
@@ -422,12 +447,12 @@
         // 🔴 UPDATE YOUR WEBAPP AND CSV URLS HERE! 🔴
         const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
         
-        // CSV Links for Live Preview in Admin Panel (Copied from home.js / core.js)
+        // CSV Links for Live Preview in Admin Panel
         const ADMIN_NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv";
         const ADMIN_GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
-        const ADMIN_APPS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=188998109&single=true&output=csv";
         const ADMIN_ASSETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1307238988&single=true&output=csv";
-
+        const ADMIN_APPS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=826810839&single=true&output=csv";
+        
         document.addEventListener("DOMContentLoaded", () => {
             const role = sessionStorage.getItem('tntc_role');
             if (role !== 'leader' && role !== 'admin') {
@@ -448,7 +473,6 @@
             addRouteRow();
         });
 
-        // Date Display Formatting Logic
         function updateDateDisplay(inputEl, displayId) {
             let displayEl = document.getElementById(displayId);
             if (!displayEl) return;
@@ -553,7 +577,7 @@
 
             // Trigger Automated Data Fetches
             if (tab === 'assets') refreshAssetPreview();
-            if (tab === 'recruit') fetchApplications();
+            if (tab === 'recruit') fetchCrewData();
             if (tab === 'manage') loadToursForAdmin();
             if (tab === 'news') fetchAdminNews();
             if (tab === 'gallery') fetchAdminGallery();
@@ -564,7 +588,6 @@
                 fetchAdminEvents();
             }
 
-            // 🚀 Leader Tour Management Auto-Fetch
             if (tab === 'tour' && role === 'leader') {
                 let ldrTourMgmt = document.getElementById('leaderTourManagement');
                 if (ldrTourMgmt) ldrTourMgmt.classList.remove('hidden');
@@ -572,42 +595,167 @@
             }
         }
 
-        function loadToursForAdmin() {
-            let select = document.getElementById('manageTourSelect');
-            if (!select) return;
-            
-            select.innerHTML = '<option value="">Fetching tours from database...</option>';
+        async function sendAdminRequest(payload, loadingMsg, successCallback = null) {
+            let overlay = document.getElementById('adminLoadingOverlay');
+            let txt = document.getElementById('adminLoadingText');
+            overlay.classList.remove('hidden'); overlay.classList.add('flex');
+            txt.innerText = loadingMsg;
 
-            if (typeof TOUR_SHEET_CSV_URL === 'undefined') {
-                select.innerHTML = '<option value="">Error: TOUR_SHEET_CSV_URL not found in core.js</option>';
+            try {
+                await fetch(ADMIN_WEBAPP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+                
+                showCustomAlert("Database Updated", "Success! The data was published successfully.\n\nChanges may take 1-3 minutes to reflect on the live grid.", false);
+                
+                if (successCallback) successCallback();
+                
+            } catch (error) {
+                showCustomAlert("Connection Error", "Failed to reach the database. Please check your internet connection and try again.", true);
+                console.error("Fetch Error:", error);
+            } finally {
+                overlay.classList.add('hidden'); overlay.classList.remove('flex');
+            }
+        }
+
+        function getYouTubeIdPreview(url) {
+            let videoId = "";
+            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
+            else if (url.includes("youtube.com/shorts/")) videoId = url.split("shorts/")[1].split("?")[0];
+            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1].split("&")[0];
+            else if (url.includes("embed/")) videoId = url.split("embed/")[1].split("?")[0];
+            return videoId;
+        }
+
+        function renderAssetPreview(url, isVideo, isUnsaved = false) {
+            const container = document.getElementById('assetPreviewContainer');
+            const badge = document.getElementById('previewStatusBadge');
+            
+            if (!container) return;
+
+            if (isUnsaved) {
+                badge.className = "bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border border-yellow-500/30";
+                badge.innerText = "Unsaved Changes";
+            } else {
+                badge.className = "bg-tntc-muted/20 text-tntc-textSecondary px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border border-tntc-muted/30";
+                badge.innerText = "Current Database";
+            }
+
+            if (!url) {
+                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="image-off" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-[10px] font-bold uppercase tracking-wider">No Asset Found</p></div>`;
+                lucide.createIcons();
                 return;
             }
 
-            Papa.parse(TOUR_SHEET_CSV_URL, {
-                download: true,
-                header: false,
-                skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let rows = results.data;
-                    
-                    if (rows.length <= 1) {
-                        select.innerHTML = '<option value="">No active tours found in Database</option>';
-                        return;
+            if (isVideo) {
+                let vId = getYouTubeIdPreview(url);
+                if(vId) {
+                    container.innerHTML = `<iframe class="w-full max-w-lg aspect-video rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-tntc-muted/30" src="https://www.youtube-nocookie.com/embed/${vId}?autoplay=0&rel=0&modestbranding=1" frameborder="0" allowfullscreen></iframe>`;
+                } else {
+                    container.innerHTML = `<div class="text-center text-red-500"><i data-lucide="alert-triangle" class="w-10 h-10 mx-auto mb-2 opacity-80"></i><p class="text-[10px] font-bold uppercase tracking-wider">Invalid YouTube URL</p></div>`;
+                }
+            } else {
+                container.innerHTML = `<img src="${url}" class="max-w-full max-h-[350px] object-contain rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-tntc-muted/30" onerror="this.src='https://placehold.co/600x400/0a0e14/ef4444?text=Invalid+Image+Link'">`;
+            }
+            lucide.createIcons();
+        }
+
+        function updateAssetPreview() {
+            const key = document.getElementById('assetKey').value;
+            const inputUrl = document.getElementById('assetUrl');
+            inputUrl.value = ""; 
+            let currentUrl = (window.globalSiteAssets && window.globalSiteAssets[key]) ? window.globalSiteAssets[key] : "";
+            renderAssetPreview(currentUrl, key === 'PROMO_VIDEO', false);
+        }
+
+        function liveUpdatePreview() {
+            const key = document.getElementById('assetKey').value;
+            const inputUrl = document.getElementById('assetUrl').value.trim();
+            if (!inputUrl) {
+                updateAssetPreview(); 
+                return;
+            }
+            renderAssetPreview(inputUrl, key === 'PROMO_VIDEO', true);
+        }
+
+        function refreshAssetPreview() {
+            let container = document.getElementById('assetPreviewContainer');
+            if(container) {
+                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 opacity-50 animate-spin"></i><p class="text-[10px] font-bold uppercase tracking-wider">Syncing Cloud...</p></div>`;
+            }
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+
+            if (typeof Papa !== 'undefined' && typeof ADMIN_ASSETS_CSV_URL !== 'undefined') {
+                Papa.parse(ADMIN_ASSETS_CSV_URL, {
+                    download: true,
+                    header: false,
+                    skipEmptyLines: 'greedy',
+                    complete: function(results) {
+                        if (results.data && results.data.length > 0) {
+                            if (!window.globalSiteAssets) window.globalSiteAssets = {};
+                            results.data.forEach(row => {
+                                let assetName = String(row[0]).trim().toUpperCase();
+                                let assetUrl = String(row[1]).trim();
+                                if (assetName && assetUrl) {
+                                    window.globalSiteAssets[assetName] = assetUrl;
+                                }
+                            });
+                            updateAssetPreview(); 
+                        } else {
+                            renderAssetPreview("", false, false);
+                        }
+                    },
+                    error: function(err) {
+                        console.error("Preview Sync Error:", err);
+                        renderAssetPreview("", false, false);
                     }
-                    
-                    let html = '<option value="">-- Select Active Tour --</option>';
-                    for (let i = 1; i < rows.length; i++) {
-                        let tName = String(rows[i][0]).trim();
-                        let tStatus = String(rows[i][3]).trim().toUpperCase();
-                        if (!tName) continue;
-                        
-                        let emoji = tStatus === 'LIVE' ? '🟢' : 
-                                    tStatus === 'COMING SOON' || tStatus === 'COMING_SOON' ? '🔵' :
-                                    tStatus === 'PAUSED' ? '🟡' : '🔴';
-                        
-                        html += `<option value="${tName}">${emoji} ${tName} (${tStatus})</option>`;
-                    }
-                    select.innerHTML = html;
+                });
+            }
+        }
+
+        async function submitAssetUpdate() {
+            let payload = { action: "UPDATE_ASSET", data: { assetKey: document.getElementById('assetKey').value, newUrl: document.getElementById('assetUrl').value } };
+            if(!payload.data.newUrl) { showCustomAlert("Validation Failed", "Please enter a valid Image/Video URL.", true); return; }
+            await sendAdminRequest(payload, "Updating Site Assets...", () => { 
+                document.getElementById('assetUrl').value = '';
+                refreshAssetPreview(); 
+            });
+        }
+
+        window.editEventMode = false;
+        window.editOriginalDate = "";
+        window.editOriginalName = "";
+        window.adminEventsList = [];
+
+        async function submitNewEvent() {
+            let payload = {
+                action: window.editEventMode ? "UPDATE_EVENT" : "ADD_EVENT",
+                data: {
+                    eventName: document.getElementById('addEvName').value,
+                    date: document.getElementById('addEvDate').value,
+                    category: document.getElementById('addEvCat').value,
+                    link: document.getElementById('addEvLink').value,
+                    imageLink: document.getElementById('addEvImage').value,
+                    attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
+                }
+            };
+            
+            if(window.editEventMode) {
+                payload.data.originalDate = window.editOriginalDate;
+                payload.data.originalName = window.editOriginalName;
+            }
+
+            if(!payload.data.eventName || !payload.data.date) { showCustomAlert("Validation Failed", "Event Name and Date are required!", true); return; }
+            
+            let loadMsg = window.editEventMode ? "Updating Event Record..." : "Publishing Event Data...";
+            
+            await sendAdminRequest(payload, loadMsg, () => {
+                cancelEventEdit(); 
+                if(sessionStorage.getItem('tntc_role') === 'leader') {
+                    setTimeout(fetchAdminEvents, 3000);
                 }
             });
         }
@@ -667,98 +815,6 @@
             });
         }
 
-        function addRouteRow() {
-            let container = document.getElementById('route-container');
-            if(!container) return;
-            let div = document.createElement('div');
-            
-            div.className = "grid grid-cols-2 md:grid-cols-6 gap-3 route-row bg-[#0a0d14] p-4 rounded-xl border border-tntc-muted/30 mb-3 relative group";
-            div.innerHTML = `
-                <input type="text" placeholder="Source City" class="route-src bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Source Co." class="route-src-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Dest City" class="route-dst bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Dest Co." class="route-dst-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="number" placeholder="Distance (KM)" class="route-km bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
-                <input type="text" placeholder="Image URL" class="route-img bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
-                
-                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_rgba(220,38,38,0.5)]" title="Remove Route">
-                    <i data-lucide="x" class="w-3 h-3"></i>
-                </button>
-            `;
-            container.appendChild(div);
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        async function sendAdminRequest(payload, loadingMsg, successCallback = null) {
-            let overlay = document.getElementById('adminLoadingOverlay');
-            let txt = document.getElementById('adminLoadingText');
-            overlay.classList.remove('hidden'); overlay.classList.add('flex');
-            txt.innerText = loadingMsg;
-
-            try {
-                await fetch(ADMIN_WEBAPP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(payload)
-                });
-                
-                showCustomAlert("Database Updated", "Success! The data was published successfully.\n\nChanges may take 1-3 minutes to reflect on the live grid.", false);
-                
-                if (successCallback) successCallback();
-                
-            } catch (error) {
-                showCustomAlert("Connection Error", "Failed to reach the database. Please check your internet connection and try again.", true);
-                console.error("Fetch Error:", error);
-            } finally {
-                overlay.classList.add('hidden'); overlay.classList.remove('flex');
-            }
-        }
-
-        async function submitAssetUpdate() {
-            let payload = { action: "UPDATE_ASSET", data: { assetKey: document.getElementById('assetKey').value, newUrl: document.getElementById('assetUrl').value } };
-            if(!payload.data.newUrl) { showCustomAlert("Validation Failed", "Please enter a valid Image/Video URL.", true); return; }
-            await sendAdminRequest(payload, "Updating Site Assets...", () => { 
-                document.getElementById('assetUrl').value = '';
-                refreshAssetPreview(); 
-            });
-        }
-
-        window.editEventMode = false;
-        window.editOriginalDate = "";
-        window.editOriginalName = "";
-        window.adminEventsList = [];
-
-        async function submitNewEvent() {
-            let payload = {
-                action: window.editEventMode ? "UPDATE_EVENT" : "ADD_EVENT",
-                data: {
-                    eventName: document.getElementById('addEvName').value,
-                    date: document.getElementById('addEvDate').value,
-                    category: document.getElementById('addEvCat').value,
-                    link: document.getElementById('addEvLink').value,
-                    imageLink: document.getElementById('addEvImage').value,
-                    attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
-                }
-            };
-            
-            if(window.editEventMode) {
-                payload.data.originalDate = window.editOriginalDate;
-                payload.data.originalName = window.editOriginalName;
-            }
-
-            if(!payload.data.eventName || !payload.data.date) { showCustomAlert("Validation Failed", "Event Name and Date are required!", true); return; }
-            
-            let loadMsg = window.editEventMode ? "Updating Event Record..." : "Publishing Event Data...";
-            
-            await sendAdminRequest(payload, loadMsg, () => {
-                cancelEventEdit(); 
-                if(sessionStorage.getItem('tntc_role') === 'leader') {
-                    setTimeout(fetchAdminEvents, 3000);
-                }
-            });
-        }
-
         function fetchAdminEvents() {
             let grid = document.getElementById('adminEventGrid');
             if(!grid) return;
@@ -806,7 +862,7 @@
                             }
                         });
 
-                        validEvents.reverse(); // Newest first
+                        validEvents.reverse(); 
                         window.adminEventsList = validEvents;
 
                         validEvents.forEach((ev, idx) => {
@@ -917,13 +973,34 @@
         window.editOriginalTourName = "";
         window.adminToursList = [];
 
+        function addRouteRow() {
+            let container = document.getElementById('route-container');
+            if(!container) return;
+            let div = document.createElement('div');
+            
+            div.className = "grid grid-cols-2 md:grid-cols-6 gap-3 route-row bg-[#0a0d14] p-4 rounded-xl border border-tntc-muted/30 mb-3 relative group";
+            div.innerHTML = `
+                <input type="text" placeholder="Source City" class="route-src bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Source Co." class="route-src-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Dest City" class="route-dst bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Dest Co." class="route-dst-co bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="number" placeholder="Distance (KM)" class="route-km bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
+                <input type="text" placeholder="Image URL" class="route-img bg-tntc-main border border-tntc-muted/50 rounded-lg p-2.5 h-[42px] text-xs text-white outline-none focus:border-tntc-accent">
+                
+                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_rgba(220,38,38,0.5)]" title="Remove Route">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                </button>
+            `;
+            container.appendChild(div);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         async function submitNewTour() {
             let tName = document.getElementById('addTourName').value;
             let sDate = document.getElementById('addTourStart').value;
             if(!tName || !sDate) { showCustomAlert("Validation Failed", "Tour Name and Start Date are required!", true); return; }
             let sD = new Date(sDate);
 
-            // IF EDIT MODE (Only updating meta-data)
             if (window.editTourMode) {
                 let payload = {
                     action: "UPDATE_TOUR_MASTER",
@@ -942,7 +1019,6 @@
                 return;
             }
 
-            // NORMAL CREATE MODE
             let routes = [];
             document.querySelectorAll('.route-row').forEach(row => {
                 routes.push({
@@ -1106,6 +1182,46 @@
             );
         }
 
+        function loadToursForAdmin() {
+            let select = document.getElementById('manageTourSelect');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Fetching tours from database...</option>';
+
+            if (typeof TOUR_SHEET_CSV_URL === 'undefined') {
+                select.innerHTML = '<option value="">Error: TOUR_SHEET_CSV_URL not found in core.js</option>';
+                return;
+            }
+
+            Papa.parse(TOUR_SHEET_CSV_URL, {
+                download: true,
+                header: false,
+                skipEmptyLines: 'greedy',
+                complete: function(results) {
+                    let rows = results.data;
+                    
+                    if (rows.length <= 1) {
+                        select.innerHTML = '<option value="">No active tours found in Database</option>';
+                        return;
+                    }
+                    
+                    let html = '<option value="">-- Select Active Tour --</option>';
+                    for (let i = 1; i < rows.length; i++) {
+                        let tName = String(rows[i][0]).trim();
+                        let tStatus = String(rows[i][3]).trim().toUpperCase();
+                        if (!tName) continue;
+                        
+                        let emoji = tStatus === 'LIVE' ? '🟢' : 
+                                    tStatus === 'COMING SOON' || tStatus === 'COMING_SOON' ? '🔵' :
+                                    tStatus === 'PAUSED' ? '🟡' : '🔴';
+                        
+                        html += `<option value="${tName}">${emoji} ${tName} (${tStatus})</option>`;
+                    }
+                    select.innerHTML = html;
+                }
+            });
+        }
+
         async function submitTourStatusUpdate() {
             let payload = { action: "UPDATE_TOUR_STATUS", data: { tourName: document.getElementById('manageTourSelect').value, status: document.getElementById('manageTourStatus').value, reason: document.getElementById('manageTourReason').value } };
             if(!payload.data.tourName) { showCustomAlert("Validation Failed", "Please select a tour.", true); return; }
@@ -1256,171 +1372,105 @@
             );
         }
 
-        async function fetchApplications() {
-            let tbody = document.getElementById('applicationsTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-yellow-500 font-bold"><i data-lucide="loader" class="w-5 h-5 inline animate-spin mr-2"></i> Syncing records from cloud...</td></tr>';
+        async function fetchCrewData() {
+            let pendingBody = document.getElementById('pendingTableBody');
+            let activeBody = document.getElementById('activeTableBody');
+            if (pendingBody) pendingBody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-yellow-500 font-bold"><i data-lucide="loader" class="w-4 h-4 inline animate-spin mr-2"></i> Syncing applications...</td></tr>';
+            if (activeBody) activeBody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-yellow-500 font-bold"><i data-lucide="loader" class="w-4 h-4 inline animate-spin mr-2"></i> Syncing fleet roster...</td></tr>';
             lucide.createIcons();
 
-            Papa.parse(ADMIN_APPS_CSV_URL, {
-                download: true,
-                header: true, 
-                skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let data = results.data;
-                    let pendingApps = data.filter(app => app.STATUS && app.STATUS.toUpperCase() === 'PENDING');
-
-                    if (pendingApps.length > 0) {
-                        let html = '';
-                        pendingApps.forEach(app => {
-                            let safeDate = String(app.DATE || '').split(',')[0];
-                            let name = app.NAME || 'N/A';
-                            let discord = app.DISCORD || 'N/A';
-                            let tmpId = app.TMP || 'N/A';
-                            let status = app.STATUS || 'PENDING';
-                            let steamId = app.STEAM || 'N/A';
-                            let reason = app.REASON || 'N/A';
-
-                            html += `
+            try {
+                const response = await fetch(ADMIN_WEBAPP_URL + "?action=GET_USERS", { method: 'GET' });
+                const result = await response.json();
+                
+                if (result.status === "success" && result.data) {
+                    let pendingHtml = '';
+                    let activeHtml = '';
+                    let role = sessionStorage.getItem('tntc_role');
+                    
+                    result.data.forEach(user => {
+                        if (user.status === 'PENDING') {
+                            pendingHtml += `
                             <tr class="hover:bg-tntc-hover transition-colors">
-                                <td class="p-5 font-mono text-tntc-textSecondary">${safeDate}</td>
-                                <td class="p-5 font-black text-white">${name}</td>
-                                <td class="p-5 font-bold text-yellow-500">${discord}</td>
-                                <td class="p-5 font-mono">${tmpId}</td>
-                                <td class="p-5"><span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-1.5 rounded text-[10px] font-black uppercase tracking-widest shadow-sm">${status}</span></td>
-                                <td class="p-5 text-right">
-                                    <button onclick="viewApplicationDetails('${name}', '${discord}', '${steamId}', '${tmpId}', '${reason.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover hover:border-tntc-accent/50 rounded-lg text-xs font-semibold text-tntc-accent inline-flex items-center gap-1.5 transition-all shadow-sm">
-                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
+                                <td class="p-4 font-mono text-tntc-textSecondary">${user.joinDate || 'New'}</td>
+                                <td class="p-4 font-black text-white">${user.username} <span class="block text-[10px] text-tntc-accent font-mono mt-0.5">Tracker: ${user.trackerName}</span></td>
+                                <td class="p-4 font-bold text-yellow-500">${user.discord} <span class="text-tntc-textSecondary font-mono block text-[10px]">TMP: ${user.tmp}</span></td>
+                                <td class="p-4 text-right flex justify-end gap-2">
+                                    <button onclick="approveUserAccount('${user.username}', '${user.trackerName}')" class="px-3 py-1.5 bg-tntc-distance/10 border border-tntc-distance/30 hover:bg-tntc-distance hover:text-[#05070a] rounded-lg text-xs font-semibold text-tntc-distance inline-flex items-center gap-1.5 transition-all shadow-sm">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i> Approve
+                                    </button>
+                                    <button onclick="viewApplicationDetails('${user.username}', '${user.trackerName}', '${user.discord}', '${user.tmp}', '${(user.reason||'').replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-tntc-main border border-tntc-muted/30 hover:bg-tntc-hover hover:border-tntc-accent/50 rounded-lg text-xs font-semibold text-tntc-accent inline-flex items-center gap-1.5 transition-all shadow-sm">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </td>
                             </tr>`;
-                        });
-                        tbody.innerHTML = html;
-                        lucide.createIcons();
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-tntc-textSecondary">No pending applications found.</td></tr>';
-                    }
-                },
-                error: function(err) {
-                    console.error("Fetch Error:", err);
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Error loading data.</td></tr>';
+                        } else if (user.status === 'ACTIVE') {
+                            let roleColor = user.role.toUpperCase() === 'LEADER' ? 'text-amber-500 bg-amber-500/10 border-amber-500/30' : 
+                                            user.role.toUpperCase() === 'ADMIN' ? 'text-red-400 bg-red-500/10 border-red-500/30' : 
+                                            'text-tntc-accent bg-tntc-accent/10 border-tntc-accent/30';
+                                            
+                            let manageControls = "";
+                            if (role === 'leader' && user.username !== 'MASTER') {
+                                manageControls = `
+                                    <select onchange="manageUserRole('${user.username}', this.value)" class="bg-tntc-main border border-tntc-muted/50 text-white rounded text-[10px] px-2 py-1 outline-none focus:border-yellow-500">
+                                        <option value="" disabled selected>Change Role</option>
+                                        <option value="RIDER">Make Rider</option>
+                                        <option value="ADMIN">Make Admin</option>
+                                    </select>
+                                    <button onclick="suspendUser('${user.username}')" class="px-2 py-1 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white rounded text-[10px] font-semibold text-red-500 transition-colors">Suspend</button>
+                                `;
+                            } else if (role === 'admin' && user.role.toUpperCase() === 'RIDER') {
+                                manageControls = `
+                                    <button onclick="suspendUser('${user.username}')" class="px-2 py-1 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white rounded text-[10px] font-semibold text-red-500 transition-colors">Suspend</button>
+                                `;
+                            }
+
+                            activeHtml += `
+                            <tr class="hover:bg-tntc-hover transition-colors">
+                                <td class="p-4 font-mono text-tntc-textSecondary text-[10px]">${user.joinDate}</td>
+                                <td class="p-4 font-black text-white">${user.username} <span class="block text-[10px] text-tntc-textSecondary font-mono mt-0.5">Tracker: ${user.trackerName}</span></td>
+                                <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-black tracking-widest uppercase border shadow-sm ${roleColor}">${user.role}</span></td>
+                                <td class="p-4 text-right flex justify-end gap-2 items-center h-full">${manageControls}</td>
+                            </tr>`;
+                        }
+                    });
+
+                    if (pendingBody) pendingBody.innerHTML = pendingHtml || '<tr><td colspan="4" class="p-8 text-center text-tntc-textSecondary">No pending applications found.</td></tr>';
+                    if (activeBody) activeBody.innerHTML = activeHtml || '<tr><td colspan="4" class="p-8 text-center text-tntc-textSecondary">No active drivers found.</td></tr>';
                     lucide.createIcons();
                 }
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                if (pendingBody) pendingBody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-red-500 font-bold"><i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> Error loading data from code.gs</td></tr>';
+                lucide.createIcons();
+            }
+        }
+
+        async function approveUserAccount(username, tracker) {
+            showCustomAlert("Approve Driver", `Are you sure you want to approve ${username}?\nThis will activate their account and add their Tracker Name (${tracker}) to the Event Sheet.`, false, async () => {
+                let payload = { action: "APPROVE_USER", data: { username: username } };
+                await sendAdminRequest(payload, "Approving Driver...", () => { setTimeout(fetchCrewData, 2000); });
             });
         }
 
-        function viewApplicationDetails(name, discord, steamId, tmpId, reason) {
+        async function manageUserRole(username, newRole) {
+            showCustomAlert("Change Role", `Are you sure you want to change ${username}'s role to ${newRole}?`, false, async () => {
+                let payload = { action: "MANAGE_USER", data: { username: username, actionType: "CHANGE_ROLE", newRole: newRole } };
+                await sendAdminRequest(payload, "Updating Role...", () => { setTimeout(fetchCrewData, 2000); });
+            });
+        }
+
+        async function suspendUser(username) {
+            showCustomAlert("Suspend Driver", `Are you sure you want to suspend ${username}?\nThey will lose dashboard access and their future tracker data will be ignored.`, true, async () => {
+                let payload = { action: "MANAGE_USER", data: { username: username, actionType: "SUSPEND" } };
+                await sendAdminRequest(payload, "Suspending Driver...", () => { setTimeout(fetchCrewData, 2000); });
+            });
+        }
+
+        function viewApplicationDetails(name, tracker, discord, tmpId, reason) {
             const title = `Application: ${name}`;
-            const message = `
-Discord: ${discord}
-Steam ID: ${steamId}
-TMP ID: ${tmpId}
-
-Reason for joining:
-${reason}
-            `;
+            const message = `Tracker Name: ${tracker}\nDiscord: ${discord}\nTMP ID: ${tmpId}\n\nReason for joining:\n${reason}`;
             showCustomAlert(title, message, false);
-        }
-
-        function getYouTubeIdPreview(url) {
-            let videoId = "";
-            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
-            else if (url.includes("youtube.com/shorts/")) videoId = url.split("shorts/")[1].split("?")[0];
-            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1].split("&")[0];
-            else if (url.includes("embed/")) videoId = url.split("embed/")[1].split("?")[0];
-            return videoId;
-        }
-
-        function renderAssetPreview(url, isVideo, isUnsaved = false) {
-            const container = document.getElementById('assetPreviewContainer');
-            const badge = document.getElementById('previewStatusBadge');
-            
-            if (!container) return;
-
-            if (isUnsaved) {
-                badge.className = "bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border border-yellow-500/30";
-                badge.innerText = "Unsaved Changes";
-            } else {
-                badge.className = "bg-tntc-muted/20 text-tntc-textSecondary px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border border-tntc-muted/30";
-                badge.innerText = "Current Database";
-            }
-
-            if (!url) {
-                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="image-off" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-[10px] font-bold uppercase tracking-wider">No Asset Found</p></div>`;
-                lucide.createIcons();
-                return;
-            }
-
-            if (isVideo) {
-                let vId = getYouTubeIdPreview(url);
-                if(vId) {
-                    container.innerHTML = `<iframe class="w-full max-w-lg aspect-video rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-tntc-muted/30" src="https://www.youtube-nocookie.com/embed/${vId}?autoplay=0&rel=0&modestbranding=1" frameborder="0" allowfullscreen></iframe>`;
-                } else {
-                    container.innerHTML = `<div class="text-center text-red-500"><i data-lucide="alert-triangle" class="w-10 h-10 mx-auto mb-2 opacity-80"></i><p class="text-[10px] font-bold uppercase tracking-wider">Invalid YouTube URL</p></div>`;
-                }
-            } else {
-                container.innerHTML = `<img src="${url}" class="max-w-full max-h-[350px] object-contain rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-tntc-muted/30" onerror="this.src='https://placehold.co/600x400/0a0e14/ef4444?text=Invalid+Image+Link'">`;
-            }
-            lucide.createIcons();
-        }
-
-        function updateAssetPreview() {
-            const key = document.getElementById('assetKey').value;
-            const inputUrl = document.getElementById('assetUrl');
-            inputUrl.value = ""; // Clear input box when switching assets
-            
-            // Check if globalSiteAssets exists
-            let currentUrl = (window.globalSiteAssets && window.globalSiteAssets[key]) ? window.globalSiteAssets[key] : "";
-            renderAssetPreview(currentUrl, key === 'PROMO_VIDEO', false);
-        }
-
-        function liveUpdatePreview() {
-            const key = document.getElementById('assetKey').value;
-            const inputUrl = document.getElementById('assetUrl').value.trim();
-            
-            if (!inputUrl) {
-                updateAssetPreview(); // Revert to database version if input is cleared
-                return;
-            }
-            
-            renderAssetPreview(inputUrl, key === 'PROMO_VIDEO', true);
-        }
-
-        function refreshAssetPreview() {
-            let container = document.getElementById('assetPreviewContainer');
-            if(container) {
-                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 opacity-50 animate-spin"></i><p class="text-[10px] font-bold uppercase tracking-wider">Syncing Cloud...</p></div>`;
-            }
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-
-            // Direct fetch guarantees we only update the UI AFTER data successfully arrives
-            if (typeof Papa !== 'undefined' && typeof ADMIN_ASSETS_CSV_URL !== 'undefined') {
-                Papa.parse(ADMIN_ASSETS_CSV_URL, {
-                    download: true,
-                    header: false,
-                    skipEmptyLines: 'greedy',
-                    complete: function(results) {
-                        if (results.data && results.data.length > 0) {
-                            if (!window.globalSiteAssets) window.globalSiteAssets = {};
-                            
-                            results.data.forEach(row => {
-                                let assetName = String(row[0]).trim().toUpperCase();
-                                let assetUrl = String(row[1]).trim();
-                                if (assetName && assetUrl) {
-                                    window.globalSiteAssets[assetName] = assetUrl;
-                                }
-                            });
-                            // Trigger the UI update exactly when data is ready!
-                            updateAssetPreview(); 
-                        } else {
-                            renderAssetPreview("", false, false);
-                        }
-                    },
-                    error: function(err) {
-                        console.error("Preview Sync Error:", err);
-                        renderAssetPreview("", false, false);
-                    }
-                });
-            }
         }
     </script>
 </body>

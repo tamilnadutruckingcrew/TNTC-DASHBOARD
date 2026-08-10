@@ -9,7 +9,9 @@ const JOB_LOGS_URLS = [
 
 const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
 const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
-const APP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
+
+// 🔴 YOUR GOOGLE APPS SCRIPT WEB APP URL (RENAMED TO PREVENT VAR COLLISIONS) 🔴
+const HOME_APP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof lucide !== 'undefined') {
@@ -21,6 +23,124 @@ document.addEventListener("DOMContentLoaded", () => {
     initScrollReveal();
 });
 
+// ==========================================
+// USER AUTHENTICATION & REGISTRATION
+// ==========================================
+let redirectTarget = "dashboard.html"; 
+
+function secureDownloadLogin() {
+    redirectTarget = "dashboard.html?tab=overview"; 
+    if(typeof openAuthModal === 'function') openAuthModal('login');
+}
+
+// 🔐 BULLETPROOF LOGIN ENGINE
+async function submitLogin() {
+    const user = document.getElementById('loginUsername').value.trim();
+    const pass = document.getElementById('loginPassword').value.trim();
+    const errorMsg = document.getElementById('loginErrorMsg');
+    const btn = document.getElementById('btnLoginSubmit');
+
+    if (!user || !pass) {
+        errorMsg.innerText = "Username and Password required!";
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+
+    errorMsg.classList.add('hidden');
+    let originalBtnText = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Verifying...`;
+    btn.disabled = true;
+
+    // Construct the GET URL
+    const url = `${HOME_APP_URL}?action=LOGIN_USER&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
+
+    try {
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === "success") {
+            sessionStorage.setItem('tntc_role', result.user.role);
+            sessionStorage.setItem('tntc_username', result.user.username);
+            sessionStorage.setItem('tntc_tracker', result.user.trackerName);
+            window.location.href = redirectTarget;
+        } else {
+            errorMsg.innerText = result.message || "Invalid credentials or account pending.";
+            errorMsg.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error("Login Error:", err);
+        errorMsg.innerText = "Connection error. Ensure script is deployed correctly.";
+        errorMsg.classList.remove('hidden');
+    } finally {
+        btn.innerHTML = originalBtnText;
+        btn.disabled = false;
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+// 📝 BULLETPROOF REGISTRATION ENGINE
+async function submitRegister() {
+    const btn = document.getElementById('btnRegSubmit');
+    const errorMsg = document.getElementById('regErrorMsg');
+    const successMsg = document.getElementById('regSuccessMsg');
+
+    const user = document.getElementById('regUsername').value.trim();
+    const tracker = document.getElementById('regTracker').value.trim();
+    const pass = document.getElementById('regPassword').value.trim();
+    const discord = document.getElementById('regDiscord').value.trim();
+    const steam = document.getElementById('regSteam').value.trim();
+    const tmp = document.getElementById('regTMP').value.trim();
+    const reason = document.getElementById('regReason').value.trim();
+
+    if (!user || !pass || !tracker) {
+        errorMsg.innerText = "Username, Tracker Name, and Password are required!";
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+
+    errorMsg.classList.add('hidden');
+    successMsg.classList.add('hidden');
+    
+    let originalBtnText = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Submitting...`;
+    btn.disabled = true;
+
+    // Construct the GET URL
+    const url = `${HOME_APP_URL}?action=REGISTER_USER&username=${encodeURIComponent(user)}&trackerName=${encodeURIComponent(tracker)}&password=${encodeURIComponent(pass)}&discord=${encodeURIComponent(discord)}&steamId=${encodeURIComponent(steam)}&tmpId=${encodeURIComponent(tmp)}&reason=${encodeURIComponent(reason)}`;
+
+    try {
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === "success") {
+            successMsg.innerText = result.message || "Application Submitted! Wait for Admin Approval.";
+            successMsg.classList.remove('hidden');
+            
+            ['regUsername', 'regTracker', 'regPassword', 'regDiscord', 'regSteam', 'regTMP', 'regReason'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            setTimeout(() => {
+                if(typeof switchAuthTab === 'function') switchAuthTab('login');
+            }, 3000);
+        } else {
+            errorMsg.innerText = result.message || "Registration failed. Username may already exist.";
+            errorMsg.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error("Register Error:", err);
+        errorMsg.innerText = "Connection error. Please try again.";
+        errorMsg.classList.remove('hidden');
+    } finally {
+        btn.innerHTML = originalBtnText;
+        btn.disabled = false;
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+// ==========================================
+// VTC STATS & MARQUEE ENGINE
+// ==========================================
 function loadStatsAndMarquee() {
     let marqueeEl = document.getElementById('marqueeData');
     if(!marqueeEl) return; 
@@ -162,6 +282,9 @@ function drawOrbitCurve(progress) {
     }, 500);
 }
 
+// ==========================================
+// CONTENT ENGINES (NEWS & GALLERY)
+// ==========================================
 function loadNews() {
     let container = document.getElementById('newsContainer');
     if(!container) return; 
@@ -177,7 +300,6 @@ function loadNews() {
                 let newsSection = document.getElementById('news');
                 if(newsSection) newsSection.classList.remove('hidden');
                 
-                // Thelivaana Date Based Sorting (Newest First)
                 let sortedNews = [...results.data].sort((a, b) => {
                     let dateA = new Date(a.DATE).getTime() || 0;
                     let dateB = new Date(b.DATE).getTime() || 0;
@@ -189,7 +311,6 @@ function loadNews() {
                 
                 previewItems.forEach(item => {
                     if(item.TITLE) {
-                        // FIXED: Safe string escape for modal interaction
                         let safeTitle = (item.TITLE || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                         let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -235,7 +356,6 @@ function loadGallery() {
                 if(gallerySection) gallerySection.classList.remove('hidden');
 
                 let html = "";
-                // Reverse to get the latest uploads first
                 let previewImages = [...results.data].reverse().slice(0, 4);
 
                 previewImages.forEach(item => {
@@ -250,113 +370,6 @@ function loadGallery() {
             }
         }
     });
-}
-
-let redirectTarget = "dashboard.html"; 
-
-function secureDownloadLogin() {
-    redirectTarget = "dashboard.html?tab=overview"; 
-    let modal = document.getElementById('authModal');
-    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-}
-
-function openAuthModal() {
-    redirectTarget = "dashboard.html";
-    let modal = document.getElementById('authModal');
-    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-}
-
-function closeAuthModal() {
-    let modal = document.getElementById('authModal');
-    if(modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
-}
-
-// THE NEW 3-TIER AUTHENTICATION ENGINE
-function authenticateCrew() {
-    const pass = document.getElementById('passcode').value.trim();
-    const errorMsg = document.getElementById('loginErrorMsg');
-    let role = '';
-    
-    // 3 Tier Verification
-    if (pass === 'TNTC@LEADER') {
-        role = 'leader';
-    } else if (pass === 'TNTC@ADMIN') {
-        role = 'admin';
-    } else if (pass === 'TNTC@RIDER') {
-        role = 'driver';
-    }
-    
-    if (role) {
-        if(errorMsg) errorMsg.classList.add('hidden');
-        sessionStorage.setItem('tntc_role', role);
-        window.location.href = redirectTarget; 
-    } else {
-        if(errorMsg) {
-            errorMsg.classList.remove('hidden');
-        } else {
-            alert('Invalid Passcode!');
-        }
-    }
-}
-
-function openApplyModal() {
-    let modal = document.getElementById('applyModal');
-    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-}
-
-function closeApplyModal() {
-    let modal = document.getElementById('applyModal');
-    if(modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
-}
-
-async function submitApplication(e) {
-    e.preventDefault();
-    if(APP_URL.includes("YOUR_")) {
-        alert("Admin needs to connect the Database URL in home.js first!");
-        return;
-    }
-
-    const btn = document.getElementById('btnSubmitApp');
-    if(!btn) return;
-
-    btn.innerText = "Sending...";
-    btn.disabled = true;
-    
-    const payload = {
-        action: "SUBMIT_APPLICATION",
-        data: {
-            name: document.getElementById('appName').value,
-            steamId: document.getElementById('appSteam').value,
-            tmpId: document.getElementById('appTMP').value,
-            discord: document.getElementById('appDiscord').value,
-            reason: document.getElementById('appReason').value
-        }
-    };
-    
-    try {
-        await fetch(APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(payload)
-        });
-        btn.innerText = "Application Sent!";
-        btn.classList.add('bg-green-500', 'text-white');
-        btn.classList.remove('bg-yellow-500', 'text-black');
-        setTimeout(() => {
-            closeApplyModal();
-            let form = document.getElementById('applicationForm');
-            if(form) form.reset();
-            btn.innerText = "Submit Application";
-            btn.classList.remove('bg-green-500', 'text-white');
-            btn.classList.add('bg-yellow-500', 'text-black');
-            btn.disabled = false;
-        }, 2000);
-    } catch (err) {
-        alert("Error sending application.");
-        btn.innerText = "Submit Application";
-        btn.disabled = false;
-    }
 }
 
 // ==========================================

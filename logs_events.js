@@ -46,7 +46,19 @@ function populateJobDriverDropdown() {
     Array.from(driverMap.keys()).sort().forEach(norm => { 
         dropdown.innerHTML += `<option value="${norm}">${driverMap.get(norm)}</option>`; 
     });
-    dropdown.value = currentVal || 'ALL';
+    
+    // 🚀 AUTO-LOGIN SELECTION LOGIC 🚀
+    let trackerName = sessionStorage.getItem('tntc_tracker');
+    if (trackerName && (!currentVal || currentVal === 'ALL' || currentVal === '')) {
+        let normTracker = safeNormalize(trackerName);
+        if (driverMap.has(normTracker)) {
+            dropdown.value = normTracker; // Auto-select logged-in user
+        } else {
+            dropdown.value = 'ALL';
+        }
+    } else {
+        dropdown.value = currentVal || 'ALL';
+    }
 }
 
 function applyLogFilters() {
@@ -214,7 +226,19 @@ function populateEventDriverDropdown() {
     Array.from(driverMap.keys()).sort().forEach(norm => { 
         dropdown.innerHTML += `<option value="${norm}">${driverMap.get(norm)}</option>`; 
     });
-    dropdown.value = currentVal || 'ALL';
+
+    // 🚀 AUTO-LOGIN SELECTION LOGIC 🚀
+    let trackerName = sessionStorage.getItem('tntc_tracker');
+    if (trackerName && (!currentVal || currentVal === 'ALL' || currentVal === '')) {
+        let normTracker = safeNormalize(trackerName);
+        if (driverMap.has(normTracker)) {
+            dropdown.value = normTracker; // Auto-select logged-in user
+        } else {
+            dropdown.value = 'ALL';
+        }
+    } else {
+        dropdown.value = currentVal || 'ALL';
+    }
 }
 
 function applyEventFilters() {
@@ -298,7 +322,6 @@ function applyEventFilters() {
         renderEventPage(1);
     } catch (err) {
         let tbody = document.getElementById('filteredEventTableBody');
-        // Keep the user on their current page instead of resetting to 1
         let savedPage = typeof currentEventPage !== 'undefined' ? currentEventPage : 1;
         renderEventPage(savedPage);
         if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-red-500 font-bold p-6 text-center">System Error: ${err.message}</td></tr>`;
@@ -367,7 +390,7 @@ function renderEventPage(page) {
 }
 
 // ==========================================
-// 🚀 THE MAGIC WATCHER (Fixes Empty Table Issue)
+// 🚀 THE MAGIC WATCHER (Waits for data to load, then triggers filter!)
 // ==========================================
 let hasSyncedJobs = false;
 let hasSyncedEvents = false;
@@ -376,28 +399,26 @@ let syncAttempts = 0;
 let syncTimer = setInterval(() => {
     syncAttempts++;
 
+    // Wait for Jobs
     if (!hasSyncedJobs && globalJobData && globalJobData.length > 0) {
-        populateJobDriverDropdown();
-        applyLogFilters();
+        populateJobDriverDropdown(); // Now correctly selects user AFTER data loads
+        applyLogFilters();           
         hasSyncedJobs = true;
         console.log("[TNTC Sync] Job Logs successfully synced to UI!");
     }
     
+    // Wait for Events
     if (!hasSyncedEvents && globalEventData && globalEventData.rows && globalEventData.rows.length > 0) {
         populateEventCategoryDropdown();
-        populateEventDriverDropdown();
-        applyEventFilters();
+        populateEventDriverDropdown(); // Now correctly selects user AFTER data loads
+        applyEventFilters();           
         hasSyncedEvents = true;
         console.log("[TNTC Sync] Event Records successfully synced to UI!");
     }
     
-    if (hasSyncedJobs && hasSyncedEvents) {
-        clearInterval(syncTimer);
-    }
-
-    if (syncAttempts > 120) {
-        clearInterval(syncTimer);
-    }
+    // Stop waiting if done
+    if (hasSyncedJobs && hasSyncedEvents) clearInterval(syncTimer);
+    if (syncAttempts > 120) clearInterval(syncTimer); // 60s timeout
 }, 500); 
 
 // Global Exposes for HTML buttons
@@ -432,7 +453,6 @@ window.openEventModal = function(index) {
             monthYearKey = ev.date.toUpperCase();
         }
 
-        // Fetch dynamic monthly cover banner from core.js global
         let coverUrl = window.globalEventCovers ? window.globalEventCovers[monthYearKey] : null;
         let imgContainer = document.getElementById('modalImageContainer');
         
@@ -482,7 +502,6 @@ window.openEventModal = function(index) {
         if(modal) {
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            // Animate it smoothly into view
             requestAnimationFrame(() => {
                 modal.classList.remove('modal-closed');
                 modal.classList.add('modal-open');
