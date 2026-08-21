@@ -3,7 +3,6 @@
 // ==========================================
 
 function applyOverviewFilter() {
-    // NEW: Dynamic UI State Reader (Premium Filter Logic)
     let timeFilter = 'ALL';
     let customDate = '';
     if (window.vtcFilterStates && window.vtcFilterStates['overview']) {
@@ -12,55 +11,70 @@ function applyOverviewFilter() {
         else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
     }
     
-    let totalKm = 0;
-    let totalJobs = 0;
-    let totalRevenue = 0;
+    let totalKm = 0; let totalJobs = 0; let totalRevenue = 0;
     let activeDrivers = new Set();
     
-    let driverKmMap = {}; 
-    let driverEventMap = {}; 
-    let hallOfFame = [];
+    let driverStats = {}; 
+    let today = new Date();
+    let thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
     
-    // Safety check
+    // 🚀 THE FIX: Smart Date Parser (Bypasses American Date Bug)
+    function parseSmartDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        dateStr = String(dateStr).trim();
+        // Detects DD/MM/YYYY or DD-MM-YYYY
+        let parts = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (parts) return new Date(parts[3], parts[2] - 1, parts[1]);
+        return new Date(dateStr);
+    }
+
     if (!globalJobData || globalJobData.length === 0) return;
 
+    // --- 1. PROCESS JOBS ---
     globalJobData.forEach(row => {
-        let name = String(row[2] || '').trim();
-        let normName = normalizeKey(name);
+        let rawName = String(row[2] || '').trim();
+        let normKey = normalizeKey(rawName); // Force UPPERCASE for strict matching
         
-        if(!normName || normName === 'UNKNOWN') return;
+        if(!normKey || normKey === 'UNKNOWN') return;
         
         let timeStr = String(row[0] || '');
         if (!checkDateFilter(timeStr, timeFilter, customDate)) return;
 
         let drivenKm = cleanNumber(row[12]);
         let rev = cleanNumber(row[15]);
+        let jobDate = parseSmartDate(timeStr);
+
+        if (!driverStats[normKey]) {
+            driverStats[normKey] = { name: rawName, km: 0, jobs: 0, events: 0, lastSeen: new Date(0) };
+        }
 
         if (drivenKm > 0) {
             totalKm += drivenKm;
             totalJobs++;
             totalRevenue += rev;
-            activeDrivers.add(normName);
+            activeDrivers.add(normKey);
             
-            if(!driverKmMap[name]) driverKmMap[name] = { km: 0, jobs: 0 };
-            driverKmMap[name].km += drivenKm;
-            driverKmMap[name].jobs += 1;
+            driverStats[normKey].km += drivenKm;
+            driverStats[normKey].jobs += 1;
+            
+            if (!isNaN(jobDate.getTime()) && jobDate > driverStats[normKey].lastSeen) {
+                driverStats[normKey].lastSeen = jobDate;
+            }
         }
     });
 
     let filteredEventsCount = 0;
     
+    // --- 2. PROCESS EVENTS ---
     if (globalEventData && globalEventData.rows && globalEventData.headers) {
         let headers = globalEventData.headers;
-        
-        // Pre-compute valid driver columns starting from index 6
         let driverCols = [];
+        
         for (let i = 6; i < headers.length; i++) {
             let dName = String(headers[i] || '').trim();
             let normKey = normalizeKey(dName);
-            
             if (normKey && normKey !== 'UNKNOWN' && !normKey.includes('ATTENDANCE')) {
-                driverCols.push({ index: i, name: dName });
+                driverCols.push({ index: i, name: dName, normKey: normKey });
             }
         }
 
@@ -70,16 +84,21 @@ function applyOverviewFilter() {
             
             if (checkDateFilter(dateStr, timeFilter, customDate)) {
                 filteredEventsCount++;
+                let evDate = parseSmartDate(dateStr);
                 
-                // Iterate through pre-computed driver columns
                 driverCols.forEach(dc => {
-                    // Strip out quotes, extra spaces, and enforce uppercase for robust matching
                     let val = String(row[dc.index] || '').replace(/["']/g, '').trim().toUpperCase();
                     
-                    // Explicit check for checked box values exported by Google Sheets CSV
                     if (val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
-                        if (!driverEventMap[dc.name]) driverEventMap[dc.name] = 0;
-                        driverEventMap[dc.name]++;
+                        if (!driverStats[dc.normKey]) {
+                            driverStats[dc.normKey] = { name: dc.name, km: 0, jobs: 0, events: 0, lastSeen: new Date(0) };
+                        }
+                        driverStats[dc.normKey].events++;
+                        
+                        // 🚀 NEW: Attending an event counts as active!
+                        if (!isNaN(evDate.getTime()) && evDate > driverStats[dc.normKey].lastSeen) {
+                            driverStats[dc.normKey].lastSeen = evDate;
+                        }
                     }
                 });
             }
@@ -92,25 +111,31 @@ function applyOverviewFilter() {
     document.getElementById('statDrivers').innerText = activeDrivers.size;
     document.getElementById('statEvents').innerText = filteredEventsCount;
 
+    // --- 3. SEPARATE ACTIVE & PAST MEMBERS ---
     let kmLeaderboard = [];
-    for(let d in driverKmMap) kmLeaderboard.push({ name: d, km: driverKmMap[d].km, jobs: driverKmMap[d].jobs });
-    kmLeaderboard.sort((a,b) => b.km - a.km);
-    
     let eventLeaderboard = [];
-    for(let d in driverEventMap) eventLeaderboard.push({ name: d, events: driverEventMap[d] });
-    eventLeaderboard.sort((a,b) => b.events - a.events);
-    
-    // Sort logic for Hall of Fame based on events
-    // This looks for past members who are no longer active in the job sheet
-    if (globalJobData && globalJobData.length > 0) {
-        let allCurrentDrivers = new Set(globalJobData.map(r => normalizeKey(r[2])));
-        for (let d in driverEventMap) {
-            if (!allCurrentDrivers.has(normalizeKey(d))) {
-                hallOfFame.push({ name: d, events: driverEventMap[d] });
-            }
+    let hallOfFame = [];
+
+    for (let key in driverStats) {
+        let stats = driverStats[key];
+        
+        // Prevent accidental future dates from breaking the system
+        let lastSeenTime = stats.lastSeen.getTime();
+        if (lastSeenTime > today.getTime()) lastSeenTime = today.getTime();
+        
+        let timeSinceLastActivity = today.getTime() - lastSeenTime;
+
+        if (timeSinceLastActivity > thirtyDaysMs || lastSeenTime === 0) {
+            hallOfFame.push({ name: stats.name, km: stats.km, jobs: stats.jobs, events: stats.events });
+        } else {
+            if (stats.km > 0) kmLeaderboard.push({ name: stats.name, km: stats.km, jobs: stats.jobs });
+            if (stats.events > 0) eventLeaderboard.push({ name: stats.name, events: stats.events });
         }
-        hallOfFame.sort((a,b) => b.events - a.events);
     }
+
+    kmLeaderboard.sort((a, b) => b.km - a.km);
+    eventLeaderboard.sort((a, b) => b.events - a.events);
+    hallOfFame.sort((a, b) => b.km - a.km);
 
     renderLeaderboardList('kmLeaderboardList', kmLeaderboard, 'km');
     renderLeaderboardList('eventLeaderboardList', eventLeaderboard, 'events');
@@ -133,7 +158,7 @@ function renderLeaderboardList(elementId, data, type) {
             let subStr = type === 'km' ? `${item.jobs} Jobs` : ``;
             
             html += `
-            <div class="flex items-center justify-between p-3 bg-tntc-main border border-tntc-muted/20 rounded-lg hover:border-tntc-muted/50 transition-colors shadow-sm">
+            <div class="flex items-center justify-between p-3 bg-tntc-main border border-tntc-muted/20 rounded-lg hover:border-tntc-muted/50 transition-colors shadow-sm mb-2">
                 <div class="flex items-center gap-3">
                     <span class="font-black ${rankColor} w-5">#${index+1}</span>
                     <div>
@@ -157,16 +182,20 @@ function renderHallOfFame(elementId, data) {
         html = `<p class="text-xs text-tntc-textSecondary italic text-center mt-10">No past members found.</p>`;
     } else {
         data.slice(0, 10).forEach(item => {
+            let details = [];
+            if(item.km > 0) details.push(`${item.km.toLocaleString()} km`);
+            if(item.events > 0) details.push(`${item.events} Events`);
+            
             html += `
-            <div class="flex items-center justify-between p-3 bg-tntc-main/50 border border-tntc-muted/10 rounded-lg opacity-70 hover:opacity-100 transition-opacity">
+            <div class="flex items-center justify-between p-3 bg-tntc-main/50 border border-tntc-muted/10 rounded-lg opacity-70 hover:opacity-100 transition-opacity mb-2">
                 <div class="flex items-center gap-3">
                     <i data-lucide="user-minus" class="w-4 h-4 text-tntc-textSecondary"></i>
                     <div>
                         <p class="text-xs font-bold text-tntc-textSecondary leading-tight">${item.name}</p>
-                        <p class="text-[9px] text-tntc-textSecondary/70">${item.events} Events</p>
+                        <p class="text-[9px] text-tntc-textSecondary/70">${details.join(' • ')}</p>
                     </div>
                 </div>
-                <span class="text-tntc-textSecondary text-[10px] font-mono">Inactive</span>
+                <span class="text-tntc-textSecondary text-[10px] font-mono border border-tntc-muted/20 px-2 py-0.5 rounded">Inactive</span>
             </div>`;
         });
     }
@@ -191,13 +220,13 @@ function updateCharts(kmData, eventData) {
         }
     };
 
-    if (kmChartInstance) kmChartInstance.destroy();
+    if (window.kmChartInstance) window.kmChartInstance.destroy();
     let kmCtx = document.getElementById('kmBarChart');
     if (kmCtx) {
         let grad = kmCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
         grad.addColorStop(0, 'rgba(74,222,128,0.8)'); grad.addColorStop(1, 'rgba(74,222,128,0.2)');
         
-        kmChartInstance = new Chart(kmCtx, {
+        window.kmChartInstance = new Chart(kmCtx, {
             type: 'bar',
             data: {
                 labels: kmTop5.map(d => { let parts = d.name.split(' '); return parts[0]; }), 
@@ -207,13 +236,13 @@ function updateCharts(kmData, eventData) {
         });
     }
 
-    if (eventChartInstance) eventChartInstance.destroy();
+    if (window.eventChartInstance) window.eventChartInstance.destroy();
     let evCtx = document.getElementById('eventBarChart');
     if (evCtx) {
         let grad2 = evCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
         grad2.addColorStop(0, 'rgba(56,189,248,0.8)'); grad2.addColorStop(1, 'rgba(56,189,248,0.2)');
         
-        eventChartInstance = new Chart(evCtx, {
+        window.eventChartInstance = new Chart(evCtx, {
             type: 'bar',
             data: {
                 labels: evTop5.map(d => { let parts = d.name.split(' '); return parts[0]; }),
