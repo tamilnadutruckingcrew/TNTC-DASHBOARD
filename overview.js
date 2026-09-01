@@ -1,7 +1,3 @@
-// ==========================================
-// OVERVIEW DASHBOARD ENGINE (overview.js)
-// ==========================================
-
 function applyOverviewFilter() {
     let timeFilter = 'ALL';
     let customDate = '';
@@ -150,27 +146,53 @@ function renderLeaderboardList(elementId, data, type) {
     
     let html = "";
     if(data.length === 0) {
-        html = `<p class="text-xs text-tntc-textSecondary italic text-center mt-10">No data found for this period.</p>`;
+        html = `<div class="h-full flex flex-col items-center justify-center opacity-50"><i data-lucide="database" class="w-8 h-8 text-tntc-textSecondary mb-2"></i><p class="text-xs font-bold text-tntc-textSecondary uppercase tracking-widest">No Data Found</p></div>`;
     } else {
         data.slice(0, 10).forEach((item, index) => {
-            let rankColor = index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-amber-600' : 'text-tntc-textSecondary';
-            let valStr = type === 'km' ? `<span class="text-tntc-distance font-mono font-bold">${item.km.toLocaleString()} km</span>` : `<span class="text-tntc-accent font-bold">${item.events} Convoys</span>`;
+            // Dynamic Rank Badges (Gold, Silver, Bronze, Standard)
+            let rankBadge = "";
+            let cardStyle = "bg-white/[0.02] border-white/5 hover:border-tntc-muted/40 hover:bg-white/[0.04]";
+            
+            if (index === 0) { 
+                // 1st Place - Gold
+                rankBadge = `<div class="w-8 h-8 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center shadow-[0_0_15px_rgba(234,179,8,0.4)] shrink-0"><span class="text-xs font-black text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,1)]">1</span></div>`;
+                cardStyle = "bg-gradient-to-r from-yellow-500/10 to-transparent border-yellow-500/30 hover:border-yellow-500/60 shadow-[0_0_15px_rgba(234,179,8,0.05)]";
+            } else if (index === 1) { 
+                // 2nd Place - Silver
+                rankBadge = `<div class="w-8 h-8 rounded-full bg-slate-300/20 border border-slate-300/50 flex items-center justify-center shadow-[0_0_15px_rgba(203,213,225,0.4)] shrink-0"><span class="text-xs font-black text-slate-300 drop-shadow-[0_0_5px_rgba(203,213,225,1)]">2</span></div>`;
+                cardStyle = "bg-gradient-to-r from-slate-400/10 to-transparent border-slate-400/30 hover:border-slate-400/60 shadow-[0_0_15px_rgba(203,213,225,0.05)]";
+            } else if (index === 2) { 
+                // 3rd Place - Bronze
+                rankBadge = `<div class="w-8 h-8 rounded-full bg-amber-600/20 border border-amber-600/50 flex items-center justify-center shadow-[0_0_15px_rgba(217,119,6,0.4)] shrink-0"><span class="text-xs font-black text-amber-500 drop-shadow-[0_0_5px_rgba(217,119,6,1)]">3</span></div>`;
+                cardStyle = "bg-gradient-to-r from-amber-600/10 to-transparent border-amber-600/30 hover:border-amber-600/60 shadow-[0_0_15px_rgba(217,119,6,0.05)]";
+            } else { 
+                // Standard Ranking
+                rankBadge = `<div class="w-8 h-8 rounded-full bg-black/50 border border-white/10 flex items-center justify-center shrink-0"><span class="text-xs font-black text-tntc-textSecondary">#${index + 1}</span></div>`;
+            }
+            
+            let valStr = type === 'km' 
+                ? `<span class="text-tntc-distance font-mono font-black drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] text-sm whitespace-nowrap">${item.km.toLocaleString()} km</span>` 
+                : `<span class="text-tntc-accent font-black drop-shadow-[0_0_8px_rgba(56,189,248,0.5)] text-sm whitespace-nowrap">${item.events} Events</span>`;
             let subStr = type === 'km' ? `${item.jobs} Jobs` : ``;
             
             html += `
-            <div class="flex items-center justify-between p-3 bg-tntc-main border border-tntc-muted/20 rounded-lg hover:border-tntc-muted/50 transition-colors shadow-sm mb-2">
-                <div class="flex items-center gap-3">
-                    <span class="font-black ${rankColor} w-5">#${index+1}</span>
-                    <div>
-                        <p class="text-sm font-bold text-tntc-textPrimary leading-tight">${item.name}</p>
-                        ${subStr ? `<p class="text-[10px] text-tntc-textSecondary">${subStr}</p>` : ''}
+            <div class="flex items-center justify-between p-3.5 border rounded-xl transition-all duration-300 backdrop-blur-sm relative overflow-hidden group ${cardStyle}">
+                <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                <div class="flex items-center gap-3.5 relative z-10 w-full">
+                    ${rankBadge}
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-black text-tntc-textPrimary leading-tight group-hover:text-white transition-colors truncate tracking-wide">${item.name}</p>
+                        ${subStr ? `<p class="text-[9px] text-tntc-textSecondary font-bold tracking-widest uppercase mt-0.5">${subStr}</p>` : ''}
                     </div>
                 </div>
-                ${valStr}
+                <div class="relative z-10 pl-3">
+                    ${valStr}
+                </div>
             </div>`;
         });
     }
     container.innerHTML = html;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function renderHallOfFame(elementId, data) {
@@ -179,7 +201,7 @@ function renderHallOfFame(elementId, data) {
     
     let html = "";
     if(data.length === 0) {
-        html = `<p class="text-xs text-tntc-textSecondary italic text-center mt-10">No past members found.</p>`;
+        html = `<div class="h-full flex flex-col items-center justify-center opacity-50"><i data-lucide="ghost" class="w-8 h-8 text-tntc-textSecondary mb-2"></i><p class="text-xs font-bold text-tntc-textSecondary uppercase tracking-widest">No Past Members</p></div>`;
     } else {
         data.slice(0, 10).forEach(item => {
             let details = [];
@@ -187,15 +209,18 @@ function renderHallOfFame(elementId, data) {
             if(item.events > 0) details.push(`${item.events} Events`);
             
             html += `
-            <div class="flex items-center justify-between p-3 bg-tntc-main/50 border border-tntc-muted/10 rounded-lg opacity-70 hover:opacity-100 transition-opacity mb-2">
-                <div class="flex items-center gap-3">
-                    <i data-lucide="user-minus" class="w-4 h-4 text-tntc-textSecondary"></i>
-                    <div>
-                        <p class="text-xs font-bold text-tntc-textSecondary leading-tight">${item.name}</p>
-                        <p class="text-[9px] text-tntc-textSecondary/70">${details.join(' • ')}</p>
+            <div class="flex items-center justify-between p-3.5 bg-black/40 border border-white/5 rounded-xl opacity-60 hover:opacity-100 transition-all duration-300 backdrop-blur-sm grayscale hover:grayscale-0 group relative overflow-hidden">
+                <div class="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                <div class="flex items-center gap-3.5 relative z-10 min-w-0">
+                    <div class="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500/70 group-hover:text-red-500 transition-colors shadow-[0_0_10px_rgba(239,68,68,0.1)] shrink-0">
+                        <i data-lucide="user-minus" class="w-4 h-4"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-black text-tntc-textSecondary group-hover:text-tntc-textPrimary leading-tight transition-colors truncate tracking-wide">${item.name}</p>
+                        <p class="text-[9px] text-tntc-textSecondary/60 font-mono tracking-widest mt-0.5 truncate uppercase font-bold">${details.join(' • ')}</p>
                     </div>
                 </div>
-                <span class="text-tntc-textSecondary text-[10px] font-mono border border-tntc-muted/20 px-2 py-0.5 rounded">Inactive</span>
+                <span class="text-red-500/50 group-hover:text-red-500 group-hover:bg-red-500/10 text-[9px] font-black tracking-widest uppercase border border-red-500/20 px-2 py-1 rounded shadow-[0_0_10px_rgba(239,68,68,0)] group-hover:shadow-[0_0_10px_rgba(239,68,68,0.2)] transition-all relative z-10 shrink-0 ml-2">Inactive</span>
             </div>`;
         });
     }

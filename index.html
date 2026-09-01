@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TAMILNADU TRUCKING CREW - Official Website</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -13,13 +12,10 @@
                 extend: {
                     colors: {
                         tntc: {
-                            main: '#05070a',
-                            card: '#0a0e14',
-                            accent: '#06b6d4',
-                            distance: '#22c55e',
-                            muted: '#334155',
-                            textPrimary: '#f8fafc',
-                            textSecondary: '#94a3b8'
+                            main: '#05070a', card: '#0c1017', hover: '#161f30',
+                            accent: '#38bdf8', muted: '#0284c7', textPrimary: '#f8fafc',
+                            textSecondary: '#94a3b8', distance: '#4ade80', revenue: '#facc15',
+                            admin: '#f43f5e'
                         }
                     }
                 }
@@ -27,21 +23,22 @@
         }
     </script>
     
-    <!-- Lucide Icons & PapaParse -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <style>
-        body { background-color: #05070a; color: #f8fafc; overflow-x: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .glass-nav { background: rgba(5, 7, 10, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
+        body { background-color: #05070a; color: #f8fafc; overflow-x: hidden; font-family: 'Inter', sans-serif; }
+        
+        /* Ultra-Premium Glass Nav */
+        .glass-nav { background: rgba(5, 7, 10, 0.6); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
         /* Marquee Animation */
-        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-top: 1px solid rgba(51,65,85,0.3); border-bottom: 1px solid rgba(51,65,85,0.3); background: #0a0e14; padding: 12px 0; }
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(12, 16, 23, 0.8); backdrop-filter: blur(10px); padding: 12px 0; }
         .marquee-content { display: inline-block; animation: marquee 30s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
 
-        /* SMOOTH SCROLL REVEAL ENGINE */
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        /* Smooth Scroll Reveal */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .reveal.active { opacity: 1; transform: translate(0, 0); }
         .reveal.from-left { transform: translateX(-100px); }
         .reveal.from-right { transform: translateX(100px); }
@@ -49,38 +46,40 @@
         .delay-100 { transition-delay: 100ms; }
         .delay-200 { transition-delay: 200ms; }
         
-        /* Custom Scrollbar for Modal */
+        /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen relative selection:bg-tntc-accent selection:text-[#05070a]">
 
+    <!-- Ambient Glow Layers -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-tntc-accent/5 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
     <!-- NAVBAR -->
-    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300">
+    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <!-- Big TNTC Branding -->
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-tntc-main border-2 border-tntc-accent shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center justify-center overflow-hidden p-1">
+            <div class="flex items-center gap-4 group cursor-pointer">
+                <div class="w-12 h-12 rounded-xl bg-[#05070a]/80 border border-white/10 shadow-[0_0_20px_rgba(56,189,248,0.2)] group-hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] group-hover:border-tntc-accent/50 flex items-center justify-center overflow-hidden p-1 transition-all duration-300 backdrop-blur-md">
                     <img data-asset="TNTC_LOGO" src="https://files.catbox.moe/ujn8ng.png" alt="TNTC" class="w-full h-full object-contain">
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-widest text-white leading-none">TNTC</h1>
-                    <span class="text-[10px] font-bold text-tntc-accent tracking-[0.2em] uppercase">Division <span class="text-tntc-muted ml-1"></span></span>
+                    <h1 class="text-2xl font-black tracking-widest text-white leading-none drop-shadow-md">TNTC</h1>
+                    <span class="text-[10px] font-black text-tntc-accent tracking-[0.2em] uppercase">Division <span class="w-1.5 h-1.5 inline-block bg-tntc-accent rounded-full animate-pulse ml-1 shadow-[0_0_5px_#38bdf8]"></span></span>
                 </div>
             </div>
             
-            <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-tntc-textSecondary tracking-wider uppercase">
-                 <a href="index.html" class="text-tntc-accent transition-colors flex items-center gap-2"><i data-lucide="home" class="w-4 h-4"></i> Home</a>
-                 <a href="news.html" class="hover:text-tntc-accent transition-colors flex items-center gap-2"><i data-lucide="newspaper" class="w-4 h-4"></i> News</a>
-                 <a href="gallery.html" class="hover:text-tntc-accent transition-colors flex items-center gap-2"><i data-lucide="image" class="w-4 h-4"></i> Gallery</a>
-                 <button onclick="openAuthModal('register')" class="hover:text-yellow-500 transition-colors flex items-center gap-2 text-tntc-textSecondary"><i data-lucide="user-plus" class="w-4 h-4"></i> Apply</button>
+            <div class="hidden md:flex items-center gap-8 text-[11px] font-black text-tntc-textSecondary tracking-[0.15em] uppercase">
+                 <a href="index.html" class="text-tntc-accent drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] flex items-center gap-2"><i data-lucide="home" class="w-3.5 h-3.5"></i> Home</a>
+                 <a href="news.html" class="hover:text-tntc-accent hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] transition-all flex items-center gap-2"><i data-lucide="newspaper" class="w-3.5 h-3.5"></i> News</a>
+                 <a href="gallery.html" class="hover:text-tntc-distance hover:drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] transition-all flex items-center gap-2"><i data-lucide="image" class="w-3.5 h-3.5"></i> Gallery</a>
+                 <button onclick="openAuthModal('register')" class="hover:text-yellow-500 hover:drop-shadow-[0_0_8px_rgba(234,179,8,0.8)] transition-all flex items-center gap-2 text-tntc-textSecondary"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i> REGISTER</button>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="openAuthModal('login')" class="px-6 py-2.5 bg-white text-[#05070a] rounded-lg text-xs font-black uppercase tracking-wider hover:bg-gray-200 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <i data-lucide="log-in" class="w-4 h-4"></i> Crew Login
+                <button onclick="openAuthModal('login')" class="px-6 py-2.5 bg-white/10 hover:bg-white text-white hover:text-[#05070a] border border-white/20 hover:border-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] backdrop-blur-md">
+                    <i data-lucide="terminal" class="w-4 h-4"></i> Login Gateway
                 </button>
             </div>
         </div>
@@ -88,236 +87,189 @@
 
     <!-- CINEMATIC HERO LAYERED -->
     <main class="relative pt-40 pb-20 px-6 min-h-[85vh] flex flex-col justify-center items-center text-center overflow-hidden">
+        <div data-bg-asset="HOME_BG" class="absolute inset-0 bg-cover bg-center z-0 scale-105" style="background-image: url('https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true');"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-[#05070a]/95 via-[#05070a]/60 to-[#05070a] z-10 pointer-events-none"></div>
         
-        <!-- 1. Background Image Layer (Managed by CMS) -->
-        <div data-bg-asset="HOME_BG" class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true');"></div>
-        
-        <!-- 2. Dark Overlay Layer -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#05070a]/90 via-[#05070a]/50 to-[#05070a] z-10 pointer-events-none"></div>
-        
-        <!-- 3. Content Layer -->
         <div class="relative z-20 w-full flex flex-col items-center">
-            
-            <div class="inline-flex items-center gap-3 px-5 py-2 border-2 border-yellow-500/40 bg-yellow-500/10 rounded-full mb-8 shadow-[0_0_20px_rgba(234,179,8,0.15)] reveal">
-                <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL" class="w-6 h-6 rounded-full border border-yellow-500">
-                <span class="text-[10px] font-black tracking-widest text-yellow-500 uppercase">An official division of Tamilnadu Logistics</span>
+            <div class="inline-flex items-center gap-3 px-4 py-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-full mb-8 shadow-[0_0_20px_rgba(234,179,8,0.15)] reveal backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_5px_#facc15]"></span>
+                <span class="text-[9px] font-black tracking-widest text-yellow-500 uppercase drop-shadow-md">An official division of Tamilnadu Logistics</span>
             </div>
 
-            <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.05] mb-6 tracking-tighter uppercase reveal delay-100 drop-shadow-2xl">
-                Tamilnadu <br> <span class="text-tntc-textSecondary">Trucking Crew</span>
+            <h1 class="text-5xl md:text-7xl lg:text-[6rem] font-black text-white leading-[1.05] mb-6 tracking-tighter uppercase reveal delay-100 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+                Tamilnadu <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-tntc-accent to-blue-600 drop-shadow-[0_0_20px_rgba(56,189,248,0.5)]">Trucking Crew</span>
             </h1>
             
-            <p class="text-tntc-textPrimary text-sm md:text-lg mb-10 max-w-2xl font-medium leading-relaxed bg-tntc-main/30 p-4 rounded-xl backdrop-blur-md border border-tntc-muted/30 reveal delay-200 shadow-xl">
+            <p class="text-tntc-textSecondary text-sm md:text-lg mb-12 max-w-2xl font-medium leading-relaxed bg-[#05070a]/40 p-6 rounded-2xl backdrop-blur-xl border border-white/5 reveal delay-200 shadow-2xl">
                 The premier Euro Truck Simulator 2 VTC division. Experience professional convoy management, dynamic global tours, and elite telemetry tracking.
             </p>
             
-            <div class="flex flex-wrap justify-center gap-4 reveal delay-200">
-                <button onclick="openAuthModal('login')" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-sm tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2">
-                    Access Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <div class="flex flex-wrap justify-center gap-5 reveal delay-200">
+                <button onclick="openAuthModal('login')" class="px-8 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] rounded-xl font-black text-xs tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:shadow-[0_0_30px_rgba(56,189,248,0.6)] hover:-translate-y-1 flex items-center gap-2 group">
+                    LOGIN <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </button>
-                <a href="#stats" class="px-8 py-4 bg-tntc-card/80 backdrop-blur-md border border-tntc-muted hover:border-white hover:text-white text-tntc-textSecondary rounded-xl font-black text-sm tracking-wider uppercase transition-all flex items-center gap-2">
-                    Explore Fleet <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                <a href="#stats" class="px-8 py-4 bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/30 hover:bg-white/10 text-white rounded-xl font-black text-xs tracking-widest uppercase transition-all flex items-center gap-2 shadow-lg">
+                    Analyze Fleet <i data-lucide="chevron-down" class="w-4 h-4"></i>
                 </a>
             </div>
         </div>
     </main>
 
     <!-- LIVE MARQUEE -->
-    <div class="marquee-container shadow-2xl relative z-20">
+    <div class="marquee-container shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-20">
         <div class="marquee-content text-[11px] font-mono font-bold tracking-widest text-tntc-textSecondary uppercase" id="marqueeData">
-            <i data-lucide="loader" class="w-3 h-3 inline animate-spin mr-2"></i> Syncing live telemetry...
+            <i data-lucide="loader" class="w-3 h-3 inline animate-spin mr-2 text-tntc-accent"></i> Syncing live telemetry array...
         </div>
     </div>
 
-    <!-- WELCOME / ABOUT SECTION -->
-    <section class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tntc-muted/20 overflow-hidden">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-[0.3em]">Welcome</span>
-                <h2 class="text-3xl md:text-5xl font-black text-white mt-3 tracking-tight">🚛 TNTC - Tamilnadu Trucking Crew</h2>
-                <div class="w-24 h-1 bg-yellow-500/50 mx-auto mt-6 rounded-full"></div>
-            </div>
-            <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
-                <div class="space-y-6 reveal from-left delay-100">
-                    <h3 class="text-xl font-bold text-yellow-500 tracking-wider">English</h3>
-                    <ul class="space-y-4 text-tntc-textSecondary text-sm md:text-base">
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Official division of <strong class="text-white">Tamilnadu Logistics</strong>.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Unites virtual truckers across Tamil Nadu.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Focused on realistic trucking and organized convoys.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Promotes teamwork, discipline, and friendship.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Proud member of the Tamilnadu Logistics family.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>Join us and drive with pride!</span></li>
-                    </ul>
-                </div>
-                <div class="space-y-6 md:border-l border-tntc-muted/30 md:pl-16 relative reveal from-right delay-200">
-                    <h3 class="text-xl font-bold text-yellow-500 tracking-wider">தமிழ்</h3>
-                    <ul class="space-y-4 text-tntc-textSecondary text-sm md:text-base">
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span><strong class="text-white">தமிழ்நாடு லாஜிஸ்டிக்ஸ்</strong> நிறுவனத்தின் அதிகாரப்பூர்வ பிரிவு.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>தமிழ்நாட்டின் இணையவழி லாரி ஓட்டுநர்களை ஒன்றிணைக்கும் சமூகமாகும்.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>உண்மையான டிரக்கிங் அனுபவம் மற்றும் ஒழுங்கமைக்கப்பட்ட Convoy-கள்.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>ஒற்றுமை, கட்டுப்பாடு, மற்றும் சகோதரத்துவத்தை வளர்க்கும்.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>தமிழ்நாடு லாஜிஸ்டிக்ஸ் குடும்பத்தின் பெருமைமிக்க அங்கம்.</span></li>
-                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tntc-accent shrink-0 mt-0.5"></i> <span>எங்களுடன் இணைந்து பெருமையுடன் பயணியுங்கள்!</span></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- SVG CURVE STATS SECTION -->
-    <section id="stats" class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tntc-muted/20 reveal">
-        <div class="max-w-5xl mx-auto text-center">
-            <p class="text-[10px] font-black text-tntc-textSecondary tracking-[0.3em] uppercase mb-4">The Distance Journey</p>
-            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight"><span id="orbitCountDisplay" class="text-tntc-accent">0</span> orbits around Earth.</h2>
-            <p class="text-tntc-textSecondary text-sm mb-16 max-w-2xl mx-auto">Every job our drivers complete adds to one shared odometer. Here's how far the fleet has actually travelled together.</p>
+    <section id="stats" class="py-32 px-6 bg-[#05070a] relative z-10 border-b border-white/5 reveal overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-tntc-accent/5 via-[#05070a] to-[#05070a] pointer-events-none z-0"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-tntc-accent/10 border border-tntc-accent/30 rounded-full mb-6 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                <i data-lucide="globe-2" class="w-3 h-3 text-tntc-accent"></i>
+                <span class="text-[10px] font-black text-tntc-accent uppercase tracking-widest">Global Telemetry</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-lg"><span id="orbitCountDisplay" class="text-transparent bg-clip-text bg-gradient-to-r from-tntc-accent to-tntc-distance drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]">0</span> orbits around Earth.</h2>
+            <p class="text-tntc-textSecondary text-sm mb-20 max-w-2xl mx-auto">Every delivery completed by our operatives adds to a shared global odometer. Witness the true scale of the TNTC network.</p>
             
-            <div class="relative w-full max-w-4xl mx-auto h-32 md:h-48 mb-16 px-4">
-                <svg viewBox="0 0 1000 200" class="absolute w-full h-full overflow-visible left-0 top-0" preserveAspectRatio="none">
-                    <path d="M 50,180 Q 500,0 950,180" fill="none" stroke="#1e293b" stroke-width="6" stroke-dasharray="15 10" stroke-linecap="round"/>
-                    <path id="orbitProgressPath" d="M 50,180 Q 500,0 950,180" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round" class="transition-all duration-[2000ms] ease-out" stroke-dasharray="1200" stroke-dashoffset="1200"/>
+            <div class="relative w-full max-w-4xl mx-auto h-32 md:h-48 mb-20 px-4">
+                <svg viewBox="0 0 1000 200" class="absolute w-full h-full overflow-visible left-0 top-0 drop-shadow-[0_0_10px_rgba(56,189,248,0.2)]" preserveAspectRatio="none">
+                    <path d="M 50,180 Q 500,0 950,180" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6" stroke-dasharray="15 10" stroke-linecap="round"/>
+                    <path id="orbitProgressPath" d="M 50,180 Q 500,0 950,180" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" class="transition-all duration-[2000ms] ease-out drop-shadow-[0_0_15px_rgba(56,189,248,0.8)]" stroke-dasharray="1200" stroke-dashoffset="1200"/>
                     <circle id="node-100" cx="275" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
-                    <text x="275" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">100×</text>
+                    <text x="275" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="Inter, sans-serif" text-anchor="middle">100×</text>
                     <circle id="node-200" cx="500" cy="50" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
-                    <text x="500" y="22" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">200×</text>
+                    <text x="500" y="22" fill="#94a3b8" font-size="16" font-weight="bold" font-family="Inter, sans-serif" text-anchor="middle">200×</text>
                     <circle id="node-300" cx="725" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
-                    <text x="725" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">300×</text>
+                    <text x="725" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="Inter, sans-serif" text-anchor="middle">300×</text>
                     <circle id="node-400" cx="950" cy="180" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
-                    <text x="950" y="152" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">400×</text>
+                    <text x="950" y="152" fill="#94a3b8" font-size="16" font-weight="bold" font-family="Inter, sans-serif" text-anchor="middle">400×</text>
                 </svg>
-                <div id="truckIndicator" class="absolute w-8 h-8 bg-tntc-accent rounded-full flex items-center justify-center shadow-[0_0_20px_#06b6d4] transition-all duration-[2000ms] ease-out -translate-x-1/2 -translate-y-1/2 opacity-0 z-10">
-                    <i data-lucide="truck" class="w-4 h-4 text-[#05070a]"></i>
+                <div id="truckIndicator" class="absolute w-10 h-10 bg-[#05070a] border-2 border-tntc-accent rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.8)] transition-all duration-[2000ms] ease-out -translate-x-1/2 -translate-y-1/2 opacity-0 z-10 backdrop-blur-md">
+                    <i data-lucide="rocket" class="w-5 h-5 text-tntc-accent"></i>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
-                <div class="flex flex-col items-center">
-                    <h4 class="text-4xl md:text-5xl font-black text-tntc-accent mb-2" id="statDistance">0</h4>
-                    <p class="text-[9px] md:text-[10px] text-tntc-textSecondary uppercase tracking-widest font-bold">Total Distance (KM)</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+                <div class="bg-slate-900/40 border border-white/5 p-6 rounded-3xl backdrop-blur-md shadow-xl hover:border-tntc-accent/30 hover:shadow-[0_0_20px_rgba(56,189,248,0.1)] transition-all">
+                    <h4 class="text-4xl md:text-5xl font-black text-tntc-accent mb-2 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]" id="statDistance">0</h4>
+                    <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">Total Distance (KM)</p>
                 </div>
-                <div class="flex flex-col items-center">
+                <div class="bg-slate-900/40 border border-white/5 p-6 rounded-3xl backdrop-blur-md shadow-xl hover:border-white/20 transition-all">
                     <h4 class="text-4xl md:text-5xl font-black text-white mb-2" id="statOrbits">0</h4>
-                    <p class="text-[9px] md:text-[10px] text-tntc-textSecondary uppercase tracking-widest font-bold">Orbits Completed</p>
+                    <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">Orbits Completed</p>
                 </div>
-                <div class="flex flex-col items-center">
+                <div class="bg-slate-900/40 border border-white/5 p-6 rounded-3xl backdrop-blur-md shadow-xl hover:border-white/20 transition-all">
                     <h4 class="text-4xl md:text-5xl font-black text-white mb-2" id="statNextOrbit">0</h4>
-                    <p class="text-[9px] md:text-[10px] text-tntc-textSecondary uppercase tracking-widest font-bold">KM To Next Orbit</p>
+                    <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">KM To Next Orbit</p>
                 </div>
-                <div class="flex flex-col items-center">
-                    <h4 class="text-4xl md:text-5xl font-black text-tntc-distance mb-2" id="statJobs">0</h4>
-                    <p class="text-[9px] md:text-[10px] text-tntc-textSecondary uppercase tracking-widest font-bold">Jobs Delivered</p>
+                <div class="bg-slate-900/40 border border-white/5 p-6 rounded-3xl backdrop-blur-md shadow-xl hover:border-tntc-distance/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] transition-all">
+                    <h4 class="text-4xl md:text-5xl font-black text-tntc-distance mb-2 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" id="statJobs">0</h4>
+                    <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">Deliveries Executed</p>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- BEHIND THE WHEEL / YOUTUBE SECTION -->
-    <section class="max-w-6xl mx-auto px-6 py-24 reveal">
-        <div class="text-center mb-10">
-            <span class="text-[10px] text-tntc-accent font-bold uppercase tracking-widest">Behind The Wheel</span>
-            <h2 class="text-3xl md:text-4xl font-black text-white mt-2 uppercase tracking-tight">See the fleet in motion</h2>
-            <p class="text-sm text-tntc-textSecondary mt-3 max-w-2xl mx-auto">A glimpse of how Tamilnadu Trucking Crew takes on the asphalt — convoys, events, and the rhythm of the road.</p>
-        </div>
-        <div class="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-tntc-muted/30 shadow-[0_0_30px_rgba(6,182,212,0.1)] bg-tntc-card p-2 md:p-3 reveal delay-100">
-            <div class="aspect-video w-full rounded-xl overflow-hidden relative bg-tntc-main border border-tntc-muted/20">
-                <iframe 
-                    data-video-asset="PROMO_VIDEO"
-                    class="absolute top-0 left-0 w-full h-full"
-                    src="https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=0&rel=0&modestbranding=1" 
-                    title="TNTC Fleet in Motion" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
             </div>
         </div>
     </section>
 
     <!-- JOIN THE FLEET -->
-    <section id="join-fleet" class="py-24 px-6 bg-tntc-main border-y border-tntc-muted/20 reveal">
-        <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+    <section id="join-fleet" class="py-32 px-6 bg-[#05070a] border-b border-white/5 reveal relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent pointer-events-none z-0"></div>
+        <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
             <div>
-                <p class="text-[10px] font-black text-yellow-500 tracking-[0.2em] uppercase mb-4">Join The Fleet</p>
-                <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">Ready to drive with <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-700">TNTC Division?</span></h2>
-                <p class="text-tntc-textSecondary mb-10 text-sm md:text-base leading-relaxed">Become part of the community and experience professional virtual trucking — convoys, dynamic tours, and a leaderboard that rewards every kilometre.</p>
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full mb-6 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                    <i data-lucide="shield-check" class="w-3 h-3 text-yellow-500"></i>
+                    <span class="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Register Open</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight drop-shadow-md">Drive with <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-700 drop-shadow-[0_0_15px_rgba(234,179,8,0.4)]">TNTC Division</span></h2>
+                <p class="text-tntc-textSecondary mb-10 text-sm leading-relaxed">Secure your clearance. Gain access to the dedicated telemetry hub, active campaign manifests, and elite virtual convoy operations.</p>
                 
-                <ul class="space-y-4 mb-10 text-sm text-tntc-textSecondary font-medium">
-                    <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="text-yellow-500 w-5 h-5 shrink-0"></i> Follow TruckersMP rules and drive realistically.</li>
-                    <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="text-yellow-500 w-5 h-5 shrink-0"></i> Keep active — join events and hit the monthly minimum.</li>
-                    <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="text-yellow-500 w-5 h-5 shrink-0"></i> Be respectful in Discord and on the road, always.</li>
+                <ul class="space-y-4 mb-12 text-xs text-tntc-textSecondary font-bold tracking-wide uppercase">
+                    <li class="flex items-center gap-4"><div class="w-6 h-6 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center shadow-inner"><i data-lucide="check" class="text-yellow-500 w-3 h-3"></i></div> Strict realistic driving protocols.</li>
+                    <li class="flex items-center gap-4"><div class="w-6 h-6 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center shadow-inner"><i data-lucide="check" class="text-yellow-500 w-3 h-3"></i></div> Active participation required.</li>
+                    <li class="flex items-center gap-4"><div class="w-6 h-6 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center shadow-inner"><i data-lucide="check" class="text-yellow-500 w-3 h-3"></i></div> Professional comms on Discord network.</li>
                 </ul>
 
                 <div class="flex flex-wrap gap-4">
-                    <button onclick="openAuthModal('register')" class="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-black tracking-wider uppercase text-sm transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center gap-2">
-                        Apply Now <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <button onclick="openAuthModal('register')" class="px-8 py-4 bg-yellow-500 hover:bg-yellow-400 text-[#05070a] rounded-xl font-black tracking-widest uppercase text-[10px] transition-all shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:shadow-[0_0_30px_rgba(234,179,8,0.6)] hover:-translate-y-1 flex items-center justify-center gap-2">
+                        Submit Application <i data-lucide="user-plus" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="secureDownloadLogin()" class="px-6 py-3.5 bg-transparent border border-tntc-muted hover:border-tntc-accent hover:text-tntc-accent text-white rounded-xl text-sm font-black tracking-wider uppercase transition-all flex items-center justify-center gap-2">
+                    <button onclick="secureDownloadLogin()" class="px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/30 text-white rounded-xl text-[10px] font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-lg">
                         <i data-lucide="download" class="w-4 h-4"></i> Download Tracker
                     </button>
                 </div>
             </div>
-            <div class="bg-[#0a0e14] border border-tntc-muted/30 p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden reveal delay-100">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500/5 rounded-full blur-3xl"></div>
-                <div class="relative z-10">
-                    <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Fast approval</h4>
-                    <p class="text-xs text-tntc-textSecondary leading-relaxed">Applications reviewed within a day or two. Get on the road and start logging jobs faster.</p>
+            
+            <div class="bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] space-y-8 relative overflow-hidden reveal delay-100 group hover:border-yellow-500/30 transition-colors">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-[80px] group-hover:bg-yellow-500/10 transition-colors duration-500"></div>
+                <div class="relative z-10 flex gap-5 items-start">
+                    <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner"><i data-lucide="zap" class="w-4 h-4 text-white"></i></div>
+                    <div><h4 class="text-white font-black text-sm tracking-widest uppercase mb-1">Rapid Clearance</h4><p class="text-xs text-tntc-textSecondary leading-relaxed">Applications parsed and authorized within a 24-hour operational window.</p></div>
                 </div>
-                <div class="h-px w-full bg-tntc-muted/20 relative z-10"></div>
-                <div class="relative z-10">
-                    <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Real leaderboard</h4>
-                    <p class="text-xs text-tntc-textSecondary leading-relaxed">Every job counts toward your rank and our overall TNTC division standing. Climb to the top.</p>
+                <div class="h-px w-full bg-white/5 relative z-10"></div>
+                <div class="relative z-10 flex gap-5 items-start">
+                    <div class="w-10 h-10 rounded-full bg-tntc-accent/10 border border-tntc-accent/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(56,189,248,0.15)]"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i></div>
+                    <div><h4 class="text-tntc-accent font-black text-sm tracking-widest uppercase mb-1 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">Live Telemetry</h4><p class="text-xs text-tntc-textSecondary leading-relaxed">Every mile logged is instantly synced to the central division leaderboard.</p></div>
                 </div>
-                <div class="h-px w-full bg-tntc-muted/20 relative z-10"></div>
-                <div class="relative z-10">
-                    <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Active community</h4>
-                    <p class="text-xs text-tntc-textSecondary leading-relaxed">Regular convoys, custom division events, dynamic European tours, and a highly active Discord.</p>
+                <div class="h-px w-full bg-white/5 relative z-10"></div>
+                <div class="relative z-10 flex gap-5 items-start">
+                    <div class="w-10 h-10 rounded-full bg-tntc-distance/10 border border-tntc-distance/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(74,222,128,0.15)]"><i data-lucide="globe" class="w-4 h-4 text-tntc-distance"></i></div>
+                    <div><h4 class="text-tntc-distance font-black text-sm tracking-widest uppercase mb-1 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]">Global Network</h4><p class="text-xs text-tntc-textSecondary leading-relaxed">Dynamic multi-stage tours, custom server events, and a highly active grid.</p></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- NEWS & GALLERY SECTIONS -->
-    <section id="news" class="py-24 px-6 bg-[#030407] hidden border-b border-tntc-muted/20 reveal">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+    <section id="news" class="py-32 px-6 bg-[#05070a] hidden border-b border-white/5 reveal">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                 <div>
-                    <span class="text-tntc-accent font-black tracking-[0.2em] text-[10px] uppercase mb-1 block">Latest Dispatches</span>
-                    <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight">Division News</h2>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-tntc-accent/10 border border-tntc-accent/30 rounded-full mb-4 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                        <i data-lucide="radio" class="w-3 h-3 text-tntc-accent"></i><span class="text-[10px] font-black text-tntc-accent uppercase tracking-widest">Network News</span>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-lg">Division News</h2>
                 </div>
-                <a href="news.html" class="text-xs font-bold text-tntc-accent hover:text-white flex items-center gap-2 uppercase tracking-wider transition-colors">
-                    View All News <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <a href="news.html" class="px-5 py-2.5 bg-white/5 border border-white/10 hover:border-tntc-accent/50 hover:bg-tntc-accent/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg group backdrop-blur-md">
+                    Access Archives <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
-            <div id="newsContainer" class="grid md:grid-cols-3 gap-6"></div>
+            <div id="newsContainer" class="grid md:grid-cols-3 gap-8"></div>
         </div>
     </section>
 
-    <section id="gallery" class="py-24 px-6 bg-tntc-main hidden border-b border-tntc-muted/20 reveal">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+    <section id="gallery" class="py-32 px-6 bg-[#05070a] hidden border-b border-white/5 reveal relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-tntc-distance/5 to-transparent pointer-events-none z-0"></div>
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                 <div>
-                    <span class="text-tntc-distance font-black tracking-[0.2em] text-[10px] uppercase mb-1 block">On The Road</span>
-                    <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight">Fleet Gallery</h2>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-tntc-distance/10 border border-tntc-distance/30 rounded-full mb-4 shadow-[0_0_15px_rgba(74,222,128,0.2)]">
+                        <i data-lucide="image" class="w-3 h-3 text-tntc-distance"></i><span class="text-[10px] font-black text-tntc-distance uppercase tracking-widest">Visual Data</span>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-lg">Fleet Gallery</h2>
                 </div>
-                <a href="gallery.html" class="text-xs font-bold text-tntc-distance hover:text-white flex items-center gap-2 uppercase tracking-wider transition-colors">
-                    View All Gallery <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <a href="gallery.html" class="px-5 py-2.5 bg-white/5 border border-white/10 hover:border-tntc-distance/50 hover:bg-tntc-distance/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg group backdrop-blur-md">
+                    Open Full Gallery <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
-            <div id="galleryContainer" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+            <div id="galleryContainer" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
         </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-[#010204] py-16 px-6 relative z-10">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-            <div class="flex items-center gap-4">
-                <img data-asset="TNL_LOGO" src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNTC" class="w-10 h-10 rounded border border-yellow-500/30 p-0.5 object-cover">
+    <footer class="bg-[#05070a] py-16 px-6 relative z-10 border-t border-white/5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="flex items-center gap-5">
+                <div class="w-12 h-12 rounded-xl bg-black border border-yellow-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(250,204,21,0.15)] overflow-hidden">
+                    <img data-asset="TNL_LOGO" src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL" class="w-10 h-10 object-contain">
+                </div>
                 <div>
-                    <h2 class="text-white font-black text-xl tracking-widest uppercase leading-none">Tamilnadu Logistics</h2>
+                    <h2 class="text-white font-black text-xl tracking-widest uppercase leading-none drop-shadow-md">Tamilnadu Logistics</h2>
                     <span class="text-[9px] font-bold text-tntc-textSecondary tracking-widest uppercase mt-1">Official Parent VTC</span>
                 </div>
             </div>
-            <div class="text-xs text-tntc-textSecondary font-medium">
-                Made with <span class="text-red-500 mx-1">♥</span> by TNL Team &middot; © 2026 All Rights Reserved
+            <div class="text-[10px] text-tntc-textSecondary font-bold tracking-widest uppercase flex items-center gap-2">
+                Initiated by TNL <span class="w-1 h-1 rounded-full bg-tntc-textSecondary"></span> © 2026 Core Network
             </div>
         </div>
     </footer>
@@ -325,98 +277,96 @@
     <!-- ========================================== -->
     <!-- UNIFIED AUTH MODAL (LOGIN & REGISTER) -->
     <!-- ========================================== -->
-    <div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm transition-opacity">
-        <div class="bg-tntc-card border border-tntc-muted/50 w-full max-w-md mx-4 rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+    <div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-xl transition-opacity duration-300">
+        <div class="bg-slate-900/60 backdrop-blur-2xl border border-white/10 w-full max-w-md mx-4 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col max-h-[90vh]">
             
-            <!-- Modal Header / Tabs -->
-            <div class="flex border-b border-tntc-muted/30 bg-[#05070a] shrink-0">
-                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-4 text-sm font-black tracking-wider uppercase text-tntc-accent border-b-2 border-tntc-accent transition-colors">Login</button>
-                <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-4 text-sm font-black tracking-wider uppercase text-tntc-textSecondary border-b-2 border-transparent hover:text-white transition-colors">Apply / Register</button>
-                <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-tntc-textSecondary hover:text-white p-1 rounded-md"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="flex border-b border-white/5 bg-black/40 shrink-0">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-5 text-[10px] font-black tracking-widest uppercase text-tntc-accent border-b-2 border-tntc-accent transition-colors shadow-[inset_0_-2px_10px_rgba(56,189,248,0.1)]">Terminal Login</button>
+                <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-5 text-[10px] font-black tracking-widest uppercase text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 hover:text-white transition-colors">Request Clearance</button>
+                <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-white/50 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all z-20"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
 
-            <!-- Scrollable Content Area -->
-            <div class="p-6 overflow-y-auto custom-scrollbar">
+            <div class="p-8 overflow-y-auto custom-scrollbar relative z-10">
                 
                 <!-- LOGIN FORM -->
-                <div id="form-login" class="space-y-4">
-                    <div class="text-center mb-6">
-                        <div class="w-12 h-12 rounded-full bg-tntc-accent/10 border border-tntc-accent/30 mx-auto mb-3 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-                            <i data-lucide="shield-check" class="text-tntc-accent w-6 h-6"></i>
+                <div id="form-login" class="space-y-5">
+                    <div class="text-center mb-8">
+                        <div class="w-14 h-14 rounded-full bg-tntc-accent/10 border border-tntc-accent/30 mx-auto mb-4 flex items-center justify-center shadow-[0_0_20px_rgba(56,189,248,0.2)]">
+                            <i data-lucide="fingerprint" class="text-tntc-accent w-6 h-6 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]"></i>
                         </div>
-                        <h3 class="text-xl font-black text-white tracking-tight">Security Gateway</h3>
-                        <p class="text-[10px] text-tntc-textSecondary uppercase tracking-widest mt-1">Authorized Personnel Only</p>
+                        <h3 class="text-2xl font-black text-white tracking-tight drop-shadow-md">Security Gateway</h3>
+                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest mt-1">Authorized Personnel Only</p>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Website Username</label>
-                        <input type="text" id="loginUsername" placeholder="e.g. Madhanraj" class="w-full bg-[#05070a] border border-tntc-muted/50 p-3 rounded-lg text-white text-sm outline-none focus:border-tntc-accent">
+                        <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Network Alias</label>
+                        <input type="text" id="loginUsername" placeholder="e.g. Madhanraj" class="w-full bg-[#05070a]/80 border border-white/10 p-3.5 rounded-xl text-white text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner">
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Password</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-[#05070a] border border-tntc-muted/50 p-3 rounded-lg text-white text-sm outline-none focus:border-tntc-accent">
+                        <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Passcode</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-[#05070a]/80 border border-white/10 p-3.5 rounded-xl text-white text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner">
                     </div>
                     
-                    <p id="loginErrorMsg" class="text-red-500 text-xs font-bold hidden tracking-wider uppercase text-center mt-2">Error Message</p>
+                    <p id="loginErrorMsg" class="text-red-500 text-[10px] font-black hidden tracking-widest uppercase text-center mt-2 bg-red-500/10 border border-red-500/30 p-2 rounded shadow-sm">Error Message</p>
                     
-                    <button id="btnLoginSubmit" onclick="submitLogin()" class="w-full mt-4 py-3.5 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all flex justify-center items-center gap-2">
-                        <i data-lucide="log-in" class="w-4 h-4"></i> Authenticate
+                    <button id="btnLoginSubmit" onclick="submitLogin()" class="w-full mt-6 py-4 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] rounded-xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="unlock" class="w-4 h-4"></i> Authenticate
                     </button>
                 </div>
 
                 <!-- REGISTER FORM -->
-                <div id="form-register" class="space-y-4 hidden">
-                    <div class="text-center mb-6">
-                        <div class="w-12 h-12 rounded-full bg-yellow-500/10 border border-yellow-500/30 mx-auto mb-3 flex items-center justify-center shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-                            <i data-lucide="user-plus" class="text-yellow-500 w-6 h-6"></i>
+                <div id="form-register" class="space-y-5 hidden">
+                    <div class="text-center mb-8">
+                        <div class="w-14 h-14 rounded-full bg-yellow-500/10 border border-yellow-500/30 mx-auto mb-4 flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.2)]">
+                            <i data-lucide="shield-question" class="text-yellow-500 w-6 h-6 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]"></i>
                         </div>
-                        <h3 class="text-xl font-black text-white tracking-tight">Join TNTC Division</h3>
-                        <p class="text-[10px] text-tntc-textSecondary uppercase tracking-widest mt-1">Submit Your Application</p>
+                        <h3 class="text-xl font-black text-white tracking-tight drop-shadow-md">Clearance Request</h3>
+                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest mt-1">Submit Data for Review</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Website Username</label>
-                            <input type="text" id="regUsername" placeholder="e.g. Madhanraj" class="w-full bg-[#05070a] border border-tntc-muted/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500">
+                            <label class="block text-[9px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Network Alias</label>
+                            <input type="text" id="regUsername" placeholder="e.g. Madhanraj" class="w-full bg-[#05070a]/80 border border-white/10 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-inner transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-yellow-500 mb-1 uppercase tracking-wider flex items-center gap-1">Tracker Name <i data-lucide="info" class="w-3 h-3 cursor-help text-yellow-500" title="The exact name you typed in your tracker JSON file"></i></label>
-                            <input type="text" id="regTracker" placeholder="e.g. Madhan_TNTC" class="w-full bg-[#05070a] border border-yellow-500/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.1)]">
+                            <label class="block text-[9px] font-black text-yellow-500 mb-2 uppercase tracking-widest flex items-center gap-1">Tracker ID <i data-lucide="info" class="w-3 h-3 cursor-help text-yellow-500 drop-shadow-sm" title="The exact name from your tracker JSON"></i></label>
+                            <input type="text" id="regTracker" placeholder="Madhan_TNTC" class="w-full bg-[#05070a]/80 border border-yellow-500/50 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-[inset_0_0_10px_rgba(234,179,8,0.1)] transition-all">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Set Password</label>
-                        <input type="password" id="regPassword" placeholder="Create a secure password" class="w-full bg-[#05070a] border border-tntc-muted/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500">
+                        <label class="block text-[9px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Set Passcode</label>
+                        <input type="password" id="regPassword" placeholder="••••••••" class="w-full bg-[#05070a]/80 border border-white/10 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-inner transition-all">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Discord ID</label>
-                            <input type="text" id="regDiscord" placeholder="e.g. madhan#1234" class="w-full bg-[#05070a] border border-tntc-muted/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500">
+                            <label class="block text-[9px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Comms ID</label>
+                            <input type="text" id="regDiscord" placeholder="madhan#1234" class="w-full bg-[#05070a]/80 border border-white/10 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-inner transition-all">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Steam64 ID</label>
-                            <input type="text" id="regSteam" placeholder="17-digit number" class="w-full bg-[#05070a] border border-tntc-muted/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500">
+                            <label class="block text-[9px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Steam64</label>
+                            <input type="text" id="regSteam" placeholder="17-digit code" class="w-full bg-[#05070a]/80 border border-white/10 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-inner transition-all">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">TruckersMP ID</label>
-                        <input type="text" id="regTMP" placeholder="TMP ID number" class="w-full bg-[#05070a] border border-tntc-muted/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500">
+                        <label class="block text-[9px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">TMP Link ID</label>
+                        <input type="text" id="regTMP" placeholder="TMP ID number" class="w-full bg-[#05070a]/80 border border-white/10 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-inner transition-all">
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-tntc-textSecondary mb-1 uppercase tracking-wider">Why join TNTC?</label>
-                        <textarea id="regReason" rows="2" placeholder="Brief reason for applying..." class="w-full bg-[#05070a] border border-tntc-muted/50 p-2.5 rounded-lg text-white text-xs outline-none focus:border-yellow-500 custom-scrollbar"></textarea>
+                        <label class="block text-[9px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Motivation Report</label>
+                        <textarea id="regReason" rows="2" placeholder="Brief reason..." class="w-full bg-[#05070a]/80 border border-white/10 p-3 rounded-xl text-white text-xs outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 shadow-inner transition-all custom-scrollbar"></textarea>
                     </div>
 
-                    <p id="regErrorMsg" class="text-red-500 text-[10px] font-bold hidden tracking-wider uppercase text-center mt-2">Error Message</p>
-                    <p id="regSuccessMsg" class="text-green-500 text-[10px] font-bold hidden tracking-wider uppercase text-center mt-2">Application Submitted! Wait for Admin Approval.</p>
+                    <p id="regErrorMsg" class="text-red-500 text-[10px] font-black hidden tracking-widest uppercase text-center mt-2 bg-red-500/10 border border-red-500/30 p-2 rounded shadow-sm">Error Message</p>
+                    <p id="regSuccessMsg" class="text-green-400 text-[10px] font-black hidden tracking-widest uppercase text-center mt-2 bg-green-500/10 border border-green-500/30 p-2 rounded shadow-sm">Data Transmitted! Awaiting Command Approval.</p>
 
-                    <button id="btnRegSubmit" onclick="submitRegister()" class="w-full mt-4 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_15px_rgba(234,179,8,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all flex justify-center items-center gap-2">
-                        Submit Application <i data-lucide="send" class="w-4 h-4"></i>
+                    <button id="btnRegSubmit" onclick="submitRegister()" class="w-full mt-6 py-4 bg-yellow-500 hover:bg-yellow-400 text-[#05070a] shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] rounded-xl font-black text-[10px] uppercase tracking-widest hover:-translate-y-1 transition-all flex justify-center items-center gap-2">
+                        Transmit Data <i data-lucide="send" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
@@ -424,25 +374,8 @@
     </div>
     <!-- ========================================== -->
 
-    <!-- NEWS DETAILS MODAL -->
-    <div id="newsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity">
-        <div class="bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div id="newsModalImageContainer" class="w-full h-48 shrink-0 bg-tntc-main relative bg-cover bg-center border-b border-tntc-muted/30">
-                <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
-                <button onclick="closeNewsModal()" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 -mt-10 relative z-10">
-                <span id="newsModalCategory" class="inline-block px-2.5 py-1 bg-tntc-accent/20 text-tntc-accent border border-tntc-accent/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
-                <h2 id="newsModalTitle" class="text-xl sm:text-2xl font-black text-white leading-tight mb-3">News Title Here</h2>
-                <p id="newsModalDesc" class="text-tntc-textSecondary text-sm mb-6 leading-relaxed">Full description goes here...</p>
-                <a id="newsModalLink" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:opacity-90 text-[#05070a] font-bold py-3 rounded-lg transition-colors shadow-lg">Open Link <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i></a>
-            </div>
-        </div>
-    </div>
-
     <!-- UI Scripts -->
     <script>
-        // Modal UI Switching Logic
         function openAuthModal(tab = 'login') {
             let modal = document.getElementById('authModal');
             modal.classList.remove('hidden');
@@ -463,7 +396,6 @@
             const loginTab = document.getElementById('tab-login');
             const regTab = document.getElementById('tab-register');
 
-            // Reset error messages on switch
             document.getElementById('loginErrorMsg').classList.add('hidden');
             document.getElementById('regErrorMsg').classList.add('hidden');
             document.getElementById('regSuccessMsg').classList.add('hidden');
@@ -472,57 +404,18 @@
                 loginForm.classList.remove('hidden');
                 regForm.classList.add('hidden');
                 
-                loginTab.className = "flex-1 py-4 text-sm font-black tracking-wider uppercase text-tntc-accent border-b-2 border-tntc-accent transition-colors";
-                regTab.className = "flex-1 py-4 text-sm font-black tracking-wider uppercase text-tntc-textSecondary border-b-2 border-transparent hover:text-white transition-colors";
+                loginTab.className = "flex-1 py-5 text-[10px] font-black tracking-widest uppercase text-tntc-accent border-b-2 border-tntc-accent transition-colors shadow-[inset_0_-2px_10px_rgba(56,189,248,0.1)]";
+                regTab.className = "flex-1 py-5 text-[10px] font-black tracking-widest uppercase text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 hover:text-white transition-colors";
             } else {
                 loginForm.classList.add('hidden');
                 regForm.classList.remove('hidden');
                 
-                regTab.className = "flex-1 py-4 text-sm font-black tracking-wider uppercase text-yellow-500 border-b-2 border-yellow-500 transition-colors";
-                loginTab.className = "flex-1 py-4 text-sm font-black tracking-wider uppercase text-tntc-textSecondary border-b-2 border-transparent hover:text-white transition-colors";
+                regTab.className = "flex-1 py-5 text-[10px] font-black tracking-widest uppercase text-yellow-500 border-b-2 border-yellow-500 transition-colors shadow-[inset_0_-2px_10px_rgba(234,179,8,0.1)]";
+                loginTab.className = "flex-1 py-5 text-[10px] font-black tracking-widest uppercase text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 hover:text-white transition-colors";
             }
-        }
-
-        function openNewsModal(title, category, image, desc, link) {
-            document.getElementById('newsModalTitle').textContent = title;
-            document.getElementById('newsModalCategory').textContent = category;
-            document.getElementById('newsModalDesc').textContent = desc;
-            
-            let imgContainer = document.getElementById('newsModalImageContainer');
-            if (image && image.startsWith('http')) {
-                imgContainer.style.backgroundImage = `url('${image}')`;
-            } else {
-                imgContainer.style.backgroundImage = `linear-gradient(to right, #05070a, #0c1017)`;
-            }
-            
-            let linkBtn = document.getElementById('newsModalLink');
-            if (link && link !== '#' && link.startsWith('http')) {
-                linkBtn.href = link;
-                linkBtn.style.display = 'block';
-            } else {
-                linkBtn.style.display = 'none';
-            }
-
-            let modal = document.getElementById('newsModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        function closeNewsModal() {
-            let modal = document.getElementById('newsModal');
-            modal.classList.remove('flex');
-            modal.classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            let newsModal = document.getElementById('newsModal');
-            if(newsModal) {
-                newsModal.addEventListener('click', function(e) {
-                    if(e.target === this) closeNewsModal();
-                });
-            }
-            // Auth modal click outside to close
             let authModal = document.getElementById('authModal');
             if(authModal) {
                 authModal.addEventListener('click', function(e) {
@@ -532,18 +425,10 @@
         });
     </script>
 
-    <!-- BOOT SCRIPTS (Fetch Core, API, and Home) -->
+    <!-- BOOT SCRIPTS -->
     <script src="core.js"></script>
     <script src="api.js"></script>
     <script src="home.js"></script>
-    
-    <!-- Dynamic Assets Trigger -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            if (typeof fetchSiteAssets === 'function') {
-                fetchSiteAssets();
-            }
-        });
-    </script>
+    <script> document.addEventListener("DOMContentLoaded", () => { if (typeof fetchSiteAssets === 'function') fetchSiteAssets(); }); </script>
 </body>
 </html>

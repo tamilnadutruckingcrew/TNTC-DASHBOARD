@@ -12,87 +12,198 @@
             theme: {
                 extend: {
                     colors: {
-                        tntc: { main: '#05070a', card: '#0a0e14', accent: '#06b6d4', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#334155' }
+                        tntc: { main: '#05070a', card: '#0c1017', accent: '#38bdf8', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#0284c7' }
                     }
                 }
             }
         }
     </script>
-    <style>body { background-color: #05070a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }</style>
+    <style>
+        body { background-color: #05070a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    </style>
 </head>
-<body class="min-h-screen p-6 md:p-12 relative">
+<body class="min-h-screen p-6 md:p-12 relative overflow-x-hidden selection:bg-tntc-accent selection:text-[#05070a]">
+    
+    <!-- Background Ambient Glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-tntc-accent/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-    <div class="max-w-6xl mx-auto mb-10 flex justify-between items-center border-b border-tntc-muted/30 pb-6">
+    <div class="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 relative z-10">
         <div>
-            <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Division News Archive</h1>
-            <p class="text-tntc-textSecondary text-sm mt-1">All official updates and dispatches from TNTC.</p>
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-tntc-accent/10 border border-tntc-accent/30 rounded-full mb-4 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                <span class="w-2 h-2 rounded-full bg-tntc-accent animate-pulse"></span>
+                <span class="text-[10px] font-black text-tntc-accent uppercase tracking-widest">Dispatch Center</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tight drop-shadow-lg">Division News Archive</h1>
+            <p class="text-tntc-textSecondary text-sm mt-2 max-w-xl">All official updates, intel, and dispatches from the Tamilnadu Trucking Crew command.</p>
         </div>
-        <a href="index.html" class="px-4 py-2 bg-tntc-card border border-tntc-muted/50 hover:border-tntc-accent rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
+        <a href="index.html" class="px-5 py-2.5 bg-slate-900/50 backdrop-blur-md border border-white/10 hover:border-tntc-accent/50 hover:bg-white/5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg hover:-translate-x-1 group">
+            <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Return to Base
         </a>
     </div>
 
-    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6" id="allNewsContainer">
-        <div class="col-span-full text-center py-20 text-tntc-textSecondary">Loading news archive...</div>
+    <div class="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10" id="allNewsContainer">
+        <div class="col-span-full flex flex-col items-center justify-center py-32 opacity-50">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-tntc-accent mb-4"></div>
+            <p class="text-xs font-bold uppercase tracking-widest text-tntc-textSecondary">Decrypting Intel...</p>
+        </div>
     </div>
 
     <!-- NEWS DETAILS MODAL -->
-    <div id="newsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity">
-        <div class="bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div id="newsModalImageContainer" class="w-full h-48 shrink-0 bg-tntc-main relative bg-cover bg-center border-b border-tntc-muted/30">
-                <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
-                <button onclick="closeNewsModal()" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="newsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-xl transition-opacity duration-300">
+        
+        <!-- Left Navigation Arrow -->
+        <button id="newsPrevBtn" onclick="navigateNews(-1)" class="hidden absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-tntc-accent/20 border border-white/10 hover:border-tntc-accent p-3 md:p-5 rounded-full text-white hover:text-tntc-accent transition-all duration-300 z-[110] backdrop-blur-lg shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:scale-110 hover:-translate-x-1 items-center justify-center group">
+            <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8 group-hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]"></i>
+        </button>
+
+        <div class="bg-slate-900/60 backdrop-blur-2xl border border-white/10 w-full max-w-2xl mx-4 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[90vh] relative transform scale-95 transition-transform duration-300" id="newsModalContent">
+            <div id="newsModalImageContainer" class="w-full h-56 sm:h-72 shrink-0 relative bg-cover bg-center">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10"></div>
+                <button onclick="closeNewsModal()" class="absolute top-6 right-6 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg hover:shadow-[0_0_15px_rgba(244,63,94,0.5)]">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 -mt-10 relative z-10">
-                <span id="newsModalCategory" class="inline-block px-2.5 py-1 bg-tntc-accent/20 text-tntc-accent border border-tntc-accent/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
-                <h2 id="newsModalTitle" class="text-xl sm:text-2xl font-black text-white leading-tight mb-3">News Title Here</h2>
-                <p id="newsModalDesc" class="text-tntc-textSecondary text-sm mb-6 leading-relaxed">Full description goes here...</p>
-                <a id="newsModalLink" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:opacity-90 text-[#05070a] font-bold py-3 rounded-lg transition-colors shadow-lg">Open Link <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i></a>
+            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 relative z-20 -mt-16">
+                <span id="newsModalCategory" class="inline-block px-3 py-1 bg-tntc-accent/20 text-tntc-accent border border-tntc-accent/40 text-[10px] font-black uppercase tracking-widest rounded-full mb-3 shadow-[0_0_15px_rgba(56,189,248,0.3)] backdrop-blur-md">CATEGORY</span>
+                <h2 id="newsModalTitle" class="text-2xl sm:text-3xl font-black text-white leading-tight mb-4 drop-shadow-md">News Title Here</h2>
+                <div class="w-12 h-1 bg-tntc-accent/50 rounded-full mb-6"></div>
+                <!-- 🚀 UPGRADED: Added whitespace-pre-line to preserve line breaks -->
+                <p id="newsModalDesc" class="text-tntc-textSecondary text-sm sm:text-base mb-8 leading-relaxed whitespace-pre-line">Full description goes here...</p>
+                <a id="newsModalLink" href="#" target="_blank" class="w-full flex items-center justify-center gap-2 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] uppercase tracking-widest text-xs">
+                    Access External Link <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
             </div>
         </div>
+
+        <!-- Right Navigation Arrow -->
+        <button id="newsNextBtn" onclick="navigateNews(1)" class="hidden absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-tntc-accent/20 border border-white/10 hover:border-tntc-accent p-3 md:p-5 rounded-full text-white hover:text-tntc-accent transition-all duration-300 z-[110] backdrop-blur-lg shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:scale-110 hover:translate-x-1 items-center justify-center group">
+            <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8 group-hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]"></i>
+        </button>
     </div>
 
     <script src="home.js"></script>
     <script>
-        function openNewsModal(title, category, image, desc, link) {
-            document.getElementById('newsModalTitle').textContent = title;
-            document.getElementById('newsModalCategory').textContent = category;
-            document.getElementById('newsModalDesc').textContent = desc;
+        // Global variables for array-based navigation
+        let globalNewsData = [];
+        let currentNewsIndex = 0;
+
+        function openNewsModal(index) {
+            currentNewsIndex = index;
+            const item = globalNewsData[index];
+            
+            document.getElementById('newsModalTitle').textContent = item.TITLE || 'Untitled';
+            document.getElementById('newsModalCategory').textContent = item.CATEGORY || 'UPDATE';
+            document.getElementById('newsModalDesc').textContent = item.DESCRIPTION || 'No description available.';
             
             let imgContainer = document.getElementById('newsModalImageContainer');
-            if (image && image.startsWith('http')) {
-                imgContainer.style.backgroundImage = `url('${image}')`;
+            if (item.IMAGE_URL && item.IMAGE_URL.startsWith('http')) {
+                imgContainer.style.backgroundImage = `url('${item.IMAGE_URL}')`;
             } else {
-                imgContainer.style.backgroundImage = `linear-gradient(to right, #05070a, #0c1017)`;
+                imgContainer.style.backgroundImage = `linear-gradient(to right, #0f172a, #05070a)`;
             }
             
             let linkBtn = document.getElementById('newsModalLink');
-            if (link && link !== '#' && link.startsWith('http')) {
-                linkBtn.href = link;
-                linkBtn.style.display = 'block';
+            if (item.LINK && item.LINK !== '#' && item.LINK.startsWith('http')) {
+                linkBtn.href = item.LINK;
+                linkBtn.style.display = 'flex';
             } else {
                 linkBtn.style.display = 'none';
             }
 
+            updateNavButtons();
+
             let modal = document.getElementById('newsModal');
+            let content = document.getElementById('newsModalContent');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            requestAnimationFrame(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
             if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function navigateNews(direction) {
+            let newIndex = currentNewsIndex + direction;
+            if (newIndex >= 0 && newIndex < globalNewsData.length) {
+                // Add a quick fade out/in effect for the content transition
+                const content = document.getElementById('newsModalContent');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95', 'opacity-50');
+                
+                setTimeout(() => {
+                    openNewsModal(newIndex);
+                    content.classList.remove('scale-95', 'opacity-50');
+                    content.classList.add('scale-100');
+                }, 150);
+            }
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('newsPrevBtn');
+            const nextBtn = document.getElementById('newsNextBtn');
+            
+            if (prevBtn) {
+                if (currentNewsIndex > 0) {
+                    prevBtn.classList.remove('hidden');
+                    prevBtn.classList.add('flex');
+                } else {
+                    prevBtn.classList.add('hidden');
+                    prevBtn.classList.remove('flex');
+                }
+            }
+            
+            if (nextBtn) {
+                if (currentNewsIndex < globalNewsData.length - 1) {
+                    nextBtn.classList.remove('hidden');
+                    nextBtn.classList.add('flex');
+                } else {
+                    nextBtn.classList.add('hidden');
+                    nextBtn.classList.remove('flex');
+                }
+            }
         }
 
         function closeNewsModal() {
             let modal = document.getElementById('newsModal');
-            modal.classList.remove('flex');
-            modal.classList.add('hidden');
+            let content = document.getElementById('newsModalContent');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             let modal = document.getElementById('newsModal');
+            let content = document.getElementById('newsModalContent');
+            
             if(modal) {
                 modal.addEventListener('click', function(e) {
-                    if(e.target === this) closeNewsModal();
+                    // Prevent closing when clicking nav buttons
+                    if(e.target === this && !e.target.closest('#newsPrevBtn') && !e.target.closest('#newsNextBtn')) {
+                        closeNewsModal();
+                    }
                 });
             }
+
+            // Keyboard Navigation Listeners
+            document.addEventListener('keydown', (e) => {
+                if (modal && !modal.classList.contains('hidden')) {
+                    if (e.key === 'ArrowLeft') {
+                        navigateNews(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        navigateNews(1);
+                    } else if (e.key === 'Escape') {
+                        closeNewsModal();
+                    }
+                }
+            });
 
             Papa.parse(NEWS_CSV_URL, { 
                 download: true, 
@@ -102,39 +213,34 @@
                     if(results.data && results.data.length > 0) {
                         let html = "";
                         
-                        // Thelivaana Date Based Sorting (Newest First)
-                        let sortedNews = [...results.data].sort((a, b) => {
+                        // Filter invalid rows, sort by date, and save globally
+                        globalNewsData = [...results.data].filter(item => item.TITLE).sort((a, b) => {
                             let dateA = new Date(a.DATE).getTime() || 0;
                             let dateB = new Date(b.DATE).getTime() || 0;
                             return dateB - dateA; 
                         });
                         
-                        sortedNews.forEach(item => {
-                            if(item.TITLE) {
-                                // FIXED: Safe string escape for modal interaction
-                                let safeTitle = (item.TITLE || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                                let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                                let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                                let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/gm, " ");
-                                let safeLink = (item.LINK || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-                                html += `
-                                <div class="bg-tntc-card border border-tntc-muted/50 rounded-xl overflow-hidden hover:border-tntc-accent/50 transition-colors group flex flex-col justify-between">
-                                    <div>
-                                        <img src="${item.IMAGE_URL}" class="w-full h-48 object-cover opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.src='https://placehold.co/600x400/0a0e14/06b6d4?text=TNTC+News'">
-                                        <div class="p-6">
-                                            <span class="text-[10px] text-tntc-accent font-bold uppercase tracking-widest">${item.CATEGORY}</span>
-                                            <h3 class="text-xl font-bold text-white mt-2 mb-3">${item.TITLE}</h3>
-                                            <p class="text-sm text-tntc-textSecondary mb-4 line-clamp-3">${item.DESCRIPTION}</p>
-                                        </div>
+                        globalNewsData.forEach((item, index) => {
+                            html += `
+                            <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden hover:border-tntc-accent/40 hover:shadow-[0_0_30px_rgba(56,189,248,0.1)] hover:-translate-y-1 transition-all duration-300 group flex flex-col relative">
+                                <div class="relative h-56 overflow-hidden shrink-0">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-[#0a0e14] via-transparent to-transparent z-10"></div>
+                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://placehold.co/600x400/0a0e14/06b6d4?text=TNTC+News'">
+                                    <div class="absolute top-4 right-4 z-20">
+                                        <span class="px-3 py-1.5 bg-[#05070a]/80 backdrop-blur-md border border-white/10 text-tntc-accent text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-tntc-accent shadow-[0_0_5px_#38bdf8]"></span> ${item.CATEGORY}</span>
                                     </div>
-                                    <div class="px-6 pb-6">
-                                        <button onclick="openNewsModal('${safeTitle}', '${safeCat}', '${safeImg}', '${safeDesc}', '${safeLink}')" class="text-xs font-bold text-white flex items-center gap-2 group-hover:text-tntc-accent transition-colors cursor-pointer">READ MORE <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
-                                    </div>
-                                </div>`;
-                            }
+                                </div>
+                                <div class="p-6 md:p-8 relative z-20 flex-1 flex flex-col bg-gradient-to-b from-[#0a0e14] to-transparent">
+                                    <p class="text-[10px] text-tntc-textSecondary font-mono tracking-widest mb-3 flex items-center gap-2"><i data-lucide="clock" class="w-3 h-3"></i> ${item.DATE}</p>
+                                    <h3 class="text-xl font-black text-white mb-4 group-hover:text-tntc-accent transition-colors leading-tight drop-shadow-md">${item.TITLE}</h3>
+                                    <p class="text-sm text-tntc-textSecondary mb-8 line-clamp-3 leading-relaxed flex-1">${item.DESCRIPTION}</p>
+                                    <button onclick="openNewsModal(${index})" class="w-full py-3.5 bg-white/5 hover:bg-tntc-accent/10 border border-white/10 hover:border-tntc-accent/50 text-white hover:text-tntc-accent text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+                                        READ DISPATCH <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform"></i>
+                                    </button>
+                                </div>
+                            </div>`;
                         });
-                        document.getElementById('allNewsContainer').innerHTML = html || '<p class="col-span-full text-center text-tntc-textSecondary">No news articles found.</p>';
+                        document.getElementById('allNewsContainer').innerHTML = html || '<div class="col-span-full py-20 text-center"><p class="text-tntc-textSecondary font-bold tracking-widest uppercase">No dispatches found.</p></div>';
                         if(typeof lucide !== 'undefined') lucide.createIcons();
                     }
                 }

@@ -12,61 +12,82 @@
             theme: {
                 extend: {
                     colors: {
-                        tntc: { main: '#05070a', card: '#0a0e14', distance: '#22c55e', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#334155', accent: '#38bdf8' }
+                        tntc: { main: '#05070a', card: '#0c1017', distance: '#4ade80', textPrimary: '#f8fafc', textSecondary: '#94a3b8', muted: '#0284c7', accent: '#38bdf8' }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #05070a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Lightbox Animations */
+        body { background-color: #05070a; color: #f8fafc; font-family: 'Inter', sans-serif; }
         .lightbox-enter { opacity: 0; }
         .lightbox-enter-active { opacity: 1; transition: opacity 0.3s ease-out; }
         .lightbox-exit { opacity: 1; }
         .lightbox-exit-active { opacity: 0; transition: opacity 0.3s ease-in; }
-        
         .img-scale-enter { transform: scale(0.9); }
         .img-scale-enter-active { transform: scale(1); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .img-scale-exit { transform: scale(1); }
         .img-scale-exit-active { transform: scale(0.95); transition: transform 0.3s ease-in; }
     </style>
 </head>
-<body class="min-h-screen p-6 md:p-12 relative">
-    <div class="max-w-6xl mx-auto mb-10 flex justify-between items-center border-b border-tntc-muted/30 pb-6 relative z-10">
+<body class="min-h-screen p-6 md:p-12 relative overflow-x-hidden selection:bg-tntc-distance selection:text-[#05070a]">
+    
+    <!-- Ambient Glow -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-tntc-distance/5 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+    <div class="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 relative z-10">
         <div>
-            <h1 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">Full Fleet Gallery</h1>
-            <p class="text-tntc-textSecondary text-sm mt-1">Snapshots from our convoys and travels on the road.</p>
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-tntc-distance/10 border border-tntc-distance/30 rounded-full mb-4 shadow-[0_0_15px_rgba(74,222,128,0.2)]">
+                <i data-lucide="image" class="w-3 h-3 text-tntc-distance"></i>
+                <span class="text-[10px] font-black text-tntc-distance uppercase tracking-widest">Media Center</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tight drop-shadow-lg">Full Fleet Gallery</h1>
+            <p class="text-tntc-textSecondary text-sm mt-2 max-w-xl">High-resolution captures from our convoys and travels across the virtual asphalt.</p>
         </div>
-        <a href="index.html" class="px-4 py-2 bg-tntc-card border border-tntc-muted/50 hover:border-tntc-accent hover:text-tntc-accent rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
+        <a href="index.html" class="px-5 py-2.5 bg-slate-900/50 backdrop-blur-md border border-white/10 hover:border-tntc-distance/50 hover:bg-white/5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg hover:-translate-x-1 group">
+            <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Return to Base
         </a>
     </div>
 
     <!-- Gallery Container -->
-    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 relative z-10" id="allGalleryContainer">
-        <div class="col-span-full text-center py-20 text-tntc-textSecondary">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-tntc-accent mx-auto mb-4"></div>
-            Loading gallery...
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10" id="allGalleryContainer">
+        <div class="col-span-full flex flex-col items-center justify-center py-32 opacity-50">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-tntc-distance mb-4"></div>
+            <p class="text-xs font-bold uppercase tracking-widest text-tntc-textSecondary">Loading Media...</p>
         </div>
     </div>
 
     <!-- 🔥 FULL SCREEN LIGHTBOX MODAL 🔥 -->
-    <div id="lightboxModal" class="fixed inset-0 z-[100] hidden bg-black/95 backdrop-blur-md flex items-center justify-center lightbox-enter">
+    <div id="lightboxModal" class="fixed inset-0 z-[100] hidden bg-black/95 backdrop-blur-xl flex items-center justify-center lightbox-enter">
+        
         <!-- Close Button -->
-        <button onclick="closeLightbox()" class="absolute top-6 right-6 md:top-10 md:right-10 text-white/60 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all z-50 shadow-lg">
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 md:top-10 md:right-10 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 p-3 rounded-full transition-all z-[120] shadow-lg backdrop-blur-md">
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
-        
+
+        <!-- Left Navigation Arrow -->
+        <button id="galleryPrevBtn" onclick="navigateGallery(-1)" class="hidden absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-tntc-distance/20 border border-white/10 hover:border-tntc-distance p-3 md:p-5 rounded-full text-white hover:text-tntc-distance transition-all duration-300 z-[110] backdrop-blur-lg shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] hover:scale-110 hover:-translate-x-1 items-center justify-center group">
+            <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8 group-hover:drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]"></i>
+        </button>
+
         <!-- Image Container -->
-        <div class="w-full h-full max-w-6xl max-h-[90vh] p-4 flex items-center justify-center img-scale-enter" id="lightboxContent">
-            <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10">
+        <div class="w-full h-full max-w-7xl max-h-[90vh] p-4 flex items-center justify-center img-scale-enter" id="lightboxContent">
+            <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-2xl shadow-[0_0_80px_rgba(0,0,0,0.9)] border border-white/10">
         </div>
+
+        <!-- Right Navigation Arrow -->
+        <button id="galleryNextBtn" onclick="navigateGallery(1)" class="hidden absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-tntc-distance/20 border border-white/10 hover:border-tntc-distance p-3 md:p-5 rounded-full text-white hover:text-tntc-distance transition-all duration-300 z-[110] backdrop-blur-lg shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] hover:scale-110 hover:translate-x-1 items-center justify-center group">
+            <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8 group-hover:drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]"></i>
+        </button>
+
     </div>
 
     <script src="home.js"></script>
     <script>
+        // Global Array for Navigation
+        let globalGalleryData = [];
+        let currentGalleryIndex = 0;
+
         document.addEventListener("DOMContentLoaded", () => {
             Papa.parse(GALLERY_CSV_URL, { 
                 download: true, 
@@ -75,78 +96,119 @@
                 complete: function(results) {
                     if(results.data && results.data.length > 0) {
                         let html = "";
-                        // Reversed Data to show latest uploads first
                         let reversedData = [...results.data].reverse();
                         
-                        reversedData.forEach(item => {
-                            if(item.IMAGE_URL) {
-                                let safeUrl = item.IMAGE_URL.replace(/'/g, "\\'");
-                                html += `
-                                <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group cursor-pointer" onclick="openLightbox('${safeUrl}')">
-                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
-                                </div>`;
-                            }
+                        // Populate array & render UI
+                        globalGalleryData = reversedData.filter(item => item.IMAGE_URL).map(item => item.IMAGE_URL);
+                        
+                        globalGalleryData.forEach((url, index) => {
+                            let safeUrl = url.replace(/'/g, "\\'");
+                            html += `
+                            <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900/40 backdrop-blur-xl border border-white/10 hover:border-tntc-distance/50 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] group cursor-pointer relative transition-all duration-300" onclick="openLightbox(${index})">
+                                <img src="${safeUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://placehold.co/400x400/0a0e14/4ade80?text=TNTC'">
+                            </div>`;
                         });
-                        document.getElementById('allGalleryContainer').innerHTML = html || '<p class="col-span-full text-center text-tntc-textSecondary">No images found.</p>';
+
+                        document.getElementById('allGalleryContainer').innerHTML = html || '<div class="col-span-full py-20 text-center"><p class="text-tntc-textSecondary font-bold tracking-widest uppercase">No media found.</p></div>';
                         lucide.createIcons();
                     }
                 }
             });
         });
 
-        // 🔥 LIGHTBOX JS LOGIC 🔥
         const modal = document.getElementById('lightboxModal');
         const content = document.getElementById('lightboxContent');
         const img = document.getElementById('lightboxImg');
 
-        function openLightbox(url) {
-            img.src = url;
-            modal.classList.remove('hidden');
+        function openLightbox(index) {
+            currentGalleryIndex = index;
+            img.src = globalGalleryData[index];
             
-            // Trigger animation frame for CSS transitions
+            updateNavButtons();
+
+            modal.classList.remove('hidden');
             requestAnimationFrame(() => {
                 modal.classList.remove('lightbox-enter');
                 modal.classList.add('lightbox-enter-active');
-                
                 content.classList.remove('img-scale-enter');
                 content.classList.add('img-scale-enter-active');
             });
-            
-            // Prevent body scroll when modal is open
             document.body.style.overflow = 'hidden';
+        }
+
+        function navigateGallery(direction) {
+            let newIndex = currentGalleryIndex + direction;
+            if (newIndex >= 0 && newIndex < globalGalleryData.length) {
+                // Smooth transition effect
+                content.classList.remove('img-scale-enter-active');
+                content.classList.add('img-scale-exit-active', 'opacity-50');
+                
+                setTimeout(() => {
+                    openLightbox(newIndex);
+                    content.classList.remove('img-scale-exit-active', 'opacity-50');
+                    content.classList.add('img-scale-enter-active');
+                }, 150);
+            }
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('galleryPrevBtn');
+            const nextBtn = document.getElementById('galleryNextBtn');
+            
+            if (prevBtn) {
+                if (currentGalleryIndex > 0) {
+                    prevBtn.classList.remove('hidden');
+                    prevBtn.classList.add('flex');
+                } else {
+                    prevBtn.classList.add('hidden');
+                    prevBtn.classList.remove('flex');
+                }
+            }
+            
+            if (nextBtn) {
+                if (currentGalleryIndex < globalGalleryData.length - 1) {
+                    nextBtn.classList.remove('hidden');
+                    nextBtn.classList.add('flex');
+                } else {
+                    nextBtn.classList.add('hidden');
+                    nextBtn.classList.remove('flex');
+                }
+            }
         }
 
         function closeLightbox() {
             modal.classList.remove('lightbox-enter-active');
             modal.classList.add('lightbox-exit-active');
-            
             content.classList.remove('img-scale-enter-active');
             content.classList.add('img-scale-exit-active');
-            
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('lightbox-exit-active');
                 modal.classList.add('lightbox-enter');
-                
                 content.classList.remove('img-scale-exit-active');
                 content.classList.add('img-scale-enter');
-                
                 img.src = "";
-                document.body.style.overflow = ''; // Restore scroll
+                document.body.style.overflow = '';
             }, 300);
         }
 
-        // Close when clicking the background (outside the image)
-        modal.addEventListener('click', function(e) {
+        // Close on background click
+        modal.addEventListener('click', function(e) { 
             if (e.target === this || e.target === content) {
-                closeLightbox();
+                closeLightbox(); 
             }
         });
-        
-        // Close on ESC key press
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                closeLightbox();
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', function(e) { 
+            if (!modal.classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    closeLightbox();
+                } else if (e.key === 'ArrowLeft') {
+                    navigateGallery(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateGallery(1);
+                }
             }
         });
     </script>

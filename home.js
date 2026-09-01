@@ -1,31 +1,18 @@
-// ==========================================
-// TNTC HOMEPAGE ENGINE
-// ==========================================
-
-// Add all your CSV URLs here inside the array
 const JOB_LOGS_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
 ];
-
 const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
 const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
-
-// 🔴 YOUR GOOGLE APPS SCRIPT WEB APP URL (RENAMED TO PREVENT VAR COLLISIONS) 🔴
 const HOME_APP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     loadStatsAndMarquee();
     loadNews();
     loadGallery();
     initScrollReveal();
 });
 
-// ==========================================
-// USER AUTHENTICATION & REGISTRATION
-// ==========================================
 let redirectTarget = "dashboard.html"; 
 
 function secureDownloadLogin() {
@@ -33,7 +20,6 @@ function secureDownloadLogin() {
     if(typeof openAuthModal === 'function') openAuthModal('login');
 }
 
-// 🔐 BULLETPROOF LOGIN ENGINE
 async function submitLogin() {
     const user = document.getElementById('loginUsername').value.trim();
     const pass = document.getElementById('loginPassword').value.trim();
@@ -41,17 +27,16 @@ async function submitLogin() {
     const btn = document.getElementById('btnLoginSubmit');
 
     if (!user || !pass) {
-        errorMsg.innerText = "Username and Password required!";
+        errorMsg.innerText = "Credentials missing.";
         errorMsg.classList.remove('hidden');
         return;
     }
 
     errorMsg.classList.add('hidden');
     let originalBtnText = btn.innerHTML;
-    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Verifying...`;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing...`;
     btn.disabled = true;
 
-    // Construct the GET URL
     const url = `${HOME_APP_URL}?action=LOGIN_USER&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
 
     try {
@@ -64,12 +49,11 @@ async function submitLogin() {
             sessionStorage.setItem('tntc_tracker', result.user.trackerName);
             window.location.href = redirectTarget;
         } else {
-            errorMsg.innerText = result.message || "Invalid credentials or account pending.";
+            errorMsg.innerText = result.message || "Clearance denied.";
             errorMsg.classList.remove('hidden');
         }
     } catch (err) {
-        console.error("Login Error:", err);
-        errorMsg.innerText = "Connection error. Ensure script is deployed correctly.";
+        errorMsg.innerText = "Network link severed.";
         errorMsg.classList.remove('hidden');
     } finally {
         btn.innerHTML = originalBtnText;
@@ -78,7 +62,6 @@ async function submitLogin() {
     }
 }
 
-// 📝 BULLETPROOF REGISTRATION ENGINE
 async function submitRegister() {
     const btn = document.getElementById('btnRegSubmit');
     const errorMsg = document.getElementById('regErrorMsg');
@@ -93,7 +76,7 @@ async function submitRegister() {
     const reason = document.getElementById('regReason').value.trim();
 
     if (!user || !pass || !tracker) {
-        errorMsg.innerText = "Username, Tracker Name, and Password are required!";
+        errorMsg.innerText = "Core parameters missing.";
         errorMsg.classList.remove('hidden');
         return;
     }
@@ -102,10 +85,9 @@ async function submitRegister() {
     successMsg.classList.add('hidden');
     
     let originalBtnText = btn.innerHTML;
-    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Submitting...`;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Transmitting...`;
     btn.disabled = true;
 
-    // Construct the GET URL
     const url = `${HOME_APP_URL}?action=REGISTER_USER&username=${encodeURIComponent(user)}&trackerName=${encodeURIComponent(tracker)}&password=${encodeURIComponent(pass)}&discord=${encodeURIComponent(discord)}&steamId=${encodeURIComponent(steam)}&tmpId=${encodeURIComponent(tmp)}&reason=${encodeURIComponent(reason)}`;
 
     try {
@@ -113,23 +95,16 @@ async function submitRegister() {
         const result = await response.json();
 
         if (result.status === "success") {
-            successMsg.innerText = result.message || "Application Submitted! Wait for Admin Approval.";
+            successMsg.innerText = result.message || "Data Transmitted! Awaiting Command Approval.";
             successMsg.classList.remove('hidden');
-            
-            ['regUsername', 'regTracker', 'regPassword', 'regDiscord', 'regSteam', 'regTMP', 'regReason'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-
-            setTimeout(() => {
-                if(typeof switchAuthTab === 'function') switchAuthTab('login');
-            }, 3000);
+            ['regUsername', 'regTracker', 'regPassword', 'regDiscord', 'regSteam', 'regTMP', 'regReason'].forEach(id => { document.getElementById(id).value = ''; });
+            setTimeout(() => { if(typeof switchAuthTab === 'function') switchAuthTab('login'); }, 3000);
         } else {
-            errorMsg.innerText = result.message || "Registration failed. Username may already exist.";
+            errorMsg.innerText = result.message || "Transmission failed.";
             errorMsg.classList.remove('hidden');
         }
     } catch (err) {
-        console.error("Register Error:", err);
-        errorMsg.innerText = "Connection error. Please try again.";
+        errorMsg.innerText = "Network link severed.";
         errorMsg.classList.remove('hidden');
     } finally {
         btn.innerHTML = originalBtnText;
@@ -138,62 +113,37 @@ async function submitRegister() {
     }
 }
 
-// ==========================================
-// VTC STATS & MARQUEE ENGINE
-// ==========================================
 function loadStatsAndMarquee() {
     let marqueeEl = document.getElementById('marqueeData');
     if(!marqueeEl) return; 
 
     let fetchPromises = JOB_LOGS_URLS.map(url => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             Papa.parse(url, {
-                download: true,
-                header: false,
-                skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let dataRows = results.data.slice(1); 
-                    resolve(dataRows);
-                },
-                error: function(err) {
-                    console.error("Error fetching URL:", url, err);
-                    resolve([]); 
-                }
+                download: true, header: false, skipEmptyLines: 'greedy',
+                complete: function(results) { resolve(results.data.slice(1)); },
+                error: function() { resolve([]); }
             });
         });
     });
 
     Promise.all(fetchPromises).then(allResults => {
         let combinedRows = [];
-        
-        allResults.forEach(rows => {
-            combinedRows = combinedRows.concat(rows);
-        });
+        allResults.forEach(rows => combinedRows = combinedRows.concat(rows));
+        combinedRows.sort((a, b) => (new Date(a[0]).getTime() || 0) - (new Date(b[0]).getTime() || 0));
 
-        combinedRows.sort((a, b) => {
-            let dateA = new Date(a[0]).getTime() || 0; 
-            let dateB = new Date(b[0]).getTime() || 0;
-            return dateA - dateB;
-        });
-
-        let totalDist = 0;
-        let totalJobs = 0;
-        let recentJobsList = [];
+        let totalDist = 0; let totalJobs = 0; let recentJobsList = [];
 
         for(let i = 0; i < combinedRows.length; i++) {
             let row = combinedRows[i];
             let driverName = String(row[2] || '').trim();
-            
             if(!driverName || driverName.toUpperCase() === 'UNKNOWN') continue;
 
-            let source = String(row[5] || 'Unknown');
-            let dest = String(row[7] || 'Unknown');
-            let distStr = String(row[12] || '0').replace(/[^0-9.-]/g, '');
-            let dist = parseFloat(distStr) || 0;
+            let source = String(row[5] || 'Unknown'); let dest = String(row[7] || 'Unknown');
+            let dist = parseFloat(String(row[12] || '0').replace(/[^0-9.-]/g, '')) || 0;
 
             if (dist > 0) {
-                totalDist += dist;
-                totalJobs++;
+                totalDist += dist; totalJobs++;
                 recentJobsList.push({ driver: driverName, source: source, dest: dest, dist: dist });
             }
         }
@@ -202,19 +152,18 @@ function loadStatsAndMarquee() {
         let topRecent = recentJobsList.slice(-10).reverse(); 
         topRecent.forEach(job => {
             marqueeHtml += `
-            <span class="mx-6 flex items-center gap-2 inline-flex">
-                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-tntc-distance"></i> 
-                JOB DELIVERED: <span class="text-white">${job.driver}</span> 
-                <span class="text-tntc-muted mx-2">|</span> 
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-tntc-accent"></i>
-                <span class="text-tntc-accent">${job.source} ➔ ${job.dest}</span> (${job.dist}km)
+            <span class="mx-8 flex items-center gap-2 inline-flex">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-tntc-distance drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]"></i> 
+                DELIVERED: <span class="text-white font-black">${job.driver}</span> 
+                <span class="text-white/20 mx-2">|</span> 
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i>
+                <span class="text-tntc-accent">${job.source} <span class="opacity-50">➔</span> ${job.dest}</span> (${job.dist}km)
             </span>`;
         });
 
         if (marqueeEl) {
-            if (marqueeHtml === "") marqueeHtml = `<span class="text-tntc-textSecondary">Waiting for new jobs...</span>`;
-            let repeatingBlock = `<span class="inline-flex items-center">${marqueeHtml}</span>`;
-            marqueeEl.innerHTML = repeatingBlock + repeatingBlock;
+            if (marqueeHtml === "") marqueeHtml = `<span class="text-tntc-textSecondary">Awaiting network data...</span>`;
+            marqueeEl.innerHTML = `<span class="inline-flex items-center">${marqueeHtml}${marqueeHtml}</span>`;
             if(typeof lucide !== 'undefined') lucide.createIcons({ root: marqueeEl });
         }
 
@@ -222,7 +171,6 @@ function loadStatsAndMarquee() {
         const exactOrbits = totalDist / earthOrbitKm;
         const orbits = Math.floor(exactOrbits);
         const kmToNextOrbit = earthOrbitKm - (totalDist % earthOrbitKm);
-        
         let progressDecimal = exactOrbits / 400; 
         if (progressDecimal > 1) progressDecimal = 1; 
 
@@ -236,10 +184,7 @@ function loadStatsAndMarquee() {
 
         drawOrbitCurve(progressDecimal);
 
-    }).catch(err => {
-        console.error("Promise Array Error:", err);
-        if(marqueeEl) marqueeEl.innerHTML = `<span class="text-red-500 font-bold">Error combining VTC Databases.</span>`;
-    });
+    }).catch(() => { if(marqueeEl) marqueeEl.innerHTML = `<span class="text-red-500 font-bold">Error compiling array.</span>`; });
 }
 
 function animateValue(id, start, end, duration) {
@@ -251,13 +196,9 @@ function animateValue(id, start, end, duration) {
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
         let val = Math.floor(progress * (end - start) + start);
         
-        if (val >= 1000000) {
-            obj.innerHTML = (val / 1000000).toFixed(1) + '<span class="text-3xl ml-1 font-bold">M</span>';
-        } else if (val >= 1000 && id !== 'statOrbits') {
-            obj.innerHTML = (val / 1000).toFixed(1) + '<span class="text-3xl ml-1 font-bold">K</span>';
-        } else {
-            obj.innerHTML = val.toLocaleString();
-        }
+        if (val >= 1000000) obj.innerHTML = (val / 1000000).toFixed(1) + '<span class="text-3xl ml-1 font-bold opacity-50">M</span>';
+        else if (val >= 1000 && id !== 'statOrbits') obj.innerHTML = (val / 1000).toFixed(1) + '<span class="text-3xl ml-1 font-bold opacity-50">K</span>';
+        else obj.innerHTML = val.toLocaleString();
         
         if (progress < 1) window.requestAnimationFrame(step);
     };
@@ -282,53 +223,37 @@ function drawOrbitCurve(progress) {
     }, 500);
 }
 
-// ==========================================
-// CONTENT ENGINES (NEWS & GALLERY)
-// ==========================================
 function loadNews() {
     let container = document.getElementById('newsContainer');
     if(!container) return; 
-
-    if(NEWS_CSV_URL.includes("YOUR_")) return;
     
     Papa.parse(NEWS_CSV_URL, { 
-        download: true, 
-        header: true, 
-        skipEmptyLines: 'greedy',
+        download: true, header: true, skipEmptyLines: 'greedy',
         complete: function(results) {
             if(results.data && results.data.length > 0 && results.data[0].TITLE) {
                 let newsSection = document.getElementById('news');
                 if(newsSection) newsSection.classList.remove('hidden');
                 
-                let sortedNews = [...results.data].sort((a, b) => {
-                    let dateA = new Date(a.DATE).getTime() || 0;
-                    let dateB = new Date(b.DATE).getTime() || 0;
-                    return dateB - dateA; 
-                });
-                
+                let sortedNews = [...results.data].sort((a, b) => (new Date(b.DATE).getTime() || 0) - (new Date(a.DATE).getTime() || 0));
                 let html = "";
-                let previewItems = sortedNews.slice(0, 3);
                 
-                previewItems.forEach(item => {
+                sortedNews.slice(0, 3).forEach(item => {
                     if(item.TITLE) {
-                        let safeTitle = (item.TITLE || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        let safeCat = (item.CATEGORY || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        let safeImg = (item.IMAGE_URL || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        let safeDesc = (item.DESCRIPTION || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/gm, " ");
-                        let safeLink = (item.LINK || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
                         html += `
-                        <div class="bg-tntc-card border border-tntc-muted/50 rounded-xl overflow-hidden hover:border-tntc-accent/50 transition-colors group flex flex-col justify-between">
-                            <div>
-                                <img src="${item.IMAGE_URL}" class="w-full h-48 object-cover opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.src='https://placehold.co/600x400/0a0e14/06b6d4?text=TNTC+News'">
-                                <div class="p-6">
-                                    <span class="text-[10px] text-tntc-accent font-bold uppercase tracking-widest">${item.CATEGORY}</span>
-                                    <h3 class="text-xl font-bold text-white mt-2 mb-3">${item.TITLE}</h3>
-                                    <p class="text-sm text-tntc-textSecondary mb-4 line-clamp-3">${item.DESCRIPTION}</p>
+                        <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden hover:border-tntc-accent/40 hover:shadow-[0_0_30px_rgba(56,189,248,0.1)] hover:-translate-y-1 transition-all duration-300 group flex flex-col relative">
+                            <div class="relative h-48 overflow-hidden shrink-0">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0e14] via-transparent to-transparent z-10"></div>
+                                <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://placehold.co/600x400/0a0e14/06b6d4?text=TNTC+News'">
+                                <div class="absolute top-4 right-4 z-20">
+                                    <span class="px-3 py-1.5 bg-[#05070a]/80 backdrop-blur-md border border-white/10 text-tntc-accent text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-tntc-accent shadow-[0_0_5px_#38bdf8]"></span> ${item.CATEGORY}</span>
                                 </div>
                             </div>
-                            <div class="px-6 pb-6">
-                                <button onclick="openNewsModal('${safeTitle}', '${safeCat}', '${safeImg}', '${safeDesc}', '${safeLink}')" class="text-xs font-bold text-white flex items-center gap-2 group-hover:text-tntc-accent transition-colors cursor-pointer">READ MORE <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+                            <div class="p-6 md:p-8 relative z-20 flex-1 flex flex-col bg-gradient-to-b from-[#0a0e14] to-transparent">
+                                <h3 class="text-lg font-black text-white mb-4 group-hover:text-tntc-accent transition-colors leading-tight drop-shadow-md">${item.TITLE}</h3>
+                                <p class="text-xs text-tntc-textSecondary mb-6 line-clamp-3 leading-relaxed flex-1">${item.DESCRIPTION}</p>
+                                <a href="news.html" class="w-full py-3 bg-white/5 hover:bg-tntc-accent/10 border border-white/10 hover:border-tntc-accent/50 text-white hover:text-tntc-accent text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+                                    READ DISPATCH <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform"></i>
+                                </a>
                             </div>
                         </div>`;
                     }
@@ -343,54 +268,39 @@ function loadNews() {
 function loadGallery() {
     let container = document.getElementById('galleryContainer');
     if(!container) return; 
-
-    if(GALLERY_CSV_URL.includes("YOUR_")) return;
     
     Papa.parse(GALLERY_CSV_URL, { 
-        download: true, 
-        header: true, 
-        skipEmptyLines: 'greedy',
+        download: true, header: true, skipEmptyLines: 'greedy',
         complete: function(results) {
             if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
                 let gallerySection = document.getElementById('gallery');
                 if(gallerySection) gallerySection.classList.remove('hidden');
 
                 let html = "";
-                let previewImages = [...results.data].reverse().slice(0, 4);
-
-                previewImages.forEach(item => {
+                [...results.data].reverse().slice(0, 4).forEach(item => {
                     if(item.IMAGE_URL) {
                         html += `
-                        <div class="aspect-square rounded-xl overflow-hidden bg-tntc-main border border-tntc-muted/30 group">
-                            <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/400x400/0a0e14/06b6d4?text=TNTC'">
-                        </div>`;
+                        <a href="gallery.html" class="aspect-square rounded-2xl overflow-hidden bg-slate-900/40 backdrop-blur-xl border border-white/10 hover:border-tntc-distance/50 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] group relative transition-all duration-300 block">
+                            <img src="${item.IMAGE_URL}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://placehold.co/400x400/0a0e14/4ade80?text=TNTC'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                                <i data-lucide="scan" class="w-10 h-10 text-tntc-distance drop-shadow-[0_0_10px_rgba(74,222,128,0.8)] transform scale-50 group-hover:scale-100 transition-transform duration-300"></i>
+                            </div>
+                        </a>`;
                     }
                 });
                 container.innerHTML = html;
+                if(typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
     });
 }
 
-// ==========================================
-// SCROLL REVEAL ENGINE
-// ==========================================
 function initScrollReveal() {
     const reveals = document.querySelectorAll('.reveal');
-    
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-                observer.unobserve(entry.target);
-            }
+            if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); }
         });
-    }, {
-        threshold: 0.15,
-        rootMargin: "0px 0px -50px 0px"
-    });
-
-    reveals.forEach(reveal => {
-        observer.observe(reveal);
-    });
+    }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+    reveals.forEach(reveal => observer.observe(reveal));
 }

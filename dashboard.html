@@ -22,7 +22,7 @@
                             main: '#05070a', card: '#0c1017', hover: '#161f30',
                             accent: '#38bdf8', muted: '#0284c7', textPrimary: '#f8fafc',
                             textSecondary: '#94a3b8', distance: '#4ade80', revenue: '#facc15',
-                            active: '#22c55e', admin: '#ef4444'
+                            active: '#22c55e', admin: '#f43f5e'
                         }
                     }
                 }
@@ -31,203 +31,319 @@
     </script>
     
     <style>
-        body { background-color: #05070a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        body { background-color: #05070a; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #05070a; }
-        ::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
-        .tab-active { background-color: #38bdf8; color: #05070a; font-weight: bold; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.2); }
-        .tab-inactive { background-color: #0c1017; color: #94a3b8; border-color: rgba(2, 132, 199, 0.3); }
-        .tab-inactive:hover { background-color: #161f30; color: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        
+        /* Premium Tab Styling */
+        .tab-active { background-color: rgba(56, 189, 248, 0.1); color: #38bdf8; font-weight: 900; border-color: rgba(56, 189, 248, 0.5); box-shadow: 0 0 20px rgba(56,189,248,0.2); }
+        .tab-inactive { background-color: rgba(255, 255, 255, 0.02); color: #94a3b8; border-color: rgba(255, 255, 255, 0.05); }
+        .tab-inactive:hover { background-color: rgba(255, 255, 255, 0.05); color: #f8fafc; border-color: rgba(255, 255, 255, 0.15); }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         
+        /* Modals */
         .custom-modal { transition: opacity 0.3s ease-out; }
-        .custom-modal-content { transition: transform 0.3s ease-out; }
+        .custom-modal-content { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-open.custom-modal { opacity: 1; pointer-events: auto; }
         .modal-open .custom-modal-content { transform: scale(1) translateY(0); }
         .modal-closed.custom-modal { opacity: 0; pointer-events: none; }
-        .modal-closed .custom-modal-content { transform: scale(0.95) translateY(10px); }
+        .modal-closed .custom-modal-content { transform: scale(0.95) translateY(20px); }
         
         .collapse-content { transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
         .collapse-content.expanded { max-height: 5000px; opacity: 1; }
         
+        /* Energy Meter Stripes */
         .progress-bar-stripes { background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; }
         .animate-stripes { animation: progress-stripes 1s linear infinite; }
         @keyframes progress-stripes { from { background-position: 1rem 0; } to { background-position: 0 0; } }
         
-        .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #ef4444; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #38bdf8; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         input[type="date"]::-webkit-calendar-picker-indicator,
         input[type="month"]::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
+<body class="min-h-screen p-4 md:p-8 relative selection:bg-tntc-accent selection:text-[#05070a]">
+    
+    <!-- Ambient Background Glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-tntc-accent/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-    <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-tntc-muted/20 bg-[#0a0d14] flex items-center justify-center gap-3 shadow-lg z-20 relative">
+    <!-- Parent VTC Banner -->
+    <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-20 relative">
         <img data-asset="TNL_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531694103857991750/TNL_logo.png" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-yellow-500/50 object-cover shadow-[0_0_15px_rgba(250,204,21,0.2)]">
-        <h1 class="text-lg md:text-xl font-black text-tntc-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
+        <h1 class="text-lg md:text-xl font-black text-white tracking-[0.2em] uppercase drop-shadow-md">Tamilnadu Logistics</h1>
     </div>
 
-    <header data-bg-asset="DASHBOARD_BANNER" class="relative flex flex-col md:flex-row justify-between items-center mb-8 p-6 md:p-8 rounded-2xl bg-tntc-card bg-cover bg-center border border-tntc-muted/30 shadow-2xl overflow-hidden z-10">
+    <!-- Dashboard Header -->
+    <header data-bg-asset="DASHBOARD_BANNER" class="relative flex flex-col md:flex-row justify-between items-center mb-8 p-6 md:p-8 rounded-3xl bg-tntc-card bg-cover bg-center border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden z-10">
         <div class="absolute inset-0 bg-gradient-to-r from-[#05070a] via-[#05070a]/90 to-[#05070a]/40 z-0"></div>
 
-        <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
-            <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.2)] bg-tntc-accent/10 border border-tntc-accent/30 relative">
-                <img data-asset="TNTC_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
+        <div class="flex items-center gap-5 z-10 w-full md:w-auto justify-center md:justify-start">
+            <div class="p-1.5 rounded-2xl shadow-[0_0_30px_rgba(56,189,248,0.3)] bg-tntc-accent/10 border border-tntc-accent/40 relative backdrop-blur-md">
+                <img data-asset="TNTC_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover">
             </div>
             <div class="text-center md:text-left drop-shadow-md">
-                <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white uppercase flex items-center gap-2">
-                    Welcome back, <span id="headerUsername" class="text-transparent bg-clip-text bg-gradient-to-r from-tntc-accent to-blue-500">Driver</span>
+                <h2 class="text-2xl md:text-4xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                    Welcome, <span id="headerUsername" class="text-transparent bg-clip-text bg-gradient-to-r from-tntc-accent to-blue-500 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]">Driver</span>
                 </h2>
-                <p class="text-tntc-textSecondary text-xs tracking-widest uppercase mt-0.5 font-bold flex items-center gap-2 justify-center md:justify-start">
-                    <i data-lucide="shield-check" class="w-3 h-3 text-tntc-distance"></i> TNTC Division Portal
+                <p class="text-tntc-textSecondary text-[10px] tracking-[0.2em] uppercase mt-1 font-black flex items-center gap-2 justify-center md:justify-start">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-tntc-distance"></i> TNTC Division Portal
                 </p>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 z-10 mt-4 md:mt-0">
-            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/80 hover:bg-tntc-admin text-white border border-red-400/50 px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider items-center gap-2 transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)] backdrop-blur-sm">
-                <i data-lucide="settings" class="w-4 h-4 inline-block"></i> Control Center
+        <div class="flex items-center gap-3 z-10 mt-6 md:mt-0">
+            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/80 hover:bg-tntc-admin text-white border border-tntc-admin/50 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] backdrop-blur-md flex items-center gap-2 hover:-translate-y-1">
+                <i data-lucide="terminal" class="w-4 h-4"></i> Command Center
             </button>
-            <button onclick="logout()" class="bg-black/50 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/50 px-3 py-2.5 rounded-lg text-white transition-all backdrop-blur-sm" title="Logout">
+            <button onclick="logout()" class="bg-black/60 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/50 p-3 rounded-xl text-white transition-all backdrop-blur-md shadow-lg" title="Logout">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
             </button>
-            <div class="bg-black/50 px-4 py-2.5 rounded-lg border border-white/10 flex items-center gap-2.5 shadow-sm backdrop-blur-sm">
+            <div class="bg-black/60 px-5 py-3 rounded-xl border border-white/10 flex items-center gap-3 shadow-lg backdrop-blur-md">
                 <span class="relative flex h-2.5 w-2.5">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-active opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tntc-active shadow-[0_0_8px_#22c55e]"></span>
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-distance opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tntc-distance shadow-[0_0_8px_#4ade80]"></span>
                 </span>
-                <span id="syncStatus" class="text-xs font-semibold text-white tracking-wide">Syncing Telemetry...</span>
+                <span id="syncStatus" class="text-[10px] font-black uppercase tracking-widest text-white">Syncing Telemetry</span>
             </div>
         </div>
     </header>
 
     <!-- Navigation Tabs -->
-    <div class="flex flex-wrap gap-2 mb-8">
-        <button onclick="switchTab('hub')" id="btn-hub" class="tab-active px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center"><i data-lucide="user" class="w-4 h-4"></i> My Terminal</button>
-        <button onclick="switchTab('overview')" id="btn-overview" class="tab-inactive px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-md"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
-        <button onclick="switchTab('logs')" id="btn-logs" class="tab-inactive px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-md"><i data-lucide="map-pin" class="w-4 h-4"></i> Job Logs</button>
-        <button onclick="switchTab('events')" id="btn-events" class="tab-inactive px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-md"><i data-lucide="calendar-days" class="w-4 h-4"></i> Event Records</button>
-        <button onclick="switchTab('campaign')" id="btn-campaign" class="tab-inactive px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-md"><i data-lucide="route" class="w-4 h-4"></i> Tour</button>
-        <button onclick="switchTab('liveriders')" id="btn-liveriders" class="tab-inactive px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-md"><i data-lucide="radio" class="w-4 h-4 text-red-500 animate-pulse"></i> Live Riders</button>
+    <div class="flex flex-wrap gap-3 mb-10 relative z-10">
+        <button onclick="switchTab('hub')" id="btn-hub" class="tab-active px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md"><i data-lucide="user" class="w-4 h-4"></i> Dashboard</button>
+        <button onclick="switchTab('overview')" id="btn-overview" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
+        <button onclick="switchTab('logs')" id="btn-logs" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="database" class="w-4 h-4"></i> Jobs</button>
+        <button onclick="switchTab('events')" id="btn-events" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="calendar-days" class="w-4 h-4"></i> Records</button>
+        <button onclick="switchTab('campaign')" id="btn-campaign" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="route" class="w-4 h-4"></i> Tours</button>
+        <button onclick="switchTab('liveriders')" id="btn-liveriders" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="radio" class="w-4 h-4 text-red-500 animate-pulse drop-shadow-[0_0_5px_rgba(244,63,94,0.8)]"></i> Live Raiders</button>
     </div>
 
     <!-- 🚀 TAB 0: MY TERMINAL (NEW PERSONAL HUB) 🚀 -->
-    <div id="tab-hub" class="block">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div id="tab-hub" class="block relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             
-            <!-- VTC ID Card -->
-            <div class="lg:col-span-1 bg-gradient-to-br from-tntc-card to-[#05070a] p-6 rounded-2xl border border-tntc-muted/30 shadow-[0_10px_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col justify-between">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-tntc-accent/10 rounded-full blur-3xl"></div>
-                <div>
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-16 h-16 rounded-2xl bg-tntc-main border-2 border-tntc-accent/50 flex items-center justify-center shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                            <i data-lucide="user" class="w-8 h-8 text-tntc-accent"></i>
+            <!-- VTC Holographic ID Card (Left) -->
+            <div class="lg:col-span-1 bg-slate-900/60 backdrop-blur-2xl p-8 rounded-3xl border border-tntc-accent/30 shadow-[0_0_40px_rgba(56,189,248,0.1)] relative overflow-hidden flex flex-col justify-between group transition-all duration-500 hover:border-tntc-accent/60 hover:shadow-[0_0_50px_rgba(56,189,248,0.2)]">
+                <!-- Hex Grid Background & Glow -->
+                <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\'24\' height=\'40\' viewBox=\'0 0 24 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 10l12-6.928L24 10v20l-12 6.928L0 30V10zm12-4.619l-9.6 5.542v15.154l9.6 5.542 9.6-5.542V10.923L12 5.381z\' fill=\'%2338bdf8\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
+                <div class="absolute -top-20 -right-20 w-48 h-48 bg-tntc-accent/20 blur-[60px] rounded-full pointer-events-none group-hover:bg-tntc-accent/30 transition-colors duration-700 z-0"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-20 h-20 rounded-2xl bg-[#05070a]/80 border border-tntc-accent/50 flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.3)] backdrop-blur-md relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-br from-tntc-accent/20 to-transparent"></div>
+                            <i data-lucide="user" class="w-10 h-10 text-tntc-accent drop-shadow-[0_0_10px_rgba(56,189,248,0.8)] relative z-10"></i>
                         </div>
-                        <span id="hubRoleBadge" class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest shadow-sm">DRIVER</span>
+                        <div class="flex flex-col items-end gap-2">
+                            <div class="flex items-center gap-2 bg-[#05070a]/50 border border-tntc-distance/30 px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(74,222,128,0.15)] backdrop-blur-md">
+                                <span class="relative flex h-2 w-2">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-distance opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-2 w-2 bg-tntc-distance shadow-[0_0_8px_#4ade80]"></span>
+                                </span>
+                                <span class="text-[9px] text-tntc-distance tracking-widest font-black uppercase drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Uplink Active</span>
+                            </div>
+                            <span id="hubRoleBadge" class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.2)]">DRIVER</span>
+                        </div>
                     </div>
-                    <h3 id="hubDriverName" class="text-2xl font-black text-white uppercase tracking-tight mb-1">Driver</h3>
-                    <p class="text-xs text-tntc-textSecondary font-mono tracking-widest mb-4">TRK: <span id="hubTrackerName">Pending...</span></p>
                     
-                    <!-- 🚀 REPLACED: Useful Telemetry Data Metrics 🚀 -->
-                    <div class="space-y-2 mt-6">
-                        <div class="flex items-center gap-3 text-xs text-tntc-textSecondary bg-tntc-main/50 p-2 rounded-lg border border-tntc-muted/10">
-                            <i data-lucide="route" class="w-4 h-4 text-tntc-accent"></i> 
-                            <span>Avg Trip Length: <strong class="text-white" id="hubAvgDist">0 km</strong></span>
+                    <h3 id="hubDriverName" class="text-3xl font-black text-white uppercase tracking-tight mb-1 drop-shadow-md">Driver</h3>
+                    <p class="text-[10px] text-tntc-textSecondary font-mono tracking-[0.2em] mb-6 uppercase">TRK_ID // <span id="hubTrackerName" class="text-tntc-accent">Pending...</span></p>
+                    
+                    <div class="w-12 h-1 bg-white/10 rounded-full mb-6"></div>
+                    
+                    <!-- Telemetry Data Metrics -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors group/stat">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-tntc-accent/10 flex items-center justify-center border border-tntc-accent/20 group-hover/stat:shadow-[0_0_15px_rgba(56,189,248,0.2)] transition-shadow">
+                                    <i data-lucide="route" class="w-4 h-4 text-tntc-accent"></i>
+                                </div>
+                                <span class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest">Avg Trip Length</span>
+                            </div>
+                            <strong class="text-sm text-white font-mono drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" id="hubAvgDist">0 km</strong>
                         </div>
-                        <div class="flex items-center gap-3 text-xs text-tntc-textSecondary bg-tntc-main/50 p-2 rounded-lg border border-tntc-muted/10">
-                            <i data-lucide="fuel" class="w-4 h-4 text-tntc-distance"></i> 
-                            <span>Total Fuel Burnt: <strong class="text-white" id="hubTotalFuel">0 L</strong></span>
+                        <div class="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors group/stat">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-tntc-distance/10 flex items-center justify-center border border-tntc-distance/20 group-hover/stat:shadow-[0_0_15px_rgba(74,222,128,0.2)] transition-shadow">
+                                    <i data-lucide="fuel" class="w-4 h-4 text-tntc-distance"></i>
+                                </div>
+                                <span class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest">Total Fuel Burnt</span>
+                            </div>
+                            <strong class="text-sm text-white font-mono drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" id="hubTotalFuel">0 L</strong>
                         </div>
                     </div>
-
                 </div>
-                <div class="mt-6 pt-4 border-t border-tntc-muted/20 flex justify-between items-center">
-                    <span class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest">TNTC Official Driver</span>
-                    <i data-lucide="shield-check" class="w-5 h-5 text-tntc-accent opacity-50"></i>
+
+                <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center relative z-10">
+                    <span class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-[0.2em]">TNTC Official Operative</span>
+                    <i data-lucide="shield-check" class="w-5 h-5 text-tntc-textSecondary opacity-50"></i>
                 </div>
             </div>
 
-            <!-- Rank & Progression -->
-            <div class="lg:col-span-2 bg-tntc-card p-6 md:p-8 rounded-2xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center relative overflow-hidden">
-                <i data-lucide="milestone" class="absolute -right-10 -bottom-10 w-48 h-48 text-tntc-muted/5 z-0"></i>
-                <div class="relative z-10">
-                    <div class="flex justify-between items-end mb-4">
-                        <div>
-                            <p class="text-xs text-tntc-textSecondary font-bold uppercase tracking-widest mb-1">Current License Rank</p>
-                            <h2 id="hubRankTitle" class="text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-                                EVALUATING...
-                            </h2>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest mb-1">Total Driven</p>
-                            <p class="text-xl md:text-2xl font-black text-tntc-distance"><span id="hubTotalKm">0</span> <span class="text-sm font-normal text-tntc-textSecondary">km</span></p>
-                        </div>
-                    </div>
+            <!-- Rank, Progression & Void Filler (Right) -->
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                
+                <!-- Rank & Energy Meter Card -->
+                <div class="bg-slate-900/40 backdrop-blur-xl p-8 md:p-10 rounded-3xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col justify-center">
+                    <i data-lucide="milestone" class="absolute -right-10 -bottom-10 w-64 h-64 text-white/[0.02] z-0 pointer-events-none"></i>
+                    <div class="absolute inset-0 bg-gradient-to-r from-tntc-accent/5 to-transparent z-0 pointer-events-none"></div>
                     
-                    <div class="w-full bg-[#05070a] h-6 rounded-full border border-tntc-muted/30 overflow-hidden relative mb-2 shadow-inner">
-                        <div id="hubRankProgress" class="h-full bg-tntc-accent progress-bar-stripes animate-stripes transition-all duration-1000 ease-out" style="width: 0%"></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] font-bold text-tntc-textSecondary uppercase tracking-widest">
-                        <span id="hubCurrentTier">ROOKIE</span>
-                        <span id="hubNextTierTarget">PRO (5,000 KM)</span>
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <p class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-[0.2em] mb-2 text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.5)]">Current Clearance Rank</p>
+                                <div class="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] transform origin-left md:scale-110">
+                                    <h2 id="hubRankTitle" class="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-3">
+                                        EVALUATING...
+                                    </h2>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-[0.2em] mb-2">Total Distance</p>
+                                <p class="text-2xl md:text-3xl font-black text-tntc-distance drop-shadow-[0_0_15px_rgba(74,222,128,0.5)] font-mono"><span id="hubTotalKm">0</span> <span class="text-xs font-bold text-tntc-distance/70 ml-1">KM</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Segmented Energy Meter -->
+                        <div class="w-full bg-[#05070a]/80 p-1.5 h-10 rounded-xl border border-white/10 relative shadow-[inset_0_0_15px_rgba(0,0,0,0.8)] flex items-center">
+                            <!-- Overlay for segmentation effect -->
+                            <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,transparent_90%,rgba(5,7,10,0.9)_90%,rgba(5,7,10,0.9)_100%)] bg-[length:12px_100%] pointer-events-none z-20"></div>
+                            
+                            <!-- The dynamic bar -->
+                            <div id="hubRankProgress" class="h-full bg-gradient-to-r from-tntc-accent via-cyan-400 to-tntc-distance relative transition-all duration-[1500ms] ease-out shadow-[0_0_20px_rgba(56,189,248,0.8)] rounded-md z-10" style="width: 0%">
+                                <div class="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[progress-stripes_1s_linear_infinite] opacity-50 mix-blend-overlay"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between text-[10px] font-black text-tntc-textSecondary uppercase tracking-[0.2em] mt-3">
+                            <span id="hubCurrentTier">ROOKIE</span>
+                            <span id="hubNextTierTarget">PRO (5,000 KM)</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-4 mt-8 relative z-10 border-t border-tntc-muted/20 pt-6">
-                    <div class="text-center">
-                        <p class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest mb-1">Total Jobs</p>
-                        <h4 id="hubTotalJobs" class="text-xl sm:text-2xl font-black text-white">0</h4>
+                <!-- Glowing Micro-Cards & Active Dispatch Skeleton -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                    
+                    <!-- Left Col: Stats -->
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 relative overflow-hidden group hover:border-tntc-accent/40 hover:bg-white/5 transition-all flex items-center justify-between">
+                            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-500"><i data-lucide="briefcase" class="w-20 h-20 text-tntc-accent"></i></div>
+                            <div class="relative z-10">
+                                <p class="text-[9px] text-tntc-textSecondary uppercase tracking-[0.2em] font-black mb-1">JOBS</p>
+                                <h4 id="hubTotalJobs" class="text-2xl font-black text-white drop-shadow-md">0</h4>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-tntc-accent/10 border border-tntc-accent/30 flex items-center justify-center relative z-10 shadow-[0_0_10px_rgba(56,189,248,0.2)]">
+                                <i data-lucide="briefcase" class="w-5 h-5 text-tntc-accent"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 relative overflow-hidden group hover:border-yellow-500/40 hover:bg-white/5 transition-all flex items-center justify-between">
+                            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-500"><i data-lucide="calendar-check" class="w-20 h-20 text-yellow-500"></i></div>
+                            <div class="relative z-10">
+                                <p class="text-[9px] text-tntc-textSecondary uppercase tracking-[0.2em] font-black mb-1">Convoys Joined</p>
+                                <h4 id="hubTotalEvents" class="text-2xl font-black text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]">0</h4>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center relative z-10 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                                <i data-lucide="calendar-check" class="w-5 h-5 text-yellow-500"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 relative overflow-hidden group hover:border-tntc-distance/40 hover:bg-white/5 transition-all flex items-center justify-between">
+                            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-500"><i data-lucide="coins" class="w-20 h-20 text-tntc-distance"></i></div>
+                            <div class="relative z-10">
+                                <p class="text-[9px] text-tntc-textSecondary uppercase tracking-[0.2em] font-black mb-1">Gross Revenue</p>
+                                <h4 class="text-2xl font-black text-tntc-distance drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] font-mono">€<span id="hubTotalRevenue">0</span></h4>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-tntc-distance/10 border border-tntc-distance/30 flex items-center justify-center relative z-10 shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                                <i data-lucide="coins" class="w-5 h-5 text-tntc-distance"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-center border-l border-r border-tntc-muted/20">
-                        <p class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest mb-1">Events Joined</p>
-                        <h4 id="hubTotalEvents" class="text-xl sm:text-2xl font-black text-yellow-500">0</h4>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-[10px] text-tntc-textSecondary font-bold uppercase tracking-widest mb-1">Gross Revenue</p>
-                        <h4 class="text-xl sm:text-2xl font-black text-tntc-distance">€<span id="hubTotalRevenue">0</span></h4>
+
+                    <!-- Right Col: The Void Filler (Active Dispatch Sync) -->
+                    <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-6 flex flex-col shadow-xl h-full">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                            <h4 class="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4 text-tntc-accent"></i> Active Dispatch
+                            </h4>
+                            <span id="activeDispatchBadge" class="text-[8px] bg-tntc-distance/10 text-tntc-distance border border-tntc-distance/30 px-2.5 py-1 rounded-full animate-pulse font-black tracking-widest shadow-[0_0_10px_rgba(74,222,128,0.2)]">MONITORING</span>
+                        </div>
+                        
+                        <!-- Telemetry Container -->
+                        <div id="activeDispatchContainer" class="flex-1 flex flex-col justify-center">
+                            <!-- Skeleton Logs (Replaced by JS upon sync) -->
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5">
+                                    <div class="w-8 h-8 rounded-full bg-white/5 animate-pulse shrink-0 flex items-center justify-center shadow-inner"><i data-lucide="loader" class="w-4 h-4 text-tntc-accent animate-spin"></i></div>
+                                    <div class="flex-1 space-y-2.5">
+                                        <div class="h-2.5 w-1/2 bg-white/10 rounded animate-pulse"></div>
+                                        <div class="h-2 w-1/3 bg-white/5 rounded animate-pulse"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5">
+                                    <div class="w-8 h-8 rounded-full bg-white/5 animate-pulse shrink-0 flex items-center justify-center shadow-inner"><i data-lucide="loader" class="w-4 h-4 text-tntc-textSecondary animate-spin"></i></div>
+                                    <div class="flex-1 space-y-2.5">
+                                        <div class="h-2.5 w-2/3 bg-white/10 rounded animate-pulse"></div>
+                                        <div class="h-2 w-1/4 bg-white/5 rounded animate-pulse"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-center text-tntc-textSecondary uppercase tracking-widest font-black mt-6 opacity-50">Syncing Waybills via Database API...</p>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
         
-        <div class="bg-tntc-main border border-tntc-muted/30 p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden group hover:border-tntc-accent/50 transition-colors mt-2 mb-2">
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-48 h-full bg-tntc-accent/5 blur-3xl transform skew-x-12 z-0 pointer-events-none"></div>
-            <div class="flex items-center gap-4 z-10 w-full md:w-auto">
-                <div class="p-3 rounded-lg bg-tntc-accent/10 border border-tntc-accent/30 shadow-[0_0_15px_rgba(56,189,248,0.15)] shrink-0">
-                    <i data-lucide="download-cloud" class="w-7 h-7 text-tntc-accent group-hover:scale-110 transition-transform"></i>
+        <!-- Secure Server Telemetry Banner -->
+        <div class="bg-[#05070a]/90 backdrop-blur-2xl border border-tntc-accent/30 p-8 rounded-3xl shadow-[0_0_40px_rgba(56,189,248,0.15)] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+            <div class="absolute inset-0 pointer-events-none opacity-20 z-0" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, #38bdf8 2px, #38bdf8 4px); background-size: 100% 4px;"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#05070a] via-transparent to-[#05070a] z-0 pointer-events-none"></div>
+
+            <div class="flex items-center gap-6 relative z-10 w-full md:w-auto">
+                <div class="w-16 h-16 rounded-2xl bg-black border border-tntc-accent/50 flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-500">
+                    <i data-lucide="cpu" class="w-8 h-8 text-tntc-accent animate-pulse drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]"></i>
                 </div>
                 <div>
-                    <h3 class="text-base sm:text-lg font-black text-white tracking-wide uppercase leading-tight">TNTC Telemetry Engine</h3>
-                    <p class="text-xs text-tntc-textSecondary font-medium mt-1">Ensure your tracker is running locally to sync jobs to this personalized hub.</p>
+                    <h3 class="text-xl md:text-2xl font-black text-white tracking-widest uppercase leading-tight font-mono drop-shadow-md flex items-center gap-2">
+                        TNTC_TELEMETRY.EXE <span class="w-3 h-5 bg-tntc-accent animate-pulse inline-block shadow-[0_0_8px_#38bdf8]"></span>
+                    </h3>
+                    <p class="text-[10px] text-tntc-accent font-bold mt-2 tracking-[0.2em] uppercase drop-shadow-[0_0_5px_rgba(56,189,248,0.5)]">Local Host Connection Required For Uplink</p>
                 </div>
             </div>
-            <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest" target="_blank" class="w-full md:w-auto px-6 py-3.5 bg-tntc-accent hover:bg-white text-[#05070a] font-black text-xs uppercase tracking-widest rounded-lg transition-colors shadow-[0_0_15px_rgba(56,189,248,0.3)] flex items-center justify-center gap-2 z-10 shrink-0">
-                <i data-lucide="download" class="w-4 h-4"></i> Download Setup
+            
+            <a href="https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest" target="_blank" class="w-full md:w-auto px-10 py-5 bg-tntc-accent hover:bg-white text-[#05070a] font-black text-[10px] uppercase tracking-[0.2em] rounded-xl transition-all shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:shadow-[0_0_30px_rgba(56,189,248,0.6)] hover:-translate-y-1 flex items-center justify-center gap-3 relative z-10 shrink-0">
+                <i data-lucide="terminal-square" class="w-5 h-5"></i> Download Tracker
             </a>
         </div>
     </div>
 
     <!-- TAB 1: OVERVIEW DASHBOARD -->
-    <div id="tab-overview" class="hidden">
-        <div class="flex flex-col xl:flex-row justify-between items-center bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-lg mb-6 gap-4">
+    <div id="tab-overview" class="hidden relative z-10">
+        <div class="flex flex-col xl:flex-row justify-between items-center bg-slate-900/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-xl mb-8 gap-4">
             <div class="flex items-center justify-between w-full xl:w-auto gap-4">
-               <h2 class="text-sm font-bold text-tntc-textPrimary flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Overall Division Stats</h2>
-               <button onclick="fetchVTCData(false)" class="text-[10px] uppercase font-bold tracking-wider bg-tntc-main border border-tntc-muted/50 hover:bg-tntc-hover hover:text-tntc-accent px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh</button>
+               <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Division Analysis</h2>
+               <button onclick="fetchVTCData(false)" class="text-[10px] uppercase font-black tracking-widest bg-white/5 border border-white/10 hover:bg-white/10 hover:text-tntc-accent text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh</button>
             </div>
             
             <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end" data-target="overview">
-                <div class="flex items-center bg-[#05070a] border border-tntc-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
-                    <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-revenue bg-[#161f30] border-r border-tntc-muted/30 transition-colors" data-mode="ALL">All time</button>
-                    <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] border-r border-tntc-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
-                    <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                <div class="flex items-center bg-black/60 border border-white/10 rounded-xl overflow-hidden h-11 shadow-inner w-full sm:w-auto">
+                    <button class="filter-tab active flex-1 sm:flex-none px-5 h-full text-[10px] font-black tracking-widest uppercase text-tntc-revenue bg-white/10 border-r border-white/5 transition-colors" data-mode="ALL">All Time</button>
+                    <button class="filter-tab flex-1 sm:flex-none px-5 h-full text-[10px] font-black tracking-widest uppercase text-tntc-textSecondary hover:text-white bg-transparent border-r border-white/5 transition-colors" data-mode="MONTHLY">Monthly</button>
+                    <button class="filter-tab flex-1 sm:flex-none px-5 h-full text-[10px] font-black tracking-widest uppercase text-tntc-textSecondary hover:text-white bg-transparent transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
                 </div>
-                <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
-                    <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
-                    <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
-                        <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
+                <div class="picker-container hidden relative h-11 w-full sm:w-48 shrink-0">
+                    <label class="picker-label absolute -top-2 left-3 bg-[#0a0e14] px-1.5 text-[8px] text-tntc-revenue font-black tracking-widest z-10 border border-white/10 rounded-full shadow-sm">MONTH</label>
+                    <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-xl bg-black/60 flex items-center px-4 overflow-hidden transition-all shadow-inner cursor-pointer">
+                        <span class="picker-display text-xs font-black text-white w-full text-left tracking-wide">Select...</span>
                         <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
                         <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                         <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
@@ -235,50 +351,90 @@
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 mb-8">
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors"><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Total Distance</p><h2 class="text-2xl sm:text-3xl font-black text-tntc-textPrimary"><span id="statDistance">0</span> <span class="text-xs font-normal text-tntc-textSecondary">km</span></h2></div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors"><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Completed Waybills</p><h2 id="statJobs" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">0</h2></div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors"><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Company Revenue</p><h2 class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">€ <span id="statRevenue">0</span></h2></div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center hover:border-tntc-accent/50 transition-colors"><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Active Drivers</p><h2 id="statDrivers" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary">0</h2></div>
-            <div class="bg-tntc-card p-4 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-tntc-accent/50 transition-colors"><div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="calendar-check" class="w-20 h-20 text-tntc-textPrimary"></i></div><p class="text-tntc-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1 relative z-10">Division Events</p><h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-tntc-textPrimary relative z-10">0</h2></div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mb-8">
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center hover:border-tntc-distance/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] transition-all group"><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2">Total Distance</p><h2 class="text-2xl sm:text-3xl font-black text-tntc-distance drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] font-mono"><span id="statDistance">0</span> <span class="text-[10px] font-bold text-tntc-distance/50 ml-0.5">KM</span></h2></div>
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center hover:border-tntc-accent/30 hover:shadow-[0_0_20px_rgba(56,189,248,0.1)] transition-all group"><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2">Deliveries</p><h2 id="statJobs" class="text-2xl sm:text-3xl font-black text-white drop-shadow-md">0</h2></div>
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center hover:border-yellow-500/30 hover:shadow-[0_0_20px_rgba(234,179,8,0.1)] transition-all group"><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2">Gross Revenue</p><h2 class="text-2xl sm:text-3xl font-black text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)] font-mono">€<span id="statRevenue">0</span></h2></div>
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center hover:border-white/20 transition-all group"><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2">Active Drivers</p><h2 id="statDrivers" class="text-2xl sm:text-3xl font-black text-white drop-shadow-md">0</h2></div>
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all group"><div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="calendar-check" class="w-24 h-24 text-purple-400"></i></div><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2 relative z-10">Convoys Joined</p><h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)] relative z-10">0</h2></div>
         </div>
         
+        <!-- PREMIUM CHARTS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl"><h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="w-4 h-4 text-tntc-distance"></i> Distance Leaderboard (KM)</h3><div class="relative h-56 w-full"><canvas id="kmBarChart"></canvas></div></div>
-            <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl"><h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-tntc-accent"></i> Event Attendance Chart</h3><div class="relative h-56 w-full"><canvas id="eventBarChart"></canvas></div></div>
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(74,222,128,0.03)] hover:border-tntc-distance/30 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] transition-all duration-300 relative overflow-hidden group">
+                <div class="absolute -right-20 -top-20 w-40 h-40 bg-tntc-distance/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-tntc-distance/20 transition-colors duration-500"></div>
+                <h3 class="text-sm font-black text-white mb-6 flex items-center gap-2 tracking-widest relative z-10 uppercase">
+                    <i data-lucide="bar-chart" class="w-4 h-4 text-tntc-distance drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]"></i> Distance Chart <span class="text-[9px] text-tntc-textSecondary font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded ml-2">KM</span>
+                </h3>
+                <div class="relative h-60 w-full z-10"><canvas id="kmBarChart"></canvas></div>
+            </div>
+            
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(56,189,248,0.03)] hover:border-tntc-accent/30 hover:shadow-[0_0_30px_rgba(56,189,248,0.15)] transition-all duration-300 relative overflow-hidden group">
+                <div class="absolute -left-20 -top-20 w-40 h-40 bg-tntc-accent/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-tntc-accent/20 transition-colors duration-500"></div>
+                <h3 class="text-sm font-black text-white mb-6 flex items-center gap-2 tracking-widest relative z-10 uppercase">
+                    <i data-lucide="award" class="w-4 h-4 text-tntc-accent drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]"></i> Event Attendance <span class="text-[9px] text-tntc-textSecondary font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded ml-2">CONVOYS</span>
+                </h3>
+                <div class="relative h-60 w-full z-10"><canvas id="eventBarChart"></canvas></div>
+            </div>
         </div>
+
+        <!-- PREMIUM LEADERBOARDS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]"><h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-tntc-revenue"></i> Top Drivers by KM</h3><div id="kmLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
-            <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]"><h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-tntc-accent"></i> Top Drivers by Events</h3><div id="eventLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
-            <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl flex flex-col h-[350px]"><div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-tntc-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Frame</h3><span class="text-[9px] bg-tntc-main border border-tntc-muted/20 px-2 py-1 rounded text-tntc-textSecondary uppercase tracking-widest">Past Members</span></div><div id="pastLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(250,204,21,0.03)] hover:border-tntc-revenue/30 hover:shadow-[0_0_30px_rgba(250,204,21,0.1)] transition-all duration-300 flex flex-col h-[420px] relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-b from-tntc-revenue/5 to-transparent opacity-50 z-0"></div>
+                <h3 class="text-xs font-black text-white mb-4 flex items-center gap-2 tracking-widest relative z-10 uppercase border-b border-white/10 pb-4">
+                    <i data-lucide="trophy" class="w-4 h-4 text-tntc-revenue drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]"></i> Distance Leaders
+                </h3>
+                <div id="kmLeaderboardList" class="space-y-2.5 overflow-y-auto pr-2 custom-scrollbar flex-1 relative z-10"></div>
+            </div>
+
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(56,189,248,0.03)] hover:border-tntc-accent/30 hover:shadow-[0_0_30px_rgba(56,189,248,0.1)] transition-all duration-300 flex flex-col h-[420px] relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-b from-tntc-accent/5 to-transparent opacity-50 z-0"></div>
+                <h3 class="text-xs font-black text-white mb-4 flex items-center gap-2 tracking-widest relative z-10 uppercase border-b border-white/10 pb-4">
+                    <i data-lucide="star" class="w-4 h-4 text-tntc-accent drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]"></i> Convoy Leaders
+                </h3>
+                <div id="eventLeaderboardList" class="space-y-2.5 overflow-y-auto pr-2 custom-scrollbar flex-1 relative z-10"></div>
+            </div>
+
+            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(255,255,255,0.02)] hover:border-white/20 transition-all duration-300 flex flex-col h-[420px] relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-30 z-0"></div>
+                <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-4 relative z-10">
+                    <h3 class="text-xs font-black text-white flex items-center gap-2 tracking-widest uppercase">
+                        <i data-lucide="history" class="w-4 h-4 text-gray-400"></i> Hall of Fame
+                    </h3>
+                    <span class="text-[8px] bg-red-500/10 border border-red-500/30 px-2 py-1 rounded-full text-red-400 uppercase tracking-widest font-black shadow-[0_0_10px_rgba(239,68,68,0.2)] animate-pulse">Past Members</span>
+                </div>
+                <div id="pastLeaderboardList" class="space-y-2.5 overflow-y-auto pr-2 custom-scrollbar flex-1 relative z-10"></div>
+            </div>
         </div>
     </div>
 
     <!-- TAB 2: JOB LOGS -->
-    <div id="tab-logs" class="hidden">
-        <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center justify-between">
-            <span class="flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent"></i> Search Job Logs</span>
-            <button onclick="fetchVTCData(false)" class="text-xs text-tntc-textSecondary bg-tntc-main border border-tntc-muted/50 hover:bg-tntc-hover hover:border-tntc-accent hover:text-white px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync Logs</button>
+    <div id="tab-logs" class="hidden relative z-10">
+        <div class="bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+            <h3 class="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+                <span class="flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i> Waybill Database Query</span>
+                <button onclick="fetchVTCData(false)" class="text-[9px] text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-tntc-accent hover:text-tntc-accent px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm uppercase"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync DB</button>
             </h3>
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
                 <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Select Driver</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Drivers</option></select>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Select Operative</label>
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 shadow-inner transition-all"><option value="ALL">All Drivers</option></select>
                 </div>
                 
                 <div class="col-span-2 lg:col-span-2">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Time Period</label>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Time Constraint</label>
                     <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full" data-target="logs">
-                        <div class="flex items-center bg-[#05070a] border border-tntc-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
-                            <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-revenue bg-[#161f30] border-r border-tntc-muted/30 transition-colors" data-mode="ALL">All time</button>
-                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] border-r border-tntc-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
-                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                        <div class="flex items-center bg-black/60 border border-white/10 rounded-xl overflow-hidden h-11 shadow-inner w-full sm:w-auto">
+                            <button class="filter-tab active flex-1 sm:flex-none px-5 h-full text-[10px] font-black uppercase tracking-widest text-tntc-revenue bg-white/10 border-r border-white/5 transition-colors" data-mode="ALL">All Time</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-5 h-full text-[10px] font-black uppercase tracking-widest text-tntc-textSecondary hover:text-white bg-transparent border-r border-white/5 transition-colors" data-mode="MONTHLY">Monthly</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-5 h-full text-[10px] font-black uppercase tracking-widest text-tntc-textSecondary hover:text-white bg-transparent transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
                         </div>
-                        <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
-                            <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
-                            <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
-                                <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
+                        <div class="picker-container hidden relative h-11 w-full sm:w-48 shrink-0">
+                            <label class="picker-label absolute -top-2 left-3 bg-[#0a0e14] px-1.5 text-[8px] text-tntc-revenue font-black tracking-widest z-10 border border-white/10 rounded-full">MONTH</label>
+                            <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-xl bg-black/60 flex items-center px-4 overflow-hidden transition-all shadow-inner cursor-pointer">
+                                <span class="picker-display text-xs font-black text-white w-full text-left tracking-wide">Select...</span>
                                 <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
                                 <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                                 <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
@@ -288,74 +444,76 @@
                 </div>
 
                 <div class="col-span-1 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Rows</label>
-                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
-                        <option value="10" selected>10 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="100">100 / page</option>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Render Limit</label>
+                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 shadow-inner transition-all">
+                        <option value="10" selected>10 rows</option>
+                        <option value="25">25 rows</option>
+                        <option value="50">50 rows</option>
+                        <option value="100">100 rows</option>
                     </select>
                 </div>
                 
-                <div class="col-span-1 bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
-                    <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Filtered Dist.</p>
-                    <p id="filteredTotalKm" class="text-lg font-bold text-tntc-distance">0 km</p>
+                <div class="col-span-1 bg-black/40 rounded-xl border border-white/5 flex flex-col justify-center items-center shadow-inner relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-tntc-distance/10 to-transparent pointer-events-none"></div>
+                    <p class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1 relative z-10">Filtered Sum</p>
+                    <p id="filteredTotalKm" class="text-lg font-black text-tntc-distance drop-shadow-[0_0_5px_rgba(74,222,128,0.5)] font-mono relative z-10">0 km</p>
                 </div>
             </div>
         </div>
-        <div class="bg-tntc-card rounded-xl border border-tntc-muted/30 shadow-xl overflow-hidden flex flex-col">
-            <div class="overflow-x-auto flex-1">
+        
+        <div class="bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+            <div class="overflow-x-auto flex-1 custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                        <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tntc-muted/30">
-                            <th class="p-3 sm:p-4">Time</th>
-                            <th class="p-3 sm:p-4">Driver</th>
-                            <th class="p-3 sm:p-4">Route</th>
-                            <th class="p-3 sm:p-4">Cargo</th>
-                            <th class="p-3 sm:p-4">Distance</th>
-                            <th class="p-3 sm:p-4 text-right">Action</th>
+                        <tr class="bg-black/60 text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest border-b border-white/10">
+                            <th class="p-5">Timestamp</th>
+                            <th class="p-5">Operative</th>
+                            <th class="p-5">Route Vector</th>
+                            <th class="p-5">Payload</th>
+                            <th class="p-5">Distance</th>
+                            <th class="p-5 text-right">Data</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium"></tbody>
+                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-white/5 font-medium"></tbody>
                 </table>
             </div>
-            <div class="flex items-center justify-between p-4 bg-tntc-main border-t border-tntc-muted/30">
-                <button id="btnPrevPage" onclick="prevJobPage()" class="flex items-center gap-2 px-4 py-2 bg-tntc-card border border-tntc-muted/30 rounded-lg text-sm text-tntc-textPrimary hover:bg-tntc-hover disabled:opacity-50 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
-                <span id="jobPageInfo" class="text-xs font-bold text-tntc-textSecondary tracking-wider uppercase">Page 1 of 1</span>
-                <button id="btnNextPage" onclick="nextJobPage()" class="flex items-center gap-2 px-4 py-2 bg-tntc-card border border-tntc-muted/30 rounded-lg text-sm text-tntc-textPrimary hover:bg-tntc-hover disabled:opacity-50 transition-colors">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            <div class="flex items-center justify-between p-5 bg-black/60 border-t border-white/10">
+                <button id="btnPrevPage" onclick="prevJobPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <span id="jobPageInfo" class="text-[10px] font-black text-tntc-accent tracking-widest uppercase bg-tntc-accent/10 border border-tntc-accent/30 px-3 py-1.5 rounded-lg shadow-sm">PAGE 1 OF 1</span>
+                <button id="btnNextPage" onclick="nextJobPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
 
     <!-- TAB 3: EVENT RECORDS -->
-    <div id="tab-events" class="hidden">
-        <div class="bg-tntc-card p-6 rounded-xl border border-tntc-muted/30 shadow-xl mb-6">
-            <h3 class="text-base font-bold text-tntc-textPrimary mb-4 flex items-center justify-between">
-             <span class="flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tntc-accent"></i> Filter Event Records</span>
-             <button onclick="fetchVTCData(false)" class="text-xs text-tntc-textSecondary bg-tntc-main border border-tntc-muted/50 hover:bg-tntc-hover hover:border-tntc-accent hover:text-white px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync Events</button>
+    <div id="tab-events" class="hidden relative z-10">
+        <div class="bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
+            <h3 class="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+             <span class="flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]"></i> Event Roster Query</span>
+             <button onclick="fetchVTCData(false)" class="text-[9px] text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-400 hover:text-purple-400 px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm uppercase"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync DB</button>
             </h3>
-            <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-6 gap-5">
                 <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Category</label>
-                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Events</option></select>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Classification</label>
+                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all"><option value="ALL">All Events</option></select>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Select Driver</label>
-                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Drivers</option></select>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Operative</label>
+                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all"><option value="ALL">All Drivers</option></select>
                 </div>
 
                 <div class="col-span-2 lg:col-span-2">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Time Period</label>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Time Constraint</label>
                     <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full" data-target="events">
-                        <div class="flex items-center bg-[#05070a] border border-tntc-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
-                            <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-revenue bg-[#161f30] border-r border-tntc-muted/30 transition-colors" data-mode="ALL">All time</button>
-                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] border-r border-tntc-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
-                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tntc-textSecondary hover:text-tntc-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                        <div class="flex items-center bg-black/60 border border-white/10 rounded-xl overflow-hidden h-11 shadow-inner w-full sm:w-auto">
+                            <button class="filter-tab active flex-1 sm:flex-none px-5 h-full text-[10px] font-black uppercase tracking-widest text-tntc-revenue bg-white/10 border-r border-white/5 transition-colors" data-mode="ALL">All Time</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-5 h-full text-[10px] font-black uppercase tracking-widest text-tntc-textSecondary hover:text-white bg-transparent border-r border-white/5 transition-colors" data-mode="MONTHLY">Monthly</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-5 h-full text-[10px] font-black uppercase tracking-widest text-tntc-textSecondary hover:text-white bg-transparent transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
                         </div>
-                        <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
-                            <label class="picker-label absolute -top-2 left-3 bg-tntc-card px-1.5 text-[10px] text-tntc-revenue font-black tracking-widest z-10">MONTH</label>
-                            <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
-                                <span class="picker-display text-sm font-bold text-tntc-textPrimary w-full text-left">Select...</span>
+                        <div class="picker-container hidden relative h-11 w-full sm:w-48 shrink-0">
+                            <label class="picker-label absolute -top-2 left-3 bg-[#0a0e14] px-1.5 text-[8px] text-tntc-revenue font-black tracking-widest z-10 border border-white/10 rounded-full">MONTH</label>
+                            <div class="relative w-full h-full border border-tntc-revenue/50 hover:border-tntc-revenue rounded-xl bg-black/60 flex items-center px-4 overflow-hidden transition-all shadow-inner cursor-pointer">
+                                <span class="picker-display text-xs font-black text-white w-full text-left tracking-wide">Select...</span>
                                 <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
                                 <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                                 <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
@@ -365,210 +523,252 @@
                 </div>
 
                 <div class="col-span-1 lg:col-span-1">
-                    <label class="block text-xs font-semibold text-tntc-textSecondary mb-2">Rows</label>
-                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-tntc-main border border-tntc-muted/50 text-tntc-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
-                        <option value="10" selected>10 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="100">100 / page</option>
+                    <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Render Limit</label>
+                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all">
+                        <option value="10" selected>10 rows</option>
+                        <option value="25">25 rows</option>
+                        <option value="50">50 rows</option>
+                        <option value="100">100 rows</option>
                     </select>
                 </div>
                 
-                <div class="col-span-1 bg-tntc-main rounded-lg p-3 border border-tntc-muted/30 flex flex-col justify-center items-center">
-                    <p class="text-xs text-tntc-textSecondary font-semibold mb-1">Total Events</p>
-                    <p id="filteredTotalEvents" class="text-lg font-bold text-tntc-accent">0</p>
+                <div class="col-span-1 bg-black/40 rounded-xl border border-white/5 flex flex-col justify-center items-center shadow-inner relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-purple-500/10 to-transparent pointer-events-none"></div>
+                    <p class="text-[9px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1 relative z-10">Total Extracted</p>
+                    <p id="filteredTotalEvents" class="text-lg font-black text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.5)] font-mono relative z-10">0</p>
                 </div>
             </div>
         </div>
-        <div class="bg-tntc-card rounded-xl border border-tntc-muted/30 shadow-xl overflow-hidden flex flex-col">
-            <div class="overflow-x-auto flex-1">
+        
+        <div class="bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+            <div class="overflow-x-auto flex-1 custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                        <tr class="bg-tntc-hover text-tntc-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tntc-muted/30">
-                            <th class="p-3 sm:p-4">Date</th>
-                            <th class="p-3 sm:p-4">Category</th>
-                            <th class="p-3 sm:p-4">Event Name</th>
-                            <th class="p-3 sm:p-4 text-center">Attendance</th>
-                            <th class="p-3 sm:p-4 text-right">Details</th>
+                        <tr class="bg-black/60 text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest border-b border-white/10">
+                            <th class="p-5">Operation Date</th>
+                            <th class="p-5">Class</th>
+                            <th class="p-5">Event Identifier</th>
+                            <th class="p-5 text-center">Convoy Size</th>
+                            <th class="p-5 text-right">Data</th>
                         </tr>
                     </thead>
-                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-tntc-muted/10 font-medium">
-                        <tr><td colspan="5" class="p-6 text-center text-tntc-textSecondary">Fetching event records...</td></tr>
+                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-white/5 font-medium">
+                        <tr><td colspan="5" class="p-10 text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400 inline-block align-middle mr-2"></div> Extracting event records...</td></tr>
                     </tbody>
                 </table>
             </div>
-            <div class="flex items-center justify-between p-4 bg-tntc-main border-t border-tntc-muted/30">
-                <button id="btnPrevEventPage" onclick="prevEventPage()" class="flex items-center gap-2 px-4 py-2 bg-tntc-card border border-tntc-muted/30 rounded-lg text-sm text-tntc-textPrimary hover:bg-tntc-hover disabled:opacity-50 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
-                <span id="eventPageInfo" class="text-xs font-bold text-tntc-textSecondary tracking-wider uppercase">Page 1 of 1</span>
-                <button id="btnNextEventPage" onclick="nextEventPage()" class="flex items-center gap-2 px-4 py-2 bg-tntc-card border border-tntc-muted/30 rounded-lg text-sm text-tntc-textPrimary hover:bg-tntc-hover disabled:opacity-50 transition-colors">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            <div class="flex items-center justify-between p-5 bg-black/60 border-t border-white/10">
+                <button id="btnPrevEventPage" onclick="prevEventPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <span id="eventPageInfo" class="text-[10px] font-black text-purple-400 tracking-widest uppercase bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-lg shadow-sm">PAGE 1 OF 1</span>
+                <button id="btnNextEventPage" onclick="nextEventPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
 
     <!-- TAB 4: EUROPEAN TOUR CAMPAIGN -->
-    <div id="tab-campaign" class="hidden">
-        <div id="dynamic-campaign-container" class="space-y-8">
-            <div class="flex flex-col items-center justify-center py-20 opacity-50">
-                <div class="loader mb-4"></div>
-                <p class="text-tntc-textSecondary font-bold tracking-widest uppercase text-sm">Syncing Tour Manifests...</p>
+    <div id="tab-campaign" class="hidden relative z-10">
+        <div id="dynamic-campaign-container" class="space-y-10">
+            <div class="flex flex-col items-center justify-center py-32 opacity-50 bg-slate-900/40 backdrop-blur-md rounded-3xl border border-white/5">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-tntc-accent mb-4"></div>
+                <p class="text-tntc-textSecondary font-black tracking-widest uppercase text-[10px]">Downloading Secure Manifests...</p>
             </div>
         </div>
     </div>
 
     <!-- TAB 5: LIVE RIDERS -->
-    <div id="tab-liveriders" class="hidden">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+    <div id="tab-liveriders" class="hidden relative z-10">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 border-b border-white/10 pb-6">
             <div>
-                <h2 class="text-2xl md:text-3xl font-black text-tntc-textPrimary uppercase tracking-tight flex items-center gap-3"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span> Live Division Riders</h2>
-                <p class="text-tntc-textSecondary text-sm mt-1">Real-time tracking of active deliveries currently in progress.</p>
+                <h2 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tight flex items-center gap-4 drop-shadow-lg">
+                    <span class="relative flex h-4 w-4 shadow-[0_0_15px_rgba(74,222,128,0.8)] rounded-full">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
+                    </span> 
+                    Active Fleet Grid
+                </h2>
+                <p class="text-tntc-textSecondary text-sm mt-2 max-w-xl">Encrypted real-time telemetry array monitoring all operative movements.</p>
             </div>
-            <div class="bg-tntc-card px-5 py-2.5 rounded-lg border border-tntc-muted/30 flex items-center gap-2.5 shadow-xl shrink-0"><i data-lucide="truck" class="w-5 h-5 text-tntc-accent"></i><span class="text-sm font-bold text-tntc-textPrimary"><span id="activeRiderCount">0</span> Riders on Duty</span></div>
+            <div class="bg-black/60 px-6 py-3 rounded-xl border border-white/10 flex items-center gap-3 shadow-xl shrink-0 backdrop-blur-md">
+                <i data-lucide="radio" class="w-5 h-5 text-tntc-accent animate-pulse drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i>
+                <span class="text-sm font-black text-white tracking-widest uppercase"><span id="activeRiderCount" class="text-tntc-accent">0</span> SIGNALS</span>
+            </div>
         </div>
-        <div id="liveRidersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="liveRidersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </div>
 
     <!-- 🔴 PREMIUM JOB DETAILS MODAL 🔴 -->
-    <div id="jobDetailsModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/95 backdrop-blur-md">
+    <div id="jobDetailsModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/90 backdrop-blur-xl">
         <div class="absolute inset-0 cursor-pointer" onclick="closeJobModal()"></div>
-        <div class="custom-modal-content relative z-10 bg-[#0a0e14] border border-tntc-muted/30 w-full sm:max-w-md md:max-w-2xl sm:rounded-3xl h-[95vh] sm:h-[85vh] overflow-hidden flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.8)]">
-            <div data-bg-asset="JOB_MODAL_BG" class="h-32 sm:h-48 bg-[#05070a] relative w-full shrink-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80');">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0e14] via-[#0a0e14]/70 to-transparent z-10"></div>
-                <div class="absolute top-4 left-4 z-20">
-                    <button onclick="closeJobModal()" class="flex items-center gap-2 px-3 py-1.5 bg-black/40 hover:bg-black/80 border border-white/10 rounded-full text-white text-xs font-bold tracking-wider uppercase transition-colors backdrop-blur-sm">
-                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back
+        <div class="custom-modal-content relative z-10 bg-slate-900/80 backdrop-blur-2xl border border-white/10 w-full sm:max-w-md md:max-w-3xl sm:rounded-3xl h-[95vh] sm:h-[85vh] overflow-hidden flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.9)]">
+            <div data-bg-asset="JOB_MODAL_BG" class="h-40 sm:h-56 bg-[#05070a] relative w-full shrink-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80');">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent z-10"></div>
+                <div class="absolute top-6 left-6 z-20">
+                    <button onclick="closeJobModal()" class="flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-black/90 border border-white/10 hover:border-white/30 rounded-full text-white text-[10px] font-black tracking-widest uppercase transition-all backdrop-blur-md shadow-lg">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Close
                     </button>
                 </div>
-                <div class="absolute top-4 right-4 z-20">
-                    <span class="px-2.5 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.2)] backdrop-blur-md">
-                       <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span> Delivered
+                <div class="absolute top-6 right-6 z-20">
+                    <span class="px-4 py-2 bg-tntc-distance/10 text-tntc-distance border border-tntc-distance/30 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(74,222,128,0.3)] backdrop-blur-md">
+                       <span class="w-2 h-2 rounded-full bg-tntc-distance animate-pulse shadow-[0_0_8px_#4ade80]"></span> Delivered
                     </span>
                 </div>
-                <p id="modalJobId" class="absolute bottom-16 left-6 md:left-8 z-20 text-[10px] text-yellow-500 font-black tracking-widest uppercase shadow-sm drop-shadow-md">JOB #TNTC-XXXXXX</p>
-                <h2 id="modalRoute" class="absolute bottom-6 left-6 md:left-8 z-20 text-3xl sm:text-4xl font-black text-white leading-none tracking-tight drop-shadow-lg">City A <span class="text-tntc-muted mx-1 font-light">→</span> City B</h2>
-                <p id="modalCargoSub" class="absolute bottom-2 left-6 md:left-8 z-20 text-xs text-tntc-textSecondary font-bold drop-shadow-md">Cargo Name • 0 km driven</p>
+                <p id="modalJobId" class="absolute bottom-20 left-8 md:left-10 z-20 text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase shadow-sm drop-shadow-md bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/30">JOB #TNTC-XXXXXX</p>
+                <h2 id="modalRoute" class="absolute bottom-8 left-8 md:left-10 z-20 text-3xl sm:text-5xl font-black text-white leading-none tracking-tight drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">City A <span class="text-tntc-accent mx-2 font-light opacity-50">→</span> City B</h2>
+                <p id="modalCargoSub" class="absolute bottom-3 left-8 md:left-10 z-20 text-xs text-white/70 font-bold drop-shadow-md tracking-wider">Cargo Name • 0 km driven</p>
             </div>
-            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
-                <div class="flex items-center justify-between bg-tntc-card/50 border border-yellow-500/20 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/40 transition-colors">
-                    <div class="absolute top-1/2 left-4 -translate-y-1/2 w-16 h-16 bg-yellow-500/10 blur-xl rounded-full"></div>
-                    <div class="flex items-center gap-4 relative z-10">
-                        <div class="w-12 h-12 bg-[#0a0e14] border-2 border-yellow-500/50 rounded-full flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)] group-hover:scale-105 transition-transform">
-                            <i data-lucide="user" class="w-6 h-6"></i>
+            
+            <div class="p-8 md:p-10 overflow-y-auto custom-scrollbar flex-1 space-y-8 bg-gradient-to-b from-transparent to-[#05070a]/50 relative z-20">
+                
+                <div class="flex flex-col sm:flex-row items-center justify-between bg-black/40 border border-white/5 hover:border-yellow-500/30 p-5 rounded-2xl relative overflow-hidden group transition-all shadow-inner">
+                    <div class="absolute top-1/2 left-8 -translate-y-1/2 w-24 h-24 bg-yellow-500/10 blur-[30px] rounded-full group-hover:bg-yellow-500/20 transition-colors duration-500"></div>
+                    <div class="flex items-center gap-5 relative z-10 w-full sm:w-auto mb-4 sm:mb-0">
+                        <div class="w-14 h-14 bg-yellow-500/10 border border-yellow-500/40 rounded-xl flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)] group-hover:scale-105 transition-transform backdrop-blur-md">
+                            <i data-lucide="user" class="w-6 h-6 drop-shadow-[0_0_5px_rgba(234,179,8,0.8)]"></i>
                         </div>
                         <div>
-                            <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">Driver</p>
-                            <h4 id="modalDriver" class="text-base sm:text-lg font-black text-white uppercase tracking-wider leading-tight">DRIVER NAME</h4>
-                            <div class="flex text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.8)]"><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i></div>
+                            <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1">Operative</p>
+                            <h4 id="modalDriver" class="text-lg sm:text-xl font-black text-white uppercase tracking-wider leading-tight drop-shadow-md">DRIVER NAME</h4>
                         </div>
                     </div>
-                    <div class="flex gap-6 text-right relative z-10">
-                        <div class="hidden sm:block">
-                            <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">Time</p>
-                            <p id="modalTime" class="text-sm font-bold text-white">0h 0m</p>
+                    <div class="flex gap-8 text-right relative z-10 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0">
+                        <div>
+                            <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1">Duration</p>
+                            <p id="modalTime" class="text-sm font-mono font-bold text-white">0h 0m</p>
                         </div>
                         <div>
-                            <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black">Revenue</p>
-                            <p id="modalRevenueTop" class="text-base font-black text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.3)]">€0</p>
+                            <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1">Yield</p>
+                            <p id="modalRevenueTop" class="text-lg font-mono font-black text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]">€0</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between bg-[#05070a] p-5 sm:p-6 rounded-2xl border border-tntc-muted/20 relative overflow-hidden">
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-10 bg-tntc-accent/5 blur-2xl"></div>
+
+                <div class="flex items-center justify-between bg-black/60 p-6 sm:p-8 rounded-3xl border border-white/10 relative overflow-hidden shadow-2xl">
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-20 bg-tntc-accent/5 blur-[40px] pointer-events-none"></div>
                     <div class="w-[40%] relative z-10">
-                        <p class="text-[9px] text-yellow-500 uppercase tracking-widest font-black mb-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Departure</p>
-                        <p class="text-[10px] text-tntc-textSecondary font-mono mb-1" id="modalStartTime">00-xxx-0000 00:00 PM</p>
-                        <h5 class="text-base sm:text-lg font-black text-white leading-tight mb-1 truncate" id="modalDepCity">City</h5>
-                        <p class="text-xs text-tntc-textSecondary font-bold truncate" id="modalDepCo">Company</p>
+                        <p class="text-[9px] text-tntc-accent uppercase tracking-widest font-black mb-3 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i> Departure</p>
+                        <p class="text-[10px] text-tntc-textSecondary font-mono mb-2 bg-white/5 inline-block px-2 py-1 rounded" id="modalStartTime">00-xxx-0000 00:00 PM</p>
+                        <h5 class="text-lg sm:text-xl font-black text-white leading-tight mb-1 truncate drop-shadow-md" id="modalDepCity">City</h5>
+                        <p class="text-xs text-tntc-textSecondary font-bold truncate tracking-wide" id="modalDepCo">Company</p>
                     </div>
                     <div class="w-[20%] flex flex-col items-center justify-center relative z-10 hidden sm:flex">
-                        <div class="w-full border-t-2 border-dashed border-tntc-muted/50 absolute top-1/2 -translate-y-1/2 z-0"></div>
-                        <div class="w-10 h-10 bg-[#0a0e14] border-2 border-tntc-muted/30 rounded-full flex items-center justify-center z-10 shadow-[0_0_15px_rgba(56,189,248,0.15)] relative">
-                            <i data-lucide="truck" class="w-5 h-5 text-tntc-accent"></i>
+                        <div class="w-full border-t-2 border-dashed border-white/20 absolute top-1/2 -translate-y-1/2 z-0"></div>
+                        <div class="w-12 h-12 bg-[#05070a] border border-tntc-accent/50 rounded-full flex items-center justify-center z-10 shadow-[0_0_20px_rgba(56,189,248,0.2)] relative">
+                            <i data-lucide="truck" class="w-5 h-5 text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i>
                         </div>
                     </div>
                     <div class="w-[40%] text-right relative z-10">
-                        <p class="text-[9px] text-yellow-500 uppercase tracking-widest font-black mb-2 flex items-center justify-end gap-1.5">Destination <i data-lucide="flag" class="w-3.5 h-3.5"></i></p>
-                        <p class="text-[10px] text-tntc-textSecondary font-mono mb-1">Delivered</p>
-                        <h5 class="text-base sm:text-lg font-black text-white leading-tight mb-1 truncate" id="modalDestCity">City</h5>
-                        <p class="text-xs text-tntc-textSecondary font-bold truncate" id="modalDestCo">Company</p>
+                        <p class="text-[9px] text-tntc-distance uppercase tracking-widest font-black mb-3 flex items-center justify-end gap-2">Destination <i data-lucide="flag" class="w-4 h-4 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]"></i></p>
+                        <p class="text-[10px] text-tntc-textSecondary font-mono mb-2 bg-white/5 inline-block px-2 py-1 rounded">Delivered</p>
+                        <h5 class="text-lg sm:text-xl font-black text-white leading-tight mb-1 truncate drop-shadow-md" id="modalDestCity">City</h5>
+                        <p class="text-xs text-tntc-textSecondary font-bold truncate tracking-wide" id="modalDestCo">Company</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-tntc-card border border-tntc-muted/20 p-5 rounded-2xl relative overflow-hidden">
-                        <i data-lucide="truck" class="absolute -right-4 -bottom-4 w-20 h-20 text-tntc-muted/10"></i>
-                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-bold mb-1">Truck Unit</p>
-                        <h5 id="modalTruck" class="text-sm sm:text-base font-black text-white mb-4 relative z-10">Truck Name</h5>
-                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-bold mb-0.5">Truck Damage</p>
-                        <p id="modalDamage" class="text-xs font-bold text-red-400">0%</p>
+
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="bg-black/40 border border-white/5 hover:border-white/10 transition-colors p-6 rounded-2xl relative overflow-hidden group">
+                        <i data-lucide="truck" class="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 group-hover:scale-110 transition-transform duration-500"></i>
+                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-2 relative z-10">Truck Unit</p>
+                        <h5 id="modalTruck" class="text-sm sm:text-base font-black text-white mb-5 relative z-10 tracking-wide truncate">Truck Name</h5>
+                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1 relative z-10">Integrity Damage</p>
+                        <p id="modalDamage" class="text-xs font-mono font-black text-tntc-admin drop-shadow-[0_0_5px_rgba(244,63,94,0.5)] relative z-10">0%</p>
                     </div>
-                    <div class="bg-tntc-card border border-tntc-muted/20 p-5 rounded-2xl relative overflow-hidden">
-                        <i data-lucide="package" class="absolute -right-4 -bottom-4 w-20 h-20 text-tntc-muted/10"></i>
-                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-bold mb-1">Trailer</p>
-                        <h5 id="modalTrailer" class="text-sm sm:text-base font-black text-white mb-4 relative z-10">Type</h5>
-                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-bold mb-0.5">Cargo Weight</p>
-                        <p id="modalWeight" class="text-xs font-bold text-white">0 t</p>
-                    </div>
-                </div>
-                <div class="bg-tntc-card border border-tntc-muted/20 rounded-2xl p-5">
-                    <h4 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 mb-5 pb-3 border-b border-tntc-muted/20"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Telemetry Statistics</h4>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Cargo Name</span><span id="statCargo" class="text-white font-bold text-right">Sand</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Distance Driven</span><span id="statDist" class="text-tntc-distance font-bold">0 km</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Planned Distance</span><span id="statPlan" class="text-tntc-textSecondary font-bold">0 km</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Time Taken</span><span id="statTime" class="text-white font-mono font-bold">0h 0m</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Revenue</span><span id="statRev" class="text-yellow-500 font-bold">€0</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Fuel Burnt</span><span id="statFuel" class="text-white font-bold">0 L</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Top Speed</span><span id="statTopSpd" class="text-white font-mono font-bold">0 km/h</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Avg Speed</span><span id="statAvgSpd" class="text-white font-mono font-bold">0 km/h</span></div>
-                        <div class="flex justify-between items-center text-xs"><span class="text-tntc-textSecondary font-semibold">Auto Parked</span><span id="statPark" class="text-white font-bold">NO</span></div>
+                    <div class="bg-black/40 border border-white/5 hover:border-white/10 transition-colors p-6 rounded-2xl relative overflow-hidden group">
+                        <i data-lucide="package" class="absolute -right-4 -bottom-4 w-24 h-24 text-white/5 group-hover:scale-110 transition-transform duration-500"></i>
+                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-2 relative z-10">Payload Trailer</p>
+                        <h5 id="modalTrailer" class="text-sm sm:text-base font-black text-white mb-5 relative z-10 tracking-wide truncate">Type</h5>
+                        <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1 relative z-10">Mass</p>
+                        <p id="modalWeight" class="text-xs font-mono font-black text-white relative z-10">0 t</p>
                     </div>
                 </div>
-                <div class="bg-tntc-card border border-tntc-muted/20 rounded-2xl p-5">
-                    <h4 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 mb-6"><i data-lucide="clock" class="w-4 h-4 text-yellow-500"></i> Event Timeline</h4>
-                    <div class="relative pl-5 border-l-2 border-tntc-muted/30 space-y-6" id="modalTimelineContainer"></div>
+
+                <div class="bg-black/60 border border-white/5 rounded-3xl p-6 md:p-8 shadow-inner">
+                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 mb-6 pb-4 border-b border-white/10"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Core Telemetry Matrix</h4>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Cargo Identity</span><span id="statCargo" class="text-white font-bold text-sm text-right truncate max-w-[150px] sm:max-w-[250px]">Sand</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Actual Distance</span><span id="statDist" class="text-tntc-distance font-mono font-black drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">0 km</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Planned Route</span><span id="statPlan" class="text-tntc-textSecondary font-mono font-bold">0 km</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Duration</span><span id="statTime" class="text-white font-mono font-bold">0h 0m</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Gross Yield</span><span id="statRev" class="text-yellow-500 font-mono font-black drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]">€0</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Fuel Consumption</span><span id="statFuel" class="text-white font-mono font-bold">0 L</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Maximum Velocity</span><span id="statTopSpd" class="text-white font-mono font-bold">0 km/h</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Average Velocity</span><span id="statAvgSpd" class="text-white font-mono font-bold">0 km/h</span></div>
+                        <div class="flex justify-between items-center bg-white/5 px-4 py-2.5 rounded-lg border border-white/5"><span class="text-[10px] text-tntc-textSecondary font-black uppercase tracking-widest">Auto Park Usage</span><span id="statPark" class="text-white font-bold">NO</span></div>
+                    </div>
                 </div>
+
+                <div class="bg-black/60 border border-white/5 rounded-3xl p-6 md:p-8 shadow-inner">
+                    <h4 class="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 mb-8"><i data-lucide="clock" class="w-4 h-4 text-yellow-500"></i> Event Chronology</h4>
+                    <div class="relative pl-6 border-l-2 border-white/10 space-y-8" id="modalTimelineContainer"></div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <!-- EVENT MODAL -->
-    <div id="eventModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center modal-closed hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('eventModal')"></div>
-        <div class="custom-modal-content relative z-10 bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div id="modalImageContainer" class="w-full h-40 sm:h-48 shrink-0 bg-tntc-main relative bg-cover bg-center border-b border-tntc-muted/30">
-                <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
-                <button onclick="closeModal('eventModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="eventModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/90 backdrop-blur-xl">
+        <div class="absolute inset-0 cursor-pointer" onclick="closeModal('eventModal')"></div>
+        <div class="custom-modal-content relative z-10 bg-slate-900/80 backdrop-blur-2xl border border-white/10 w-full max-w-xl mx-4 rounded-3xl shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col max-h-[90vh]">
+            <div id="modalImageContainer" class="w-full h-48 sm:h-56 shrink-0 relative bg-cover bg-center border-b border-white/10">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent z-10"></div>
+                <button onclick="closeModal('eventModal')" class="absolute top-5 right-5 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2.5 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
-            <div class="p-5 sm:p-7 -mt-10 relative z-10 overflow-y-auto custom-scrollbar flex-1">
-                <span id="modalCategory" class="inline-block px-2.5 py-1 bg-tntc-accent/20 text-tntc-accent border border-tntc-accent/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
-                <h2 id="modalEventName" class="text-xl sm:text-2xl font-black text-tntc-textPrimary leading-tight mb-2">Event Name Here</h2>
-                <p class="text-tntc-textSecondary text-sm flex items-center gap-2 mb-6 font-medium"><i data-lucide="calendar" class="w-4 h-4"></i> <span id="modalDate">Date</span></p>
-                <h3 class="text-xs font-bold text-tntc-textPrimary uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-tntc-muted/20 pb-2"><i data-lucide="users" class="w-4 h-4 text-tntc-accent"></i> Drivers Attended (<span id="modalAttendanceCount">0</span>)</h3>
-                <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2"></div>
-                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tntc-accent hover:opacity-90 text-tntc-main font-bold py-3 rounded-lg transition-colors shadow-lg mb-4">View on TruckersMP <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i></a>
-                <div id="modalEntryImageContainer" class="hidden rounded-xl overflow-hidden border border-tntc-muted/30 shadow-md">
-                    <img id="modalEntryImage" src="" alt="Event Entry Details" class="w-full h-auto object-contain">
+            <div class="p-6 sm:p-10 -mt-16 relative z-20 overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-transparent to-[#05070a]/50">
+                <span id="modalCategory" class="inline-block px-3 py-1.5 bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[9px] font-black uppercase tracking-widest rounded-full mb-3 shadow-[0_0_15px_rgba(168,85,247,0.3)] backdrop-blur-md">CATEGORY</span>
+                <h2 id="modalEventName" class="text-2xl sm:text-3xl font-black text-white leading-tight mb-3 drop-shadow-md">Event Name Here</h2>
+                <p class="text-tntc-textSecondary text-[10px] font-mono tracking-widest uppercase flex items-center gap-2 mb-8 font-bold"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> <span id="modalDate">Date</span></p>
+                
+                <h3 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-white/10 pb-3"><i data-lucide="users" class="w-4 h-4 text-purple-400"></i> Confirmed Operatives (<span id="modalAttendanceCount">0</span>)</h3>
+                <div id="modalDriversList" class="flex flex-wrap gap-2 mb-8 max-h-40 overflow-y-auto custom-scrollbar pr-2"></div>
+                
+                <a id="modalLinkBtn" href="#" target="_blank" class="w-full flex justify-center items-center gap-2 bg-purple-500 hover:bg-purple-400 text-[#05070a] font-black py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] hover:-translate-y-1 uppercase tracking-widest text-[10px] mb-4">
+                    Access Network Link <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
+                
+                <div id="modalEntryImageContainer" class="hidden rounded-2xl overflow-hidden border border-white/10 shadow-xl bg-black/50 mt-4">
+                    <img id="modalEntryImage" src="" alt="Event Details" class="w-full h-auto object-contain">
                 </div>
             </div>
         </div>
     </div>
 
     <!-- CAMPAIGN ROUTE MODAL -->
-    <div id="campaignModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center modal-closed hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('campaignModal')"></div>
-        <div class="custom-modal-content relative z-10 bg-tntc-card border border-tntc-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden relative">
-            <div id="campModalHeader" class="w-full h-32 relative border-b border-tntc-muted/30 overflow-hidden bg-cover bg-center">
-                <div class="absolute inset-0 bg-gradient-to-t from-tntc-card to-transparent"></div>
-                <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20 shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="campaignModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/90 backdrop-blur-xl">
+        <div class="absolute inset-0 cursor-pointer" onclick="closeModal('campaignModal')"></div>
+        <div class="custom-modal-content relative z-10 bg-slate-900/80 backdrop-blur-2xl border border-white/10 w-full max-w-xl mx-4 rounded-3xl shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-hidden relative flex flex-col max-h-[90vh]">
+            <div id="campModalHeader" class="w-full h-48 sm:h-56 relative border-b border-white/10 overflow-hidden bg-cover bg-center shrink-0">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent z-10"></div>
+                <button onclick="closeModal('campaignModal')" class="absolute top-5 right-5 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2.5 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
-            <div class="p-5 sm:p-7 -mt-12 relative z-10">
-                <span class="inline-block px-2.5 py-1 bg-tntc-distance text-[#05070a] text-[10px] font-black tracking-widest uppercase rounded shadow-[0_0_10px_rgba(74,222,128,0.4)] mb-2">TOUR ROUTE <span id="campModalId"></span></span>
+            <div class="p-6 sm:p-10 -mt-20 relative z-20 flex-1 overflow-y-auto custom-scrollbar bg-gradient-to-b from-transparent to-[#05070a]/50">
+                <span class="inline-block px-3 py-1.5 bg-amber-500/20 border border-amber-500/40 text-amber-500 text-[9px] font-black tracking-widest uppercase rounded-full shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-3 backdrop-blur-md">MANIFEST <span id="campModalId"></span></span>
                 
-                <h2 class="text-xl sm:text-2xl font-black text-tntc-textPrimary leading-tight mb-1 flex items-center gap-2"><span id="campModalSource">Source</span> <i data-lucide="arrow-right" class="w-5 h-5 text-tntc-distance"></i> <span id="campModalDest">Dest</span></h2>
-                <p class="text-tntc-textSecondary text-xs mb-4 flex items-center gap-2"><span id="campModalSrcCo">Source Co</span> <i data-lucide="arrow-right" class="w-3 h-3 text-tntc-muted"></i> <span id="campModalDstCo">Dest Co</span></p>
+                <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight mb-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 drop-shadow-md">
+                    <span id="campModalSource" class="truncate max-w-full">Source</span> 
+                    <i data-lucide="arrow-right" class="w-5 h-5 text-amber-500 hidden sm:block"></i> 
+                    <i data-lucide="arrow-down" class="w-5 h-5 text-amber-500 sm:hidden"></i> 
+                    <span id="campModalDest" class="truncate max-w-full">Dest</span>
+                </h2>
                 
-                <p class="text-tntc-textSecondary text-sm flex items-center gap-2 mb-6 font-mono font-bold"><i data-lucide="milestone" class="w-4 h-4 text-tntc-textSecondary"></i> <span id="campModalDist">0</span> km Target</p>
-                <h3 class="text-xs font-bold text-tntc-textPrimary uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-tntc-muted/20 pb-2"><i data-lucide="users" class="w-4 h-4 text-tntc-distance"></i> Completed By (<span id="campModalCount">0</span> / <span id="campModalTotalDrivers">0</span>)</h3>
-                <div id="campModalDriversList" class="flex flex-wrap gap-2 mb-2 max-h-40 overflow-y-auto custom-scrollbar pr-2"></div>
+                <div class="flex flex-col gap-1 mb-6 text-[10px] text-tntc-textSecondary font-bold tracking-wider uppercase bg-black/40 p-4 rounded-xl border border-white/5">
+                    <p class="flex items-center gap-2 truncate"><i data-lucide="building" class="w-3 h-3 text-tntc-muted"></i> <span id="campModalSrcCo">Source Co</span></p>
+                    <p class="flex items-center gap-2 truncate"><i data-lucide="arrow-down-right" class="w-3 h-3 text-tntc-muted"></i> <span id="campModalDstCo">Dest Co</span></p>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-8 bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl">
+                    <i data-lucide="milestone" class="w-6 h-6 text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]"></i>
+                    <div>
+                        <p class="text-[9px] text-amber-500/70 font-black uppercase tracking-widest mb-0.5">Target Distance</p>
+                        <p class="text-lg text-amber-500 font-mono font-black drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]"><span id="campModalDist">0</span> KM</p>
+                    </div>
+                </div>
+                
+                <h3 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-white/10 pb-3"><i data-lucide="check-square" class="w-4 h-4 text-tntc-distance"></i> Cleared By (<span id="campModalCount">0</span> / <span id="campModalTotalDrivers">0</span>)</h3>
+                <div id="campModalDriversList" class="flex flex-wrap gap-2 mb-2 max-h-48 overflow-y-auto custom-scrollbar pr-2"></div>
             </div>
         </div>
     </div>
@@ -620,11 +820,11 @@
                 tabs.forEach(tab => {
                     tab.addEventListener('click', () => {
                         tabs.forEach(t => {
-                            t.classList.remove('text-tntc-revenue', 'bg-[#161f30]');
-                            t.classList.add('text-tntc-textSecondary', 'bg-[#05070a]');
+                            t.classList.remove('text-tntc-revenue', 'bg-white/10');
+                            t.classList.add('text-tntc-textSecondary', 'bg-transparent');
                         });
-                        tab.classList.remove('text-tntc-textSecondary', 'bg-[#05070a]');
-                        tab.classList.add('text-tntc-revenue', 'bg-[#161f30]');
+                        tab.classList.remove('text-tntc-textSecondary', 'bg-transparent');
+                        tab.classList.add('text-tntc-revenue', 'bg-white/10');
 
                         let mode = tab.dataset.mode;
                         const freshNow = new Date();
@@ -729,7 +929,6 @@
             document.getElementById('hubTotalRevenue').innerText = Math.floor(myRev).toLocaleString();
             document.getElementById('hubTotalEvents').innerText = myEvents.toLocaleString();
             
-            // 🚀 INJECTED: Useful Metrics 🚀
             let avgDist = myJobs > 0 ? Math.floor(myDist / myJobs) : 0;
             let avgEl = document.getElementById('hubAvgDist');
             if (avgEl) avgEl.innerText = avgDist.toLocaleString() + " km";
@@ -738,22 +937,22 @@
             if (fuelEl) fuelEl.innerText = Math.floor(myFuel).toLocaleString() + " L";
             
             let title = "ROOKIE";
-            let colorClass = "text-tntc-textSecondary";
+            let colorClass = "text-tntc-textSecondary drop-shadow-none";
             let progress = 0;
             let nextTier = "PRO (5,000 KM)";
             
             if (myDist < 5000) {
-                title = "ROOKIE"; colorClass = "text-tntc-textSecondary"; progress = (myDist / 5000) * 100; nextTier = "PRO (5,000 KM)";
+                title = "ROOKIE"; colorClass = "text-tntc-textSecondary drop-shadow-none"; progress = (myDist / 5000) * 100; nextTier = "PRO (5,000 KM)";
             } else if (myDist >= 5000 && myDist < 20000) {
-                title = "PRO TRUCKER"; colorClass = "text-tntc-distance"; progress = ((myDist - 5000) / 15000) * 100; nextTier = "VETERAN (20,000 KM)";
+                title = "PRO TRUCKER"; colorClass = "text-tntc-distance drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]"; progress = ((myDist - 5000) / 15000) * 100; nextTier = "VETERAN (20,000 KM)";
             } else if (myDist >= 20000 && myDist < 50000) {
-                title = "VETERAN"; colorClass = "text-yellow-500"; progress = ((myDist - 20000) / 30000) * 100; nextTier = "ELITE (50,000 KM)";
+                title = "VETERAN"; colorClass = "text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"; progress = ((myDist - 20000) / 30000) * 100; nextTier = "ELITE (50,000 KM)";
             } else {
-                title = "ELITE DRIVER"; colorClass = "text-tntc-accent"; progress = 100; nextTier = "MAX RANK REACHED";
+                title = "ELITE DRIVER"; colorClass = "text-tntc-accent drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]"; progress = 100; nextTier = "MAX RANK REACHED";
             }
             
             const titleEl = document.getElementById('hubRankTitle');
-            titleEl.className = `text-3xl md:text-4xl font-black tracking-tight flex items-center gap-3 ${colorClass}`;
+            titleEl.className = `text-4xl md:text-5xl font-black tracking-tighter flex items-center gap-3 ${colorClass}`;
             titleEl.innerHTML = `${title} <i data-lucide="award" class="w-8 h-8"></i>`;
             
             document.getElementById('hubRankProgress').style.width = `${progress}%`;
@@ -771,7 +970,7 @@
                 let targetOpt = Array.from(jobSelect.options).find(opt => opt.value.toUpperCase() === trackerName.toUpperCase());
                 if (targetOpt) {
                     if (jobSelect.value !== targetOpt.value) {
-                        jobSelect.value = targetOpt.value; // Use exact uppercase value
+                        jobSelect.value = targetOpt.value; 
                         if(typeof applyLogFilters === 'function') applyLogFilters();
                     }
                 } else {
@@ -785,7 +984,7 @@
                 let targetOpt = Array.from(eventSelect.options).find(opt => opt.value.toUpperCase() === trackerName.toUpperCase());
                 if (targetOpt) {
                     if (eventSelect.value !== targetOpt.value) {
-                        eventSelect.value = targetOpt.value; // Use exact uppercase value
+                        eventSelect.value = targetOpt.value; 
                         if(typeof applyEventFilters === 'function') applyEventFilters();
                     }
                 } else {
@@ -795,7 +994,6 @@
             }
         }
 
-        // 🚀 BULLETPROOF GLOBAL TAB OVERRIDE & AUTO-FILTER RESTORED 🚀
         window.switchTab = function(tab) {
             const allTabs = ['hub', 'overview', 'logs', 'events', 'campaign', 'liveriders'];
             
@@ -815,23 +1013,19 @@
                 
                 if (btn) {
                     if (tab === t) {
-                        btn.className = "tab-active px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-[0_0_15px_rgba(56,189,248,0.2)]";
+                        btn.className = "tab-active px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md";
                     } else {
-                        btn.className = "tab-inactive px-5 py-3 rounded-lg flex items-center gap-2 text-sm transition-all border flex-1 sm:flex-none justify-center shadow-md";
+                        btn.className = "tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg";
                     }
                 }
             });
 
-            // Wakes up specific tabs
-            if (tab === 'campaign' && typeof fetchTourData === 'function') {
-                fetchTourData(); 
-            }
+            if (tab === 'campaign' && typeof fetchTourData === 'function') fetchTourData(); 
             if (tab === 'liveriders') {
                 if (typeof fetchLiveRiders === 'function') fetchLiveRiders(); 
                 if (typeof initLiveRiders === 'function') initLiveRiders();
             }
 
-            // 🚀 Restored Auto-Filter Logic (WITH EXACT CASE MATCHING!) 🚀
             const trackerName = sessionStorage.getItem('tntc_tracker');
             if (trackerName) {
                 if (tab === 'logs') {
@@ -871,8 +1065,7 @@
                 if (!row) return;
                 
                 document.getElementById('modalJobId').innerText = 'JOB #' + (row[1] || 'UNKNOWN');
-                
-                document.getElementById('modalRoute').innerHTML = `${row[5] || '-'} <span class="text-tntc-accent mx-1 opacity-70">→</span> ${row[7] || '-'}`;
+                document.getElementById('modalRoute').innerHTML = `${row[5] || '-'} <span class="text-tntc-accent mx-2 font-light opacity-50">→</span> ${row[7] || '-'}`;
                 document.getElementById('modalCargoSub').innerText = `${row[3] || 'Cargo'} • ${row[12] || '0 km'} driven`;
                 
                 document.getElementById('modalDriver').innerText = row[2] || 'DRIVER';
@@ -903,9 +1096,9 @@
                 const tlContainer = document.getElementById('modalTimelineContainer');
                 let tlHtml = `
                     <div class="relative">
-                        <div class="absolute -left-[26px] top-1 w-3 h-3 rounded-full bg-tntc-accent border-2 border-[#0a0e14] shadow-[0_0_8px_rgba(56,189,248,0.8)]"></div>
-                        <p class="text-xs font-bold text-white tracking-wide">Started Engine</p>
-                        <p class="text-[10px] text-tntc-textSecondary font-mono mt-0.5">${(row[0] || '').split(' ')[1] || '00:00'}</p>
+                        <div class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-tntc-accent border-2 border-[#05070a] shadow-[0_0_10px_rgba(56,189,248,0.8)]"></div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Engine Ignition</p>
+                        <p class="text-[10px] text-tntc-textSecondary font-mono mt-1">${(row[0] || '').split(' ')[1] || '00:00'}</p>
                     </div>
                 `;
                 
@@ -915,20 +1108,20 @@
                     events.forEach(evt => {
                         if(evt.trim()) {
                             tlHtml += `
-                            <div class="relative mt-5">
-                                <div class="absolute -left-[26px] top-1 w-3 h-3 rounded-full bg-red-500 border-2 border-[#0a0e14] shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
-                                <p class="text-xs font-bold text-red-400 tracking-wide">Damage Taken</p>
-                                <p class="text-[10px] text-tntc-textSecondary font-mono mt-0.5">${evt.trim()}</p>
+                            <div class="relative mt-8">
+                                <div class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-tntc-admin border-2 border-[#05070a] shadow-[0_0_10px_rgba(244,63,94,0.8)]"></div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-tntc-admin drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">Integrity Compromised</p>
+                                <p class="text-[10px] text-tntc-textSecondary font-mono mt-1">${evt.trim()}</p>
                             </div>`;
                         }
                     });
                 }
                 
                 tlHtml += `
-                    <div class="relative mt-5">
-                        <div class="absolute -left-[26px] top-1 w-3 h-3 rounded-full bg-green-500 border-2 border-[#0a0e14] shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
-                        <p class="text-xs font-bold text-green-400 tracking-wide">Cargo Delivered</p>
-                        <p class="text-[10px] text-tntc-textSecondary font-mono mt-0.5">Safe Arrival</p>
+                    <div class="relative mt-8">
+                        <div class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-tntc-distance border-2 border-[#05070a] shadow-[0_0_10px_rgba(74,222,128,0.8)]"></div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-tntc-distance drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Payload Delivered</p>
+                        <p class="text-[10px] text-tntc-textSecondary font-mono mt-1">Safe Arrival</p>
                     </div>
                 `;
                 if(tlContainer) tlContainer.innerHTML = tlHtml;
@@ -946,7 +1139,6 @@
                 
             } catch(e) {
                 console.error("Modal Error:", e);
-                alert("Could not load job details: " + e.message);
             }
         };
 

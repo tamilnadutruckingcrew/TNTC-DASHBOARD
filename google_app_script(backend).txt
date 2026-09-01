@@ -7,6 +7,10 @@ const DB_JOBS    = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y"; // Live Job L
 const DB_TOURS   = "1Z3Y6wf8YyS-15aIf-7PiGXqz5lEbfwHMYXNczWH8Mxg"; // TNTC Tour 1 Sheet
 const DB_EVENTS  = "1NhiUDmXIfy6BXnLcXhAv8Mmp6rmSKzvdI_eznlWbLsw"; // TNTC EVENT MONITOR Sheet
 
+// 🔴 YOUR NEW CARGO SPREADSHEET ID 🔴
+// (Use the exact ID of the spreadsheet that contains the "Cargo_Rates" tab)
+const CARGO_SPREADSHEET_ID = "1Cjg1S_l9FVgtEKE4ddrx3UtAroj7tB4jarfx2Yledrs"; 
+
 function doOptions(e) {
   const headers = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, GET, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "86400" };
   return ContentService.createTextOutput("").setMimeType(ContentService.MimeType.JSON).setHeaders(headers);
@@ -55,7 +59,6 @@ function doGet(e) {
 function handleWebsiteAction(params) {
   var action = params.action;
   
-  // FIXED: Explicitly unboxing the sheet object so getDataRange works perfectly
   var dbSheetObj = getTargetSheet("USERS_DB");
   var dbSheet = dbSheetObj.sheet;
   
@@ -111,7 +114,13 @@ function doPost(e) {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action;
 
-    // --- NEW USER MANAGEMENT ACTIONS ---
+    // --- TRACKER WEBHOOK ACTION ---
+    if (action === "ADD_JOB") return handleAddJob(payload.data, headers);
+
+    // --- ECONOMY CONFIG ACTION ---
+    if (action === "UPDATE_CARGO_RATE") return handleUpdateCargoRate(payload.data, headers);
+
+    // --- USER MANAGEMENT ACTIONS ---
     if (action === "REGISTER_USER") return handleRegisterUser(payload.data, headers);
     if (action === "LOGIN_USER") return handleLoginUser(payload.data, headers);
     if (action === "GET_USERS") return handleGetUsers(headers);
@@ -142,13 +151,131 @@ function doPost(e) {
   }
 }
 
+// ==========================================
+// CARGO-BASED ECONOMY CALCULATOR & TRACKER LOGIC
+// ==========================================
+
+function handleUpdateCargoRate(data, headers) {
+  let { sheet } = getTargetSheet("Cargo_Rates"); 
+  
+  let headerRange = sheet.getRange(1, 1, 1, 5);
+  let headerRow = headerRange.getValues()[0];
+  
+  if (headerRow[0] !== "Cargo Name") { 
+    sheet.appendRow(["Cargo Name", "In-Game Category", "Weight", "Required DLC", "Base Price"]); 
+    sheet.setFrozenRows(1); 
+  }
+
+  const targetCargo = String(data.cargoName).trim().toUpperCase();
+  const newPrice = parseFloat(data.basePrice);
+
+  const lastRow = sheet.getLastRow();
+  
+  if (lastRow > 1) {
+    const cargoNames = sheet.getRange(2, 1, lastRow - 1, 1).getValues(); 
+    for (let i = 0; i < cargoNames.length; i++) {
+      if (String(cargoNames[i][0]).trim().toUpperCase() === targetCargo) {
+        sheet.getRange(i + 2, 5).setValue(newPrice); 
+        return createJsonResponse({ status: "success" }, headers);
+      }
+    }
+  }
+  
+  // If not found, append a new row
+  sheet.appendRow([data.cargoName, "", "", "", newPrice]);
+  return createJsonResponse({ status: "success" }, headers);
+}
+
+function handleAddJob(data, headers) {
+  const ss = SpreadsheetApp.openById(CARGO_SPREADSHEET_ID);
+  const cargoRatesMap = getCargoRatesMap(ss);
+  
+  let { sheet: jobSheet } = getTargetSheet("Live_Job_Logs");
+
+  let cargoName = data.cargo || "Unknown";
+  let tonnage = data.mass ? (data.mass / 1000) : 0; 
+  let distance = data.driven_distance || 0;
+  let damage = data.cargo_damage || 0;
+
+  let finalRevenue = calculateFinalRevenue(cargoName, tonnage, distance, damage, cargoRatesMap);
+
+  let newRow = [];
+  newRow[0] = new Date().toLocaleString("en-US", {timeZone: "GMT+05:30"}); 
+  newRow[1] = data.job_id || Utilities.getUuid().split('-')[0];
+  newRow[2] = data.driver_name || "UNKNOWN";
+  newRow[3] = cargoName;
+  newRow[4] = tonnage.toFixed(1) + " t";
+  newRow[5] = data.source_city || "Unknown";
+  newRow[6] = data.source_company || "Unknown";
+  newRow[7] = data.dest_city || "Unknown";
+  newRow[8] = data.dest_company || "Unknown";
+  newRow[9] = data.truck || "Unknown";
+  newRow[10] = data.trailer || "Unknown";
+  newRow[11] = data.planned_distance || distance;
+  newRow[12] = distance;
+  newRow[13] = data.top_speed || 0;
+  newRow[14] = damage;
+  newRow[15] = finalRevenue; 
+  newRow[16] = data.auto_park ? "YES" : "NO";
+  newRow[17] = data.fuel_used || 0;
+  newRow[18] = data.duration || "0h 0m";
+  newRow[19] = data.avg_speed || 0;
+  newRow[20] = data.timeline || "Clean Drive";
+
+  jobSheet.appendRow(newRow);
+
+  return createJsonResponse({ status: "success", calculated_revenue: finalRevenue }, headers);
+}
+
+function getCargoRatesMap(ss) {
+  const cargoMap = new Map();
+  const sheet = ss.getSheetByName("Cargo_Rates");
+  
+  if (!sheet) return cargoMap;
+
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    let rawCargoName = data[i][0];
+    let rawBasePrice = data[i][4]; // INDEX 4 is Column E!
+    
+    if (rawCargoName) {
+      let cargoName = String(rawCargoName).trim().toUpperCase();
+      let basePrice = parseFloat(rawBasePrice);
+      if (!isNaN(basePrice)) cargoMap.set(cargoName, basePrice);
+    }
+  }
+  return cargoMap;
+}
+
+function calculateFinalRevenue(cargoName, tonnage, distanceKm, damagePercent, cargoRatesMap) {
+  const DEFAULT_BASE_PRICE = 2.5; 
+  
+  const safeCargoName = String(cargoName || "").trim().toUpperCase();
+  const safeTonnage = parseFloat(tonnage) || 0;
+  const safeDistance = parseFloat(distanceKm) || 0;
+  const safeDamage = parseFloat(damagePercent) || 0;
+
+  const basePrice = cargoRatesMap.has(safeCargoName) ? cargoRatesMap.get(safeCargoName) : DEFAULT_BASE_PRICE;
+  const grossRevenue = basePrice * safeTonnage * safeDistance;
+  const damageDeduction = grossRevenue * (safeDamage / 100);
+  
+  let finalRevenue = grossRevenue - damageDeduction;
+  
+  return Math.max(0, Math.round(finalRevenue)); 
+}
+
+
+// ==========================================
 // --- STRICT MULTI-DB ROUTER ---
+// ==========================================
 function getTargetSheet(sheetName) {
   let targetId = "";
   if (["Site_Assets", "Website_News", "Website_Gallery", "APPLICATIONS", "USERS_DB"].includes(sheetName)) {
     targetId = DB_WEBSITE;
   } else if (["Live_Job_Logs"].includes(sheetName)) {
     targetId = DB_JOBS;
+  } else if (["Cargo_Rates"].includes(sheetName)) { // EXACT MAP FOR CARGO RATES
+    targetId = CARGO_SPREADSHEET_ID; 
   } else if (["ENTRY SHEET", "EVENT_RECORDS"].includes(sheetName)) {
     targetId = DB_EVENTS;
   } else {
@@ -575,7 +702,6 @@ function handleAddGallery(data, headers) {
   return createJsonResponse({status:"success"}, headers);
 }
 
-// Fallback for old applications (Still here just in case)
 function handleSubmitApplication(data, headers) {
   let { sheet } = getTargetSheet("APPLICATIONS");
   sheet.appendRow([new Date().toLocaleString(), data.name, data.discord, data.steamId, data.tmpId, data.reason, "PENDING"]);
