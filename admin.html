@@ -63,6 +63,9 @@
             </div>
         </div>
         <div class="flex gap-3">
+            <button onclick="window.location.href='index.html'" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg">
+                <i data-lucide="globe" class="w-4 h-4"></i> Website
+            </button>
             <button onclick="window.location.href='dashboard.html'" class="px-5 py-2.5 bg-slate-900/50 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Terminal
             </button>
@@ -534,7 +537,7 @@
         const ADMIN_NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv";
         const ADMIN_GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
         const ADMIN_ASSETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1307238988&single=true&output=csv";
-        const ADMIN_CARGO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVdXQTWd8m0ZP_hXtcN2RdYJcu6h2cdcpc9tZm9KMNOMvpQAYYL2FeM6caEF7iIhEfv2nbZqFnZ9U2/pub?gid=1346134523&single=true&output=csv"; // MUST REPLACE
+        const ADMIN_CARGO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; // MUST REPLACE
         
         document.addEventListener("DOMContentLoaded", () => {
             const role = sessionStorage.getItem('tntc_role');

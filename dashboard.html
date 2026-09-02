@@ -98,8 +98,11 @@
         </div>
 
         <div class="flex items-center gap-3 z-10 mt-6 md:mt-0">
-            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/80 hover:bg-tntc-admin text-white border border-tntc-admin/50 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] backdrop-blur-md flex items-center gap-2 hover:-translate-y-1">
-                <i data-lucide="terminal" class="w-4 h-4"></i> Command Center
+            <button onclick="window.location.href='index.html'" class="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md flex items-center gap-2 hover:-translate-y-1">
+                <i data-lucide="globe" class="w-4 h-4"></i> Website
+            </button>
+            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/80 hover:bg-tntc-admin text-white border border-tntc-admin/50 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] backdrop-blur-md items-center gap-2 hover:-translate-y-1">
+                <i data-lucide="terminal" class="w-4 h-4"></i> Command
             </button>
             <button onclick="logout()" class="bg-black/60 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/50 p-3 rounded-xl text-white transition-all backdrop-blur-md shadow-lg" title="Logout">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -360,23 +363,9 @@
             <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all group"><div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="calendar-check" class="w-24 h-24 text-purple-400"></i></div><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2 relative z-10">Convoys Joined</p><h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)] relative z-10">0</h2></div>
         </div>
         
-        <!-- PREMIUM CHARTS SECTION -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(74,222,128,0.03)] hover:border-tntc-distance/30 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] transition-all duration-300 relative overflow-hidden group">
-                <div class="absolute -right-20 -top-20 w-40 h-40 bg-tntc-distance/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-tntc-distance/20 transition-colors duration-500"></div>
-                <h3 class="text-sm font-black text-white mb-6 flex items-center gap-2 tracking-widest relative z-10 uppercase">
-                    <i data-lucide="bar-chart" class="w-4 h-4 text-tntc-distance drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]"></i> Distance Chart <span class="text-[9px] text-tntc-textSecondary font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded ml-2">KM</span>
-                </h3>
-                <div class="relative h-60 w-full z-10"><canvas id="kmBarChart"></canvas></div>
-            </div>
-            
-            <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(56,189,248,0.03)] hover:border-tntc-accent/30 hover:shadow-[0_0_30px_rgba(56,189,248,0.15)] transition-all duration-300 relative overflow-hidden group">
-                <div class="absolute -left-20 -top-20 w-40 h-40 bg-tntc-accent/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-tntc-accent/20 transition-colors duration-500"></div>
-                <h3 class="text-sm font-black text-white mb-6 flex items-center gap-2 tracking-widest relative z-10 uppercase">
-                    <i data-lucide="award" class="w-4 h-4 text-tntc-accent drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]"></i> Event Attendance <span class="text-[9px] text-tntc-textSecondary font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded ml-2">CONVOYS</span>
-                </h3>
-                <div class="relative h-60 w-full z-10"><canvas id="eventBarChart"></canvas></div>
-            </div>
+        <!-- PREMIUM CUSTOM CSS CHARTS SECTION -->
+        <div id="customChartContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Charts injected via JS -->
         </div>
 
         <!-- PREMIUM LEADERBOARDS SECTION -->
@@ -873,6 +862,9 @@
 
             if (typeof fetchSiteAssets === 'function') fetchSiteAssets();
             setTimeout(calculatePersonalTerminal, 2000);
+            
+            // Start the Local Tracker Polling
+            startTelemetryPolling();
         });
 
         // 🚀 THE SMART PERSONAL TERMINAL ENGINE 🚀
@@ -1153,6 +1145,142 @@
                 }, 300);
             }
         };
+
+        // ==========================================
+        // 🚀 LIVE LOCAL TELEMETRY POLLING 🚀
+        // ==========================================
+        const TELEMETRY_API_URL = "http://localhost:25555/api/ets2/telemetry"; 
+        let telemetryPollInterval = null;
+        let lastRenderedDispatchHTML = ""; 
+
+        async function fetchActiveDispatch() {
+            const dispatchContainer = document.getElementById('activeDispatchContainer');
+            const dispatchBadge = document.getElementById('activeDispatchBadge');
+            
+            if (!dispatchContainer) return;
+
+            // Helper function to render the "Offline / Game Closed" UI
+            const setOfflineState = () => {
+                if (dispatchBadge) {
+                    dispatchBadge.className = "text-[8px] bg-tntc-admin/10 text-tntc-admin border border-tntc-admin/30 px-2.5 py-1 rounded-full font-black tracking-widest shadow-[0_0_10px_rgba(244,63,94,0.2)]";
+                    dispatchBadge.innerText = "OFFLINE";
+                }
+                
+                const offlineHtml = `
+                    <div class="flex flex-col items-center justify-center py-10 opacity-60 h-full">
+                        <div class="w-12 h-12 rounded-full bg-tntc-admin/10 border border-tntc-admin/30 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(244,63,94,0.2)]">
+                            <i data-lucide="power-off" class="w-5 h-5 text-tntc-admin drop-shadow-[0_0_5px_rgba(244,63,94,0.8)]"></i>
+                        </div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-tntc-admin mb-1">System Offline</p>
+                        <p class="text-[9px] font-bold text-tntc-textSecondary text-center tracking-wider">No active logistics detected.</p>
+                    </div>
+                `;
+                
+                // Only update the DOM if the HTML actually changed (prevents icon flickering)
+                if (lastRenderedDispatchHTML !== offlineHtml) {
+                    dispatchContainer.innerHTML = offlineHtml;
+                    lastRenderedDispatchHTML = offlineHtml;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            };
+
+            try {
+                const response = await fetch(TELEMETRY_API_URL);
+                
+                // If the server responds with a 404, 500, etc., trigger offline state
+                if (!response.ok) {
+                    throw new Error("Telemetry API returned an error status.");
+                }
+                
+                const data = await response.json();
+                
+                // Check if game is disconnected, payload is empty, or no job is loaded
+                if (!data || data.game?.connected === false || !data.job || Object.keys(data.job).length === 0 || data.job.cargo === "") {
+                    setOfflineState();
+                    return;
+                }
+                
+                // If we reach here, the game is running and a job exists. Extract variables safely:
+                let sourceCity = data.job.sourceCity || 'Unknown';
+                let sourceCompany = data.job.sourceCompany || 'Unknown';
+                let destCity = data.job.destinationCity || 'Unknown';
+                let destCompany = data.job.destinationCompany || 'Unknown';
+                let cargo = data.job.cargo || 'Unknown';
+                let dist = data.job.plannedDistanceKm ? data.job.plannedDistanceKm + ' km' : '0 km';
+                
+                // Update the top-right Badge to "LIVE"
+                if (dispatchBadge) {
+                    dispatchBadge.className = "text-[8px] bg-tntc-distance/10 text-tntc-distance border border-tntc-distance/30 px-2.5 py-1 rounded-full animate-pulse font-black tracking-widest shadow-[0_0_10px_rgba(74,222,128,0.2)]";
+                    dispatchBadge.innerText = "LIVE UPLINK";
+                }
+                
+                // Render Active Job UI
+                const activeHtml = `
+                    <div class="space-y-4 w-full">
+                        <!-- Source Block -->
+                        <div class="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors">
+                            <div class="absolute left-0 top-0 w-1 h-full bg-tntc-accent/50"></div>
+                            <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:bg-white/10 transition-colors">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-tntc-textSecondary"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1">Departure</p>
+                                <h5 class="text-sm font-black text-white leading-tight truncate">${sourceCity}</h5>
+                                <p class="text-[10px] text-tntc-textSecondary font-bold truncate tracking-wider uppercase mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-1"></i> ${sourceCompany}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Connecting Line -->
+                        <div class="flex justify-center -my-2 relative z-10">
+                            <div class="h-6 w-[2px] bg-gradient-to-b from-white/10 to-tntc-distance/30"></div>
+                        </div>
+                        
+                        <!-- Destination Block -->
+                        <div class="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-tntc-distance/10 relative overflow-hidden group hover:border-tntc-distance/30 transition-colors shadow-[0_0_15px_rgba(74,222,128,0.02)]">
+                            <div class="absolute left-0 top-0 w-1 h-full bg-tntc-distance/50"></div>
+                            <div class="w-10 h-10 rounded-full bg-tntc-distance/10 border border-tntc-distance/30 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-tntc-distance"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[9px] text-tntc-distance uppercase tracking-widest font-black mb-1 drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Destination</p>
+                                <h5 class="text-sm font-black text-white leading-tight truncate">${destCity}</h5>
+                                <p class="text-[10px] text-tntc-textSecondary font-bold truncate tracking-wider uppercase mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-1"></i> ${destCompany}</p>
+                            </div>
+                        </div>
+
+                        <!-- Cargo & Target Metrics -->
+                        <div class="grid grid-cols-2 gap-3 mt-2">
+                            <div class="bg-black/40 p-3 rounded-xl border border-white/5 flex flex-col justify-center">
+                                <p class="text-[8px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> Cargo</p>
+                                <p class="text-xs font-bold text-white truncate" title="${cargo}">${cargo}</p>
+                            </div>
+                            <div class="bg-black/40 p-3 rounded-xl border border-white/5 flex flex-col justify-center">
+                                <p class="text-[8px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="milestone" class="w-3 h-3"></i> Target</p>
+                                <p class="text-xs font-mono font-black text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.5)] truncate">${dist}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update DOM only if data changed
+                if (lastRenderedDispatchHTML !== activeHtml) {
+                    dispatchContainer.innerHTML = activeHtml;
+                    lastRenderedDispatchHTML = activeHtml;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+                
+            } catch (error) {
+                // Automatically caught if game closes, tracker shuts down, or fetch connection is refused
+                setOfflineState();
+            }
+        }
+
+        // Start polling every 3 seconds to ensure instant UI reset when the game closes
+        function startTelemetryPolling() {
+            if (telemetryPollInterval) clearInterval(telemetryPollInterval);
+            fetchActiveDispatch(); // Run immediately on load
+            telemetryPollInterval = setInterval(fetchActiveDispatch, 3000); 
+        }
 
         setTimeout(() => window.switchTab('hub'), 100);
     </script>
