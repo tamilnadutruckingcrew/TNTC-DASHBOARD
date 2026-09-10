@@ -1,173 +1,218 @@
-// ==========================================
-// OVERVIEW.JS - VTC Dashboard Analytics
-// ==========================================
+// =============================================================================
+// DASHBOARD OVERVIEW: DATA FILTERING & RENDERING (The 30-Day Rule)
+// =============================================================================
 
 function applyOverviewFilter() {
     let timeFilter = 'ALL';
     let customDate = '';
+    
+    // Check UI Filter State
     if (window.vtcFilterStates && window.vtcFilterStates['overview']) {
-        let state = window.vtcFilterStates['overview'];
+        const state = window.vtcFilterStates['overview'];
         if (state.mode === 'MONTHLY') { timeFilter = 'CUSTOM_MONTH'; customDate = state.value; }
         else if (state.mode === 'DAILY') { timeFilter = 'CUSTOM'; customDate = state.value; }
     }
     
-    let totalKm = 0; let totalJobs = 0; let totalRevenue = 0;
-    let activeDrivers = new Set();
+    let globalTotalKm = 0; 
+    let globalTotalJobs = 0; 
+    let globalTotalRevenue = 0;
+    let globalTotalFilteredEvents = 0;
     
-    let driverStats = {}; 
-    let today = new Date();
-    let thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-    
-    // Smart Date Parser (Bypasses American Date Bug)
-    function parseSmartDate(dateStr) {
+    // 1. Maintain Master DriverStats Object
+    const driverStats = new Map(); 
+
+    const getDriverRecord = (name) => {
+        let norm = name.trim().toUpperCase();
+        if (!driverStats.has(norm)) {
+            driverStats.set(norm, { 
+                name: name.trim(), 
+                totalDist: 0, 
+                totalJobs: 0, 
+                totalEvents: 0, 
+                lastActivityDate: 0, 
+                rev: 0,
+                allTimeKm: 0,
+                allTimeEvents: 0
+            });
+        }
+        return driverStats.get(norm);
+    };
+
+    // Helper: Smart Date Parser
+    const parseSmartDate = (dateStr) => {
         if (!dateStr) return new Date(0);
-        dateStr = String(dateStr).trim();
-        // Detects DD/MM/YYYY or DD-MM-YYYY
-        let parts = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        const str = String(dateStr).trim();
+        const parts = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
         if (parts) return new Date(parts[3], parts[2] - 1, parts[1]);
-        return new Date(dateStr);
+        return new Date(str);
+    };
+
+    // Helper: Safe Number Extractor
+    const parseSafeNumber = (val) => {
+        if (!val) return 0;
+        const cleanStr = String(val).replace(/[^0-9.]/g, '');
+        const parsed = parseFloat(cleanStr);
+        return isNaN(parsed) ? 0 : parsed;
+    };
+
+    // --- PROCESS JOB LOGS ---
+    if (globalJobData && globalJobData.length > 0) {
+        globalJobData.forEach(row => {
+            const rawName = String(row[2] || '').trim();
+            const normKey = rawName.toUpperCase();
+            if (!normKey || normKey === 'UNKNOWN' || normKey.includes('DRIVER')) return;
+
+            const timeStr = String(row[0] || '');
+            const jobDate = parseSmartDate(timeStr);
+            const jobTime = jobDate.getTime();
+
+            const record = getDriverRecord(rawName);
+
+            // Update absolute last activity date (Ignores UI time filters)
+            if (!isNaN(jobTime) && jobTime > record.lastActivityDate) {
+                record.lastActivityDate = jobTime;
+            }
+
+            const drivenKm = parseSafeNumber(row[12]);
+            const rev = parseSafeNumber(row[15]);
+
+            if (drivenKm > 0) {
+                record.allTimeKm += drivenKm; // Permanent lifetime distance
+
+                // Accumulate metrics ONLY if the row passes the UI time filter
+                let passesFilter = true;
+                if (typeof checkDateFilter === 'function') {
+                    passesFilter = checkDateFilter(timeStr, timeFilter, customDate);
+                }
+
+                if (passesFilter) {
+                    globalTotalKm += drivenKm;
+                    globalTotalJobs++;
+                    globalTotalRevenue += rev;
+                    
+                    record.totalDist += drivenKm;
+                    record.totalJobs += 1;
+                    record.rev += rev;
+                }
+            }
+        });
     }
 
-    if (!globalJobData || globalJobData.length === 0) return;
-
-    // --- 1. PROCESS JOBS ---
-    globalJobData.forEach(row => {
-        let rawName = String(row[2] || '').trim();
-        let normKey = typeof normalizeKey === 'function' ? normalizeKey(rawName) : rawName.toUpperCase();
-        
-        if(!normKey || normKey === 'UNKNOWN') return;
-        
-        let timeStr = String(row[0] || '');
-        if (typeof checkDateFilter === 'function' && !checkDateFilter(timeStr, timeFilter, customDate)) return;
-
-        let drivenKm = typeof cleanNumber === 'function' ? cleanNumber(row[12]) : parseFloat(String(row[12]).replace(/[^0-9.-]/g, '')) || 0;
-        let rev = typeof cleanNumber === 'function' ? cleanNumber(row[15]) : parseFloat(String(row[15]).replace(/[^0-9.-]/g, '')) || 0;
-        let jobDate = parseSmartDate(timeStr);
-
-        if (!driverStats[normKey]) {
-            driverStats[normKey] = { name: rawName, km: 0, jobs: 0, events: 0, lastSeen: new Date(0) };
-        }
-
-        if (drivenKm > 0) {
-            totalKm += drivenKm;
-            totalJobs++;
-            totalRevenue += rev;
-            activeDrivers.add(normKey);
-            
-            driverStats[normKey].km += drivenKm;
-            driverStats[normKey].jobs += 1;
-            
-            if (!isNaN(jobDate.getTime()) && jobDate > driverStats[normKey].lastSeen) {
-                driverStats[normKey].lastSeen = jobDate;
-            }
-        }
-    });
-
-    let filteredEventsCount = 0;
-    
-    // --- 2. PROCESS EVENTS ---
+    // --- PROCESS EVENT RECORDS ---
     if (typeof globalEventData !== 'undefined' && globalEventData.rows && globalEventData.headers) {
-        let headers = globalEventData.headers;
-        let driverCols = [];
+        const headers = globalEventData.headers;
+        const driverCols = [];
         
         for (let i = 6; i < headers.length; i++) {
-            let dName = String(headers[i] || '').trim();
-            let normKey = typeof normalizeKey === 'function' ? normalizeKey(dName) : dName.toUpperCase();
+            const dName = String(headers[i] || '').trim();
+            const normKey = dName.toUpperCase();
             if (normKey && normKey !== 'UNKNOWN' && !normKey.includes('ATTENDANCE')) {
                 driverCols.push({ index: i, name: dName, normKey: normKey });
             }
         }
 
         globalEventData.rows.forEach(row => {
-            let dateStr = String(row[1] || '');
+            const dateStr = String(row[1] || '');
             if (dateStr.trim() === '') return;
             
-            if (typeof checkDateFilter === 'function' && checkDateFilter(dateStr, timeFilter, customDate)) {
-                filteredEventsCount++;
-                let evDate = parseSmartDate(dateStr);
-                
-                driverCols.forEach(dc => {
-                    let val = String(row[dc.index] || '').replace(/["']/g, '').trim().toUpperCase();
-                    
-                    if (val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓' || val === '✔' || val === '☑' || val === 'CHECKED') {
-                        if (!driverStats[dc.normKey]) {
-                            driverStats[dc.normKey] = { name: dc.name, km: 0, jobs: 0, events: 0, lastSeen: new Date(0) };
-                        }
-                        driverStats[dc.normKey].events++;
-                        
-                        // Attending an event counts as active
-                        if (!isNaN(evDate.getTime()) && evDate > driverStats[dc.normKey].lastSeen) {
-                            driverStats[dc.normKey].lastSeen = evDate;
-                        }
-                    }
-                });
+            const evDate = parseSmartDate(dateStr);
+            const evTime = evDate.getTime();
+
+            let passesFilter = true;
+            if (typeof checkDateFilter === 'function') {
+                passesFilter = checkDateFilter(dateStr, timeFilter, customDate);
             }
+
+            if (passesFilter) globalTotalFilteredEvents++;
+
+            driverCols.forEach(dc => {
+                const val = String(row[dc.index] || '').replace(/["']/g, '').trim().toUpperCase();
+                if (val === 'TRUE' || val.includes('TRUE') || val === '1' || val === 'YES' || val === '✓') {
+                    const record = getDriverRecord(dc.name);
+                    
+                    // Update absolute last activity date
+                    if (!isNaN(evTime) && evTime > record.lastActivityDate) {
+                        record.lastActivityDate = evTime;
+                    }
+
+                    record.allTimeEvents++; // Permanent lifetime events
+
+                    // Accumulate metrics ONLY if it passes UI filter
+                    if (passesFilter) {
+                        record.totalEvents++;
+                    }
+                }
+            });
         });
     }
 
-    if(typeof animateValue === 'function') {
-        animateValue('statDistance', parseInt(document.getElementById('statDistance').innerText.replace(/,/g,'')) || 0, totalKm, 1000);
-        animateValue('statJobs', parseInt(document.getElementById('statJobs').innerText) || 0, totalJobs, 1000);
-        animateValue('statRevenue', parseInt(document.getElementById('statRevenue').innerText.replace(/,/g,'')) || 0, totalRevenue, 1000);
-    } else {
-        document.getElementById('statDistance').innerText = totalKm.toLocaleString();
-        document.getElementById('statJobs').innerText = totalJobs.toLocaleString();
-        document.getElementById('statRevenue').innerText = totalRevenue.toLocaleString();
-    }
+    // --- 2. APPLY THE 30-DAY RULE ---
+    const now = new Date();
+    now.setHours(23, 59, 59, 999);
+    const thirtyDaysAgo = now.getTime() - (30 * 24 * 60 * 60 * 1000);
     
-    let statDriversEl = document.getElementById('statDrivers');
-    if (statDriversEl) statDriversEl.innerText = activeDrivers.size;
-    
-    let statEventsEl = document.getElementById('statEvents');
-    if (statEventsEl) statEventsEl.innerText = filteredEventsCount;
+    const activeDrivers = [];
+    const inactiveDrivers = [];
 
-    // --- 3. SEPARATE ACTIVE & PAST MEMBERS ---
-    let kmLeaderboard = [];
-    let eventLeaderboard = [];
-    let hallOfFame = [];
+    for (const record of driverStats.values()) {
+        if (record.lastActivityDate === 0) continue; // Skip if no valid dates found
 
-    for (let key in driverStats) {
-        let stats = driverStats[key];
-        
-        let lastSeenTime = stats.lastSeen.getTime();
-        if (lastSeenTime > today.getTime()) lastSeenTime = today.getTime();
-        
-        let timeSinceLastActivity = today.getTime() - lastSeenTime;
-
-        if (timeSinceLastActivity > thirtyDaysMs || lastSeenTime === 0) {
-            hallOfFame.push({ name: stats.name, km: stats.km, jobs: stats.jobs, events: stats.events });
+        if (record.lastActivityDate >= thirtyDaysAgo) {
+            activeDrivers.push(record);
         } else {
-            if (stats.km > 0) kmLeaderboard.push({ name: stats.name, km: stats.km, jobs: stats.jobs });
-            if (stats.events > 0) eventLeaderboard.push({ name: stats.name, events: stats.events });
+            inactiveDrivers.push(record);
         }
     }
 
-    kmLeaderboard.sort((a, b) => b.km - a.km);
-    eventLeaderboard.sort((a, b) => b.events - a.events);
-    hallOfFame.sort((a, b) => b.km - a.km);
+    // --- 3. UPDATE GLOBAL UI COUNTERS ---
+    if (typeof animateValue === 'function') {
+        animateValue('statDistance', parseInt(document.getElementById('statDistance').innerText.replace(/,/g,'')) || 0, globalTotalKm, 1000);
+        animateValue('statJobs', parseInt(document.getElementById('statJobs').innerText) || 0, globalTotalJobs, 1000);
+        animateValue('statRevenue', parseInt(document.getElementById('statRevenue').innerText.replace(/,/g,'')) || 0, globalTotalRevenue, 1000);
+    } else {
+        document.getElementById('statDistance').innerText = globalTotalKm.toLocaleString();
+        document.getElementById('statJobs').innerText = globalTotalJobs.toLocaleString();
+        document.getElementById('statRevenue').innerText = globalTotalRevenue.toLocaleString();
+    }
+    
+    const statDriversEl = document.getElementById('statDrivers');
+    if (statDriversEl) statDriversEl.innerText = activeDrivers.length; // Strictly Active Drivers
+    
+    const statEventsEl = document.getElementById('statEvents');
+    if (statEventsEl) statEventsEl.innerText = globalTotalFilteredEvents;
 
+    // --- 4. PREPARE LEADERBOARDS (ACTIVE ONLY) ---
+    const kmLeaderboard = activeDrivers
+        .filter(d => d.totalDist > 0)
+        .map(d => ({ name: d.name, km: d.totalDist, jobs: d.totalJobs }))
+        .sort((a, b) => b.km - a.km);
+
+    const eventLeaderboard = activeDrivers
+        .filter(d => d.totalEvents > 0)
+        .map(d => ({ name: d.name, events: d.totalEvents }))
+        .sort((a, b) => b.events - a.events);
+
+    // --- 5. PREPARE HALL OF FAME (INACTIVE ONLY) ---
+    const hallOfFame = inactiveDrivers
+        .map(d => ({ name: d.name, km: d.allTimeKm, events: d.allTimeEvents }))
+        .sort((a, b) => b.km - a.km);
+
+    // --- 6. RENDER COMPONENTS ---
     renderLeaderboardList('kmLeaderboardList', kmLeaderboard, 'km');
     renderLeaderboardList('eventLeaderboardList', eventLeaderboard, 'events');
-    renderHallOfFame('pastLeaderboardList', hallOfFame);
-
-    // Call the new Custom DOM Chart generator
     renderCustomOverview(kmLeaderboard, eventLeaderboard);
+    renderHallOfFame('pastLeaderboardList', hallOfFame);
 }
 
-/**
- * Generates custom HTML/Tailwind 3D Vertical Bars and Horizontal Progress Bars
- * Replaces Chart.js entirely with DOM-based styled elements.
- * 
- * @param {Array} distanceData - Array of top distance drivers [{name: 'Name', km: 5000, jobs: 20}]
- * @param {Array} attendanceData - Array of top event drivers [{name: 'Name', events: 15}]
- */
+// =============================================================================
+// UI RENDERERS (Charts & Tables)
+// =============================================================================
+
 function renderCustomOverview(distanceData, attendanceData) {
     const distanceContainer = document.getElementById('distance-chart-container');
     const attendanceContainer = document.getElementById('attendance-leaderboard-container');
 
-    // ==========================================
-    // LEFT PANEL: 3D VERTICAL CYLINDER CHART
-    // ==========================================
+    // --- LEFT PANEL: 3D VERTICAL CYLINDER CHART ---
     if (distanceContainer) {
         const topDist = distanceData.slice(0, 5);
         const maxKm = Math.max(...topDist.map(d => d.km), 1);
@@ -182,13 +227,13 @@ function renderCustomOverview(distanceData, attendanceData) {
 
                 return `
                 <div class="flex flex-col items-center h-full justify-end group w-1/5 max-w-[4rem]">
-                    <!-- The 3D Bar -->
+                    <!-- 3D Bar -->
                     <div class="w-full relative rounded-b-full bg-gradient-to-t from-emerald-400 to-transparent transition-all duration-1000 ease-out group-hover:from-cyan-400 group-hover:shadow-[0_0_15px_#22d3ee]" style="height: ${hPercent}%;">
-                        <!-- 3D Lid (Cylindrical Opening Effect) -->
+                        <!-- 3D Lid -->
                         <div class="absolute -top-1.5 left-0 w-full h-3 rounded-[50%] bg-cyan-400 shadow-[0_0_12px_#22d3ee]"></div>
                     </div>
                     
-                    <!-- Metadata Below Bar -->
+                    <!-- Metadata -->
                     <div class="flex flex-col items-center gap-1.5 mt-4">
                         <span class="text-xs font-black text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">${item.km.toLocaleString()}</span>
                         <div class="w-8 h-8 rounded bg-white/10 flex items-center justify-center shadow-inner border border-white/5 group-hover:border-cyan-400/50 transition-colors">
@@ -199,28 +244,28 @@ function renderCustomOverview(distanceData, attendanceData) {
                 </div>`;
             }).join('');
 
-            distHtml = `<div class="h-64 flex justify-around items-end w-full px-2 mt-auto relative z-10">${colsHtml}</div>`;
+            distHtml = `
+                <h3 class="text-xs font-black text-white mb-6 flex items-center gap-2 tracking-widest uppercase"><i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-400"></i> Top Distance Volumes</h3>
+                <div class="h-64 flex justify-around items-end w-full px-2 mt-auto relative z-10">${colsHtml}</div>
+            `;
         }
         distanceContainer.innerHTML = distHtml;
     }
 
-    // ==========================================
-    // RIGHT PANEL: HORIZONTAL PROGRESS LEADERBOARD
-    // ==========================================
+    // --- RIGHT PANEL: HORIZONTAL PROGRESS LEADERBOARD ---
     if (attendanceContainer) {
-        const topAtt = attendanceData.slice(0, 5); // Fallback to top 5
+        const topAtt = attendanceData.slice(0, 5); 
         const maxEvents = Math.max(...topAtt.map(d => d.events), 1);
         let attHtml = "";
 
         if (topAtt.length === 0) {
             attHtml = `<div class="w-full h-full flex items-center justify-center text-tntc-textSecondary text-xs font-bold tracking-widest uppercase">No Events Logged</div>`;
         } else {
-            attHtml = topAtt.map((item, index) => {
-                let wPercent = Math.max((item.events / maxEvents) * 100, 2); // Floor at 2%
+            let rowsHtml = topAtt.map((item, index) => {
+                let wPercent = Math.max((item.events / maxEvents) * 100, 2); 
 
                 return `
                 <div class="w-full group mb-5 last:mb-0">
-                    <!-- Text Header -->
                     <div class="flex justify-between items-end mb-2">
                         <div class="flex items-center gap-4">
                             <span class="text-2xl font-black text-cyan-400 drop-shadow-[0_0_8px_#22d3ee] w-6 text-center">${index + 1}</span>
@@ -232,21 +277,21 @@ function renderCustomOverview(distanceData, attendanceData) {
                         </div>
                         <span class="text-emerald-400 font-mono font-black drop-shadow-[0_0_5px_#34d399] text-lg">${item.events.toLocaleString()}</span>
                     </div>
-                    
-                    <!-- Progress Track & Fill -->
                     <div class="w-full h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden relative">
                         <div class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 shadow-[0_0_10px_#34d399] rounded-full transition-all duration-1000 ease-out" style="width: ${wPercent}%;"></div>
                     </div>
                 </div>`;
             }).join('');
+            
+            attHtml = `
+                <h3 class="text-xs font-black text-white mb-6 flex items-center gap-2 tracking-widest uppercase"><i data-lucide="calendar-check" class="w-4 h-4 text-cyan-400"></i> Event Attendance Rankings</h3>
+                <div class="flex flex-col flex-1 justify-center">${rowsHtml}</div>
+            `;
         }
         attendanceContainer.innerHTML = attHtml;
     }
 
-    // Refresh Lucide icons within newly generated DOM
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function renderLeaderboardList(elementId, data, type) {
@@ -309,17 +354,17 @@ function renderLeaderboardList(elementId, data, type) {
 }
 
 function renderHallOfFame(elementId, data) {
-    let container = document.getElementById(elementId);
+    const container = document.getElementById(elementId);
     if (!container) return;
     
     let html = "";
-    if(data.length === 0) {
+    if (data.length === 0) {
         html = `<div class="h-full flex flex-col items-center justify-center opacity-50"><i data-lucide="ghost" class="w-8 h-8 text-tntc-textSecondary mb-2"></i><p class="text-xs font-bold text-tntc-textSecondary uppercase tracking-widest">No Past Members</p></div>`;
     } else {
         data.slice(0, 10).forEach(item => {
             let details = [];
-            if(item.km > 0) details.push(`${item.km.toLocaleString()} km`);
-            if(item.events > 0) details.push(`${item.events} Events`);
+            if (item.km > 0) details.push(`${item.km.toLocaleString()} km`);
+            if (item.events > 0) details.push(`${item.events} Events`);
             
             html += `
             <div class="flex items-center justify-between p-3.5 bg-black/40 border border-white/5 rounded-xl opacity-60 hover:opacity-100 transition-all duration-300 backdrop-blur-sm grayscale hover:grayscale-0 group relative overflow-hidden">
@@ -330,13 +375,13 @@ function renderHallOfFame(elementId, data) {
                     </div>
                     <div class="min-w-0">
                         <p class="text-xs font-black text-tntc-textSecondary group-hover:text-tntc-textPrimary leading-tight transition-colors truncate tracking-wide">${item.name}</p>
-                        <p class="text-[9px] text-tntc-textSecondary/60 font-mono tracking-widest mt-0.5 truncate uppercase font-bold">${details.join(' • ')}</p>
+                        <p class="text-[9px] text-tntc-textSecondary/60 font-mono tracking-widest mt-0.5 truncate uppercase font-bold">${details.join(' • ') || 'No Records'}</p>
                     </div>
                 </div>
-                <span class="text-red-500/50 group-hover:text-red-500 group-hover:bg-red-500/10 text-[9px] font-black tracking-widest uppercase border border-red-500/20 px-2 py-1 rounded shadow-[0_0_10px_rgba(239,68,68,0)] group-hover:shadow-[0_0_10px_rgba(239,68,68,0.2)] transition-all relative z-10 shrink-0 ml-2">Inactive</span>
+                <span class="text-red-500/50 group-hover:text-red-500 group-hover:bg-red-500/10 text-[9px] font-black tracking-widest uppercase border border-red-500/20 px-2 py-1 rounded shadow-[0_0_10px_rgba(239,68,68,0)] group-hover:shadow-[0_0_10px_rgba(239,68,68,0.2)] transition-all relative z-10 shrink-0 ml-2">INACTIVE</span>
             </div>`;
         });
     }
     container.innerHTML = html;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    if (typeof lucide !== 'undefined') lucide.createIcons({ root: container });
 }

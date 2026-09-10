@@ -63,13 +63,13 @@
             </div>
         </div>
         <div class="flex gap-3">
-            <button onclick="window.location.href='index.html'" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg">
+            <button id="btnHeaderWebsite" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg">
                 <i data-lucide="globe" class="w-4 h-4"></i> Website
             </button>
-            <button onclick="window.location.href='dashboard.html'" class="px-5 py-2.5 bg-slate-900/50 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg">
+            <button id="btnHeaderTerminal" class="px-5 py-2.5 bg-slate-900/50 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md shadow-lg">
                 <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Terminal
             </button>
-            <button onclick="logoutStaff()" class="px-5 py-2.5 bg-tntc-admin/10 hover:bg-tntc-admin/20 border border-tntc-admin/50 text-tntc-admin hover:text-white hover:border-tntc-admin rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(244,63,94,0.2)] backdrop-blur-md">
+            <button id="btnHeaderLogout" class="px-5 py-2.5 bg-tntc-admin/10 hover:bg-tntc-admin/20 border border-tntc-admin/50 text-tntc-admin hover:text-white hover:border-tntc-admin rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(244,63,94,0.2)] backdrop-blur-md">
                 <i data-lucide="lock" class="w-4 h-4"></i> Lock Access
             </button>
         </div>
@@ -82,15 +82,15 @@
             <p id="adminLoadingText" class="text-tntc-accent font-black text-xs tracking-[0.2em] uppercase drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]">Processing Directives...</p>
         </div>
 
-        <div class="flex border-b border-white/5 overflow-x-auto custom-scrollbar bg-black/40">
-            <button onclick="switchAdminTab('assets')" id="adm-btn-assets" class="hidden flex-1 py-4 px-6 text-xs font-black text-tntc-accent border-b-2 border-tntc-accent bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase shadow-[inset_0_-2px_10px_rgba(56,189,248,0.1)]"><i data-lucide="monitor" class="w-3.5 h-3.5 inline-block mr-1"></i> Assets</button>
-            <button onclick="switchAdminTab('event')" id="adm-btn-event" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Post Event</button>
-            <button onclick="switchAdminTab('tour')" id="adm-btn-tour" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Create Tour</button>
-            <button onclick="switchAdminTab('manage')" id="adm-btn-manage" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Manage Tours</button>
-            <button onclick="switchAdminTab('news')" id="adm-btn-news" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Dispatch News</button>
-            <button onclick="switchAdminTab('gallery')" id="adm-btn-gallery" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Fleet Media</button>
-            <button onclick="switchAdminTab('recruit')" id="adm-btn-recruit" class="flex-1 py-4 px-6 text-xs font-bold text-yellow-500 border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase"><i data-lucide="users" class="w-3.5 h-3.5 inline-block mr-1"></i> Crew Roster</button>
-            <button onclick="switchAdminTab('economy')" id="adm-btn-economy" class="hidden flex-1 py-4 px-6 text-xs font-black text-yellow-500 border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase"><i data-lucide="coins" class="w-3.5 h-3.5 inline-block mr-1"></i> Economy</button>
+        <div class="flex border-b border-white/5 overflow-x-auto custom-scrollbar bg-black/40" id="adminNavTabs">
+            <button data-tab="assets" id="adm-btn-assets" class="hidden flex-1 py-4 px-6 text-xs font-black text-tntc-accent border-b-2 border-tntc-accent bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase shadow-[inset_0_-2px_10px_rgba(56,189,248,0.1)]"><i data-lucide="monitor" class="w-3.5 h-3.5 inline-block mr-1"></i> Assets</button>
+            <button data-tab="event" id="adm-btn-event" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Post Event</button>
+            <button data-tab="tour" id="adm-btn-tour" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Create Tour</button>
+            <button data-tab="manage" id="adm-btn-manage" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Manage Tours</button>
+            <button data-tab="news" id="adm-btn-news" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Dispatch News</button>
+            <button data-tab="gallery" id="adm-btn-gallery" class="flex-1 py-4 px-6 text-xs font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase">Fleet Media</button>
+            <button data-tab="recruit" id="adm-btn-recruit" class="flex-1 py-4 px-6 text-xs font-bold text-yellow-500 border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase"><i data-lucide="users" class="w-3.5 h-3.5 inline-block mr-1"></i> Crew Roster</button>
+            <button data-tab="economy" id="adm-btn-economy" class="hidden flex-1 py-4 px-6 text-xs font-black text-yellow-500 border-b-2 border-transparent hover:bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase"><i data-lucide="coins" class="w-3.5 h-3.5 inline-block mr-1"></i> Economy</button>
         </div>
 
         <div class="p-6 md:p-10 flex-1 relative overflow-hidden">
@@ -110,9 +110,9 @@
                         <div>
                             <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest flex items-center justify-between">
                                 Target Asset
-                                <button onclick="refreshAssetPreview()" class="text-tntc-accent hover:text-white transition-colors flex items-center gap-1 bg-tntc-accent/10 px-2 py-1 rounded"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync</button>
+                                <button id="btnSyncAssetPreview" class="text-tntc-accent hover:text-white transition-colors flex items-center gap-1 bg-tntc-accent/10 px-2 py-1 rounded"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync</button>
                             </label>
-                            <select id="assetKey" onchange="updateAssetPreview()" class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-3 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner">
+                            <select id="assetKey" class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-3 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner">
                                 <option value="TNTC_LOGO">Main TNTC Logo</option>
                                 <option value="TNL_LOGO">Parent TNL Logo</option>
                                 <option value="HOME_BG">Homepage Background</option>
@@ -123,9 +123,9 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">New Image / YouTube URL</label>
-                            <input type="text" id="assetUrl" oninput="liveUpdatePreview()" class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-3 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner placeholder:text-gray-600" placeholder="https://...">
+                            <input type="text" id="assetUrl" class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-3 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner placeholder:text-gray-600" placeholder="https://...">
                         </div>
-                        <button onclick="submitAssetUpdate()" class="w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black px-6 py-4 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 mt-2">
+                        <button id="btnSubmitAsset" class="w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black px-6 py-4 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 mt-2">
                             <i data-lucide="upload-cloud" class="w-4 h-4"></i> Deploy Asset
                         </button>
                     </div>
@@ -159,7 +159,7 @@
                         <div class="relative w-full border border-white/10 hover:border-tntc-accent focus-within:border-tntc-accent focus-within:ring-2 focus-within:ring-tntc-accent/50 rounded-xl bg-slate-950/60 flex items-center px-4 h-[50px] overflow-hidden transition-all cursor-pointer shadow-inner">
                             <span id="display-addEvDate" class="text-sm text-tntc-textSecondary w-full text-left font-medium">Select Event Date</span>
                             <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
-                            <input type="date" id="addEvDate" onchange="updateDateDisplay(this, 'display-addEvDate')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            <input type="date" id="addEvDate" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                         </div>
                     </div>
                 </div>
@@ -187,7 +187,7 @@
                 <div class="pt-6 border-t border-white/10">
                     <div class="flex justify-between items-center mb-5">
                         <label class="block text-[10px] font-black text-tntc-accent uppercase tracking-widest"><i data-lucide="check-square" class="w-4 h-4 inline-block mr-1"></i> Attendance Roster</label>
-                        <button onclick="populateAdminDriverChecklist()" class="text-[10px] bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest font-bold"><i data-lucide="download" class="w-3 h-3 inline-block mr-1"></i> Sync Roster</button>
+                        <button id="btnSyncAdminRoster" class="text-[10px] bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest font-bold"><i data-lucide="download" class="w-3 h-3 inline-block mr-1"></i> Sync Roster</button>
                     </div>
                     <div id="adminDriverChecklist" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-64 overflow-y-auto custom-scrollbar p-4 bg-slate-950/40 rounded-2xl border border-white/5 shadow-inner">
                         <p class="text-tntc-textSecondary text-xs col-span-full text-center py-6">Sync roster to assign attendance.</p>
@@ -195,8 +195,8 @@
                 </div>
                 
                 <div class="flex gap-4 mt-8">
-                    <button id="btnCancelEditEvent" onclick="cancelEventEdit()" class="hidden w-1/3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all">Abort</button>
-                    <button id="btnSubmitEvent" onclick="submitNewEvent()" class="flex-1 w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2"><i id="submitEventIcon" data-lucide="upload-cloud" class="w-5 h-5"></i> <span id="submitEventText">Commit Record</span></button>
+                    <button id="btnCancelEditEvent" class="hidden w-1/3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all">Abort</button>
+                    <button id="btnSubmitEvent" class="flex-1 w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2"><i id="submitEventIcon" data-lucide="upload-cloud" class="w-5 h-5"></i> <span id="submitEventText">Commit Record</span></button>
                 </div>
 
                 <div id="leaderEventManagement" class="hidden mt-16 pt-10 border-t border-white/10">
@@ -205,7 +205,7 @@
                             <h4 class="text-xs font-black text-purple-400 uppercase tracking-widest flex items-center gap-2 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"><i data-lucide="terminal" class="w-4 h-4"></i> Deep Event Management</h4>
                             <p class="text-[10px] text-tntc-textSecondary mt-1">Live database modification interface. Edit or terminate entries.</p>
                         </div>
-                        <button onclick="fetchAdminEvents()" class="bg-white/5 border border-white/10 hover:border-purple-500 hover:text-purple-400 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Database</button>
+                        <button id="btnScanEvents" class="bg-white/5 border border-white/10 hover:border-purple-500 hover:text-purple-400 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Database</button>
                     </div>
                     <div id="adminEventGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
@@ -235,7 +235,7 @@
                         <div class="relative w-full border border-white/10 hover:border-amber-500 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/50 rounded-xl bg-slate-950/80 flex items-center px-4 h-[50px] overflow-hidden transition-all cursor-pointer shadow-inner">
                             <span id="display-addTourStart" class="text-sm text-tntc-textSecondary w-full text-left font-medium">Select Start Date</span>
                             <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
-                            <input type="date" id="addTourStart" onchange="updateDateDisplay(this, 'display-addTourStart')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            <input type="date" id="addTourStart" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                         </div>
                     </div>
                     <div>
@@ -243,7 +243,7 @@
                         <div class="relative w-full border border-white/10 hover:border-amber-500 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/50 rounded-xl bg-slate-950/80 flex items-center px-4 h-[50px] overflow-hidden transition-all cursor-pointer shadow-inner">
                             <span id="display-addTourEnd" class="text-sm text-tntc-textSecondary w-full text-left font-medium">Select Target Date</span>
                             <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
-                            <input type="date" id="addTourEnd" onchange="updateDateDisplay(this, 'display-addTourEnd')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            <input type="date" id="addTourEnd" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                         </div>
                     </div>
                 </div>
@@ -252,13 +252,13 @@
                     <label class="block text-xs font-black text-amber-500 uppercase tracking-widest mb-4 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]"><i data-lucide="milestone" class="w-4 h-4 inline-block mr-1"></i> Route Waypoints</label>
                 </div>
                 
-                <button id="btnAddRoute" onclick="addRouteRow()" class="text-[10px] font-black uppercase tracking-widest text-tntc-textPrimary bg-white/5 border border-white/10 px-5 py-3 rounded-xl flex items-center gap-2 hover:bg-white/10 hover:border-amber-500/50 transition-all shadow-sm mt-4">
+                <button id="btnAddRoute" class="text-[10px] font-black uppercase tracking-widest text-tntc-textPrimary bg-white/5 border border-white/10 px-5 py-3 rounded-xl flex items-center gap-2 hover:bg-white/10 hover:border-amber-500/50 transition-all shadow-sm mt-4">
                     <i data-lucide="plus" class="w-4 h-4 text-amber-500"></i> Append Waypoint
                 </button>
 
                 <div class="flex gap-4 mt-8">
-                    <button id="btnCancelEditTour" onclick="cancelTourEdit()" class="hidden w-1/3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all">Abort</button>
-                    <button id="btnSubmitTour" onclick="submitNewTour()" class="flex-1 w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2"><i id="submitTourIcon" data-lucide="folder-plus" class="w-5 h-5"></i> <span id="submitTourText">Compile Manifest</span></button>
+                    <button id="btnCancelEditTour" class="hidden w-1/3 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all">Abort</button>
+                    <button id="btnSubmitTour" class="flex-1 w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2"><i id="submitTourIcon" data-lucide="folder-plus" class="w-5 h-5"></i> <span id="submitTourText">Compile Manifest</span></button>
                 </div>
 
                 <div id="leaderTourManagement" class="hidden mt-16 pt-10 border-t border-white/10">
@@ -267,7 +267,7 @@
                             <h4 class="text-xs font-black text-purple-400 uppercase tracking-widest flex items-center gap-2 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]"><i data-lucide="terminal" class="w-4 h-4"></i> Deep Campaign Override</h4>
                             <p class="text-[10px] text-tntc-textSecondary mt-1">Direct database modification. Alter parameters or purge campaigns entirely.</p>
                         </div>
-                        <button onclick="fetchAdminTours()" class="bg-white/5 border border-white/10 hover:border-purple-500 hover:text-purple-400 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Grid</button>
+                        <button id="btnScanTours" class="bg-white/5 border border-white/10 hover:border-purple-500 hover:text-purple-400 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Grid</button>
                     </div>
                     <div id="adminTourGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
@@ -304,7 +304,7 @@
                 </div>
                 
                 <div class="flex justify-end mt-8">
-                    <button onclick="submitTourStatusUpdate()" class="w-full md:w-auto px-10 bg-yellow-500 hover:bg-yellow-400 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
+                    <button id="btnTransmitTourOverride" class="w-full md:w-auto px-10 bg-yellow-500 hover:bg-yellow-400 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
                         <i data-lucide="satellite-dish" class="w-5 h-5"></i> Transmit Override
                     </button>
                 </div>
@@ -317,7 +317,7 @@
                         <h3 class="text-white font-black text-2xl uppercase tracking-tight drop-shadow-md">Intel Dispatch</h3>
                         <p class="text-xs text-tntc-textSecondary mt-1">Publish encrypted news packets to the public network.</p>
                     </div>
-                    <button onclick="fetchAdminNews()" class="bg-white/5 border border-white/10 hover:border-tntc-accent hover:text-tntc-accent text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Feed</button>
+                    <button id="btnRefreshAdminNews" class="bg-white/5 border border-white/10 hover:border-tntc-accent hover:text-tntc-accent text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Feed</button>
                 </div>
 
                 <div class="bg-slate-900/40 p-6 md:p-8 rounded-3xl border border-white/5 shadow-xl mb-10 backdrop-blur-md">
@@ -331,7 +331,7 @@
                             <div class="relative w-full border border-white/10 hover:border-tntc-accent focus-within:border-tntc-accent focus-within:ring-2 focus-within:ring-tntc-accent/50 rounded-xl bg-slate-950/80 flex items-center px-4 h-[50px] overflow-hidden transition-all cursor-pointer shadow-inner">
                                 <span id="display-addNewsDate" class="text-sm text-tntc-textSecondary w-full text-left font-medium">Select Date</span>
                                 <i data-lucide="calendar" class="w-4 h-4 text-tntc-textSecondary ml-auto"></i>
-                                <input type="date" id="addNewsDate" onchange="updateDateDisplay(this, 'display-addNewsDate')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                <input type="date" id="addNewsDate" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                             </div>
                         </div>
                         <div>
@@ -351,7 +351,7 @@
                         <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">External Data Link</label>
                         <input type="text" id="addNewsLink" placeholder="https://..." class="w-full bg-slate-950/80 border border-white/10 text-white rounded-xl p-3.5 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner">
                     </div>
-                    <button onclick="submitNewNews()" class="w-full mt-8 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2"><i data-lucide="radio" class="w-5 h-5"></i> Broadcast Intel</button>
+                    <button id="btnSubmitNews" class="w-full mt-8 bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2"><i data-lucide="radio" class="w-5 h-5"></i> Broadcast Intel</button>
                 </div>
 
                 <div>
@@ -367,7 +367,7 @@
                         <h3 class="text-white font-black text-2xl uppercase tracking-tight drop-shadow-md">Fleet Vault</h3>
                         <p class="text-xs text-tntc-textSecondary mt-1">Upload and purge media from the public visual archive.</p>
                     </div>
-                    <button onclick="fetchAdminGallery()" class="bg-white/5 border border-white/10 hover:border-tntc-distance hover:text-tntc-distance text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Vault</button>
+                    <button id="btnScanVault" class="bg-white/5 border border-white/10 hover:border-tntc-distance hover:text-tntc-distance text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Scan Vault</button>
                 </div>
 
                 <div class="bg-slate-900/40 p-8 md:p-12 rounded-3xl border border-white/5 shadow-[0_0_30px_rgba(74,222,128,0.03)] text-center max-w-3xl mx-auto mb-12 backdrop-blur-md relative overflow-hidden group">
@@ -377,7 +377,7 @@
                     </div>
                     <label class="block text-xs font-black text-white mb-4 uppercase tracking-widest relative z-10">Direct Image Source URL</label>
                     <input type="text" id="addGalleryImg" placeholder="https://..." class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-5 text-center text-sm outline-none focus:border-tntc-distance focus:ring-2 focus:ring-tntc-distance/50 mb-8 shadow-inner relative z-10 transition-all">
-                    <button onclick="submitNewGallery()" class="w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-5 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 relative z-10">Inject into Vault</button>
+                    <button id="btnSubmitGallery" class="w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-5 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 relative z-10">Inject into Vault</button>
                 </div>
 
                 <div>
@@ -393,7 +393,7 @@
                         <h3 class="text-yellow-500 font-black text-2xl uppercase tracking-tight drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]">Personnel Roster</h3>
                         <p class="text-xs text-tntc-textSecondary mt-1">Authorize recruits and govern division ranks.</p>
                     </div>
-                    <button onclick="fetchCrewData()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-black tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] hover:-translate-y-1 flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4"></i> Synchronize Grid</button>
+                    <button id="btnSyncCrewData" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-black tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] hover:-translate-y-1 flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4"></i> Synchronize Grid</button>
                 </div>
 
                 <!-- Pending Applications -->
@@ -435,8 +435,6 @@
 
             <!-- ECONOMY TAB -->
             <div id="adm-tab-economy" class="hidden space-y-8">
-                
-                <!-- Header Banner -->
                 <div class="bg-yellow-500/10 border border-yellow-500/30 p-5 rounded-2xl flex items-start gap-4 shadow-[0_0_20px_rgba(234,179,8,0.05)]">
                     <i data-lucide="calculator" class="w-6 h-6 text-yellow-500 shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]"></i>
                     <div>
@@ -446,14 +444,12 @@
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    <!-- Left: Input Form -->
                     <div class="lg:col-span-1 bg-slate-900/60 p-6 md:p-8 rounded-3xl border border-white/10 shadow-xl flex flex-col gap-6 h-fit backdrop-blur-md relative overflow-hidden group">
                         <div class="absolute -right-10 -top-10 w-32 h-32 bg-tntc-accent/10 blur-[50px] rounded-full pointer-events-none group-hover:bg-tntc-accent/20 transition-colors duration-500"></div>
                         
                         <div>
                             <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Exact Cargo Name</label>
-                            <input type="text" id="cargoNameInput" oninput="filterCargoTable()" placeholder="e.g. Medical Vaccines" class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-3.5 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner placeholder:text-gray-600">
+                            <input type="text" id="cargoNameInput" placeholder="e.g. Medical Vaccines" class="w-full bg-[#05070a]/80 border border-white/10 text-white rounded-xl p-3.5 text-sm outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 transition-all shadow-inner placeholder:text-gray-600">
                         </div>
                         
                         <div>
@@ -464,44 +460,40 @@
                             </div>
                         </div>
                         
-                        <button onclick="submitCargoRate()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-[#05070a] font-black px-6 py-4 rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 mt-2">
+                        <button id="btnSubmitCargoRate" class="w-full bg-yellow-500 hover:bg-yellow-400 text-[#05070a] font-black px-6 py-4 rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 mt-2">
                             <i data-lucide="database-zap" class="w-4 h-4"></i> Update Rate
                         </button>
                     </div>
 
-                    <!-- Right: Current Database Grid -->
                     <div class="lg:col-span-2 bg-[#05070a]/50 rounded-3xl border border-white/10 shadow-xl overflow-hidden flex flex-col relative backdrop-blur-sm h-[500px]">
                         <div class="p-5 border-b border-white/5 bg-slate-900/40 flex justify-between items-center z-10 shrink-0">
                             <h4 class="text-[10px] font-black text-tntc-textSecondary uppercase tracking-widest flex items-center gap-2">
                                 <i data-lucide="list" class="w-4 h-4 text-tntc-accent"></i> Active Database Manifest
                             </h4>
-                            <button onclick="fetchCargoRates()" class="text-[9px] bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest font-bold text-tntc-textSecondary flex items-center gap-1.5 shadow-sm">
+                            <button id="btnSyncCargoRates" class="text-[9px] bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest font-bold text-tntc-textSecondary flex items-center gap-1.5 shadow-sm">
                                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync
                             </button>
                         </div>
                         
-                        <!-- Table Container -->
                         <div class="flex-1 overflow-y-auto custom-scrollbar p-1">
                             <table class="w-full text-left text-sm text-tntc-textSecondary whitespace-nowrap">
                                 <thead class="text-[9px] font-black uppercase tracking-widest bg-black/60 sticky top-0 z-20 backdrop-blur-md shadow-sm">
                                     <tr>
-                                        <th id="th-name" class="p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none" onclick="sortCargoTable('name')">
+                                        <th id="th-name" class="cargo-sortable p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none" data-column="name">
                                             <div class="flex items-center justify-start gap-1">Cargo Name <i data-lucide="chevron-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity text-tntc-textSecondary"></i></div>
                                         </th>
-                                        <th id="th-parsedWeight" class="p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none text-center" onclick="sortCargoTable('parsedWeight')">
+                                        <th id="th-parsedWeight" class="cargo-sortable p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none text-center" data-column="parsedWeight">
                                             <div class="flex items-center justify-center gap-1">Weight (Tons) <i data-lucide="chevron-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity text-tntc-textSecondary"></i></div>
                                         </th>
-                                        <th id="th-price" class="p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none text-center" onclick="sortCargoTable('price')">
+                                        <th id="th-price" class="cargo-sortable p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none text-center" data-column="price">
                                             <div class="flex items-center justify-center gap-1">Base Price (€) <i data-lucide="chevron-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity text-tntc-textSecondary"></i></div>
                                         </th>
-                                        <th id="th-estimate" class="p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none text-right" onclick="sortCargoTable('estimate')">
+                                        <th id="th-estimate" class="cargo-sortable p-4 border-b border-white/5 cursor-pointer hover:text-white transition-colors group select-none text-right" data-column="estimate">
                                             <div class="flex items-center justify-end gap-1">Est. 1000km Revenue (€) <i data-lucide="chevron-down" class="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity text-tntc-textSecondary"></i></div>
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody id="cargoRatesGrid" class="divide-y divide-white/5 text-xs font-medium">
-                                    <!-- Populated by JS -->
-                                </tbody>
+                                <tbody id="cargoRatesGrid" class="divide-y divide-white/5 text-xs font-medium"></tbody>
                             </table>
                         </div>
                     </div>
@@ -512,7 +504,7 @@
         </div>
     </main>
 
-    <!-- PREMIUM CUSTOM ALERT BOX -->
+    <!-- CUSTOM DIALOG BOX -->
     <div id="customAlertBox" class="fixed top-6 right-6 max-w-sm w-full bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] z-[100] hidden flex-col overflow-hidden msg-box-enter">
         <div id="alertHeader" class="px-5 py-3 bg-white/5 border-b border-white/10 flex items-center gap-2">
             <i id="alertIcon" data-lucide="info" class="w-4 h-4"></i>
@@ -522,1029 +514,13 @@
             <p id="alertMessage" class="text-sm text-white leading-relaxed whitespace-pre-wrap font-medium">Message goes here.</p>
         </div>
         <div class="px-6 py-4 bg-black/50 border-t border-white/5 flex justify-end gap-3" id="alertActions">
-            <button onclick="closeCustomAlert()" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all">Acknowledge</button>
+            <button id="alertCloseBtn" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all">Acknowledge</button>
         </div>
     </div>
 
+    <!-- SCRIPT LOADER -->
     <script src="core.js"></script>
     <script src="api.js"></script>
-    
-    <script>
-        // 🔴 UPDATE YOUR WEBAPP AND CSV URLS HERE! 🔴
-        const ADMIN_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyZ0uzactYvGqMYrQDlIR1ULVWpqxtMSrYUI88pooSP4x8RAl0WyJfimru-7acQVn_c/exec"; 
-        
-        // CSV Links for Live Preview in Admin Panel
-        const ADMIN_NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv";
-        const ADMIN_GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
-        const ADMIN_ASSETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1307238988&single=true&output=csv";
-        const ADMIN_CARGO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMKH5W5c8pIFmDlxskzumr0wKVSm326Q_xZkM7D9hhPIdXY4q1HOPKkojW3b1kxqX020_KpQvElWek/pub?gid=0&single=true&output=csv"; // MUST REPLACE
-        
-        document.addEventListener("DOMContentLoaded", () => {
-            const role = sessionStorage.getItem('tntc_role');
-            if (role !== 'leader' && role !== 'admin') {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.getElementById('roleBadge').innerText = role;
-            if (role === 'leader') {
-                const assetBtn = document.getElementById('adm-btn-assets');
-                const econBtn = document.getElementById('adm-btn-economy');
-                if (assetBtn) assetBtn.classList.remove('hidden');
-                if (econBtn) econBtn.classList.remove('hidden');
-                switchAdminTab('assets'); 
-            } else {
-                switchAdminTab('event'); 
-            }
-
-            lucide.createIcons();
-            addRouteRow();
-        });
-
-        function updateDateDisplay(inputEl, displayId) {
-            let displayEl = document.getElementById(displayId);
-            if (!displayEl) return;
-            if (!inputEl.value) {
-                displayEl.innerText = displayEl.getAttribute('data-default') || "Select Date";
-                displayEl.classList.remove('text-white');
-                displayEl.classList.add('text-tntc-textSecondary');
-                return;
-            }
-            
-            let parts = inputEl.value.split('-');
-            if (parts.length === 3) {
-                let d = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
-                displayEl.innerText = d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                displayEl.classList.remove('text-tntc-textSecondary');
-                displayEl.classList.add('text-white', 'font-bold');
-            } else {
-                displayEl.innerText = inputEl.value;
-            }
-        }
-
-        // Advanced Custom Alert System
-        function showCustomAlert(title, message, isError = false, confirmAction = null) {
-            const box = document.getElementById('customAlertBox');
-            const header = document.getElementById('alertHeader');
-            const titleEl = document.getElementById('alertTitle');
-            const msgEl = document.getElementById('alertMessage');
-            const actionsEl = document.getElementById('alertActions');
-            
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-            
-            if (isError) {
-                header.className = "px-5 py-3 bg-tntc-admin/10 border-b border-tntc-admin/20 flex items-center gap-2";
-                titleEl.className = "text-[10px] font-black uppercase tracking-widest text-tntc-admin";
-                document.getElementById('alertIcon').className = "w-4 h-4 text-tntc-admin";
-                document.getElementById('alertIcon').setAttribute('data-lucide', 'alert-triangle');
-            } else if (confirmAction) {
-                header.className = "px-5 py-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2";
-                titleEl.className = "text-[10px] font-black uppercase tracking-widest text-amber-500";
-                document.getElementById('alertIcon').className = "w-4 h-4 text-amber-500";
-                document.getElementById('alertIcon').setAttribute('data-lucide', 'alert-circle');
-            } else {
-                header.className = "px-5 py-3 bg-tntc-distance/10 border-b border-tntc-distance/20 flex items-center gap-2";
-                titleEl.className = "text-[10px] font-black uppercase tracking-widest text-tntc-distance";
-                document.getElementById('alertIcon').className = "w-4 h-4 text-tntc-distance";
-                document.getElementById('alertIcon').setAttribute('data-lucide', 'check-circle');
-            }
-
-            if (confirmAction) {
-                actionsEl.innerHTML = `
-                    <button onclick="closeCustomAlert()" class="bg-transparent border border-white/20 text-tntc-textSecondary hover:text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all">Cancel</button>
-                    <button id="confirmAlertBtn" class="bg-tntc-admin hover:bg-tntc-admin/80 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(244,63,94,0.4)]">Proceed</button>
-                `;
-                document.getElementById('confirmAlertBtn').onclick = () => {
-                    closeCustomAlert();
-                    confirmAction();
-                };
-            } else {
-                actionsEl.innerHTML = `<button onclick="closeCustomAlert()" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all">Acknowledge</button>`;
-            }
-            
-            lucide.createIcons();
-            box.classList.remove('hidden', 'msg-box-exit');
-            box.classList.add('flex', 'msg-box-enter');
-        }
-
-        function closeCustomAlert() {
-            const box = document.getElementById('customAlertBox');
-            box.classList.remove('msg-box-enter');
-            box.classList.add('msg-box-exit');
-            setTimeout(() => { box.classList.remove('flex', 'msg-box-exit'); box.classList.add('hidden'); }, 300);
-        }
-
-        function logoutStaff() {
-            sessionStorage.removeItem('tntc_role');
-            window.location.href = 'index.html';
-        }
-
-        function switchAdminTab(tab) {
-            const role = sessionStorage.getItem('tntc_role');
-            
-            ['assets', 'event', 'tour', 'manage', 'news', 'gallery', 'recruit', 'economy'].forEach(t => {
-                const el = document.getElementById(`adm-tab-${t}`);
-                if(el) el.classList.toggle('hidden', tab !== t);
-            });
-            
-            const activeClass = "flex-1 py-4 px-6 text-[10px] font-black text-tntc-accent border-b-2 border-tntc-accent bg-white/5 transition-colors whitespace-nowrap tracking-widest uppercase shadow-[inset_0_-2px_10px_rgba(56,189,248,0.1)]";
-            const inactiveClass = "flex-1 py-4 px-6 text-[10px] font-bold text-tntc-textSecondary border-b-2 border-transparent hover:bg-white/5 hover:text-white transition-colors whitespace-nowrap tracking-widest uppercase";
-            
-            ['assets', 'event', 'tour', 'manage', 'news', 'gallery', 'recruit', 'economy'].forEach(t => {
-                const btn = document.getElementById(`adm-btn-${t}`);
-                if(btn) {
-                    if ((t === 'assets' || t === 'economy') && role !== 'leader') {
-                        btn.className = "hidden"; 
-                        return;
-                    }
-                    if (t === 'recruit' || t === 'economy') {
-                         btn.className = tab === t ? activeClass.replace('text-tntc-accent border-tntc-accent', 'text-yellow-500 border-yellow-500').replace('rgba(56,189,248,0.1)','rgba(234,179,8,0.1)') : inactiveClass.replace('text-tntc-textSecondary hover:text-white', 'text-yellow-500/70 hover:text-yellow-500');
-                    } else {
-                         btn.className = tab === t ? activeClass : inactiveClass;
-                    }
-                }
-            });
-
-            if (tab === 'assets') refreshAssetPreview();
-            if (tab === 'recruit') fetchCrewData();
-            if (tab === 'manage') loadToursForAdmin();
-            if (tab === 'news') fetchAdminNews();
-            if (tab === 'gallery') fetchAdminGallery();
-            if (tab === 'economy') fetchCargoRates();
-            
-            if (tab === 'event' && role === 'leader') {
-                let ldrMgmt = document.getElementById('leaderEventManagement');
-                if (ldrMgmt) ldrMgmt.classList.remove('hidden');
-                fetchAdminEvents();
-            }
-
-            if (tab === 'tour' && role === 'leader') {
-                let ldrTourMgmt = document.getElementById('leaderTourManagement');
-                if (ldrTourMgmt) ldrTourMgmt.classList.remove('hidden');
-                fetchAdminTours();
-            }
-        }
-
-        async function sendAdminRequest(payload, loadingMsg, successCallback = null) {
-            let overlay = document.getElementById('adminLoadingOverlay');
-            let txt = document.getElementById('adminLoadingText');
-            overlay.classList.remove('hidden'); overlay.classList.add('flex');
-            txt.innerText = loadingMsg;
-
-            try {
-                await fetch(ADMIN_WEBAPP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(payload)
-                });
-                
-                showCustomAlert("Database Updated", "Success! The data was published successfully.\n\nChanges may take 1-3 minutes to reflect on the live grid.", false);
-                if (successCallback) successCallback();
-                
-            } catch (error) {
-                showCustomAlert("Connection Error", "Failed to reach the database. Please check your internet connection and try again.", true);
-                console.error("Fetch Error:", error);
-            } finally {
-                overlay.classList.add('hidden'); overlay.classList.remove('flex');
-            }
-        }
-
-        function getYouTubeIdPreview(url) {
-            let videoId = "";
-            if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
-            else if (url.includes("youtube.com/shorts/")) videoId = url.split("shorts/")[1].split("?")[0];
-            else if (url.includes("watch?v=")) videoId = url.split("watch?v=")[1].split("&")[0];
-            else if (url.includes("embed/")) videoId = url.split("embed/")[1].split("?")[0];
-            return videoId;
-        }
-
-        function renderAssetPreview(url, isVideo, isUnsaved = false) {
-            const container = document.getElementById('assetPreviewContainer');
-            const badge = document.getElementById('previewStatusBadge');
-            
-            if (!container) return;
-
-            if (isUnsaved) {
-                badge.className = "bg-yellow-500/20 text-yellow-500 px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-widest border border-yellow-500/30 shadow-[0_0_10px_rgba(234,179,8,0.2)]";
-                badge.innerText = "Unsaved Changes";
-            } else {
-                badge.className = "bg-white/5 text-tntc-textSecondary px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-widest border border-white/10";
-                badge.innerText = "Current Database";
-            }
-
-            if (!url) {
-                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><i data-lucide="image-off" class="w-10 h-10 mx-auto mb-3 opacity-40"></i><p class="text-[10px] font-bold uppercase tracking-widest">No Asset Found</p></div>`;
-                lucide.createIcons();
-                return;
-            }
-
-            if (isVideo) {
-                let vId = getYouTubeIdPreview(url);
-                if(vId) {
-                    container.innerHTML = `<iframe class="w-full max-w-lg aspect-video rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10" src="https://www.youtube-nocookie.com/embed/${vId}?autoplay=0&rel=0&modestbranding=1" frameborder="0" allowfullscreen></iframe>`;
-                } else {
-                    container.innerHTML = `<div class="text-center text-tntc-admin"><i data-lucide="alert-triangle" class="w-10 h-10 mx-auto mb-3 opacity-80 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]"></i><p class="text-[10px] font-bold uppercase tracking-widest">Invalid YouTube URL</p></div>`;
-                }
-            } else {
-                container.innerHTML = `<img src="${url}" class="max-w-full max-h-[350px] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10" onerror="this.src='https://placehold.co/600x400/0a0e14/ef4444?text=Invalid+Image+Link'">`;
-            }
-            lucide.createIcons();
-        }
-
-        function updateAssetPreview() {
-            const key = document.getElementById('assetKey').value;
-            const inputUrl = document.getElementById('assetUrl');
-            inputUrl.value = ""; 
-            let currentUrl = (window.globalSiteAssets && window.globalSiteAssets[key]) ? window.globalSiteAssets[key] : "";
-            renderAssetPreview(currentUrl, key === 'PROMO_VIDEO', false);
-        }
-
-        function liveUpdatePreview() {
-            const key = document.getElementById('assetKey').value;
-            const inputUrl = document.getElementById('assetUrl').value.trim();
-            if (!inputUrl) {
-                updateAssetPreview(); 
-                return;
-            }
-            renderAssetPreview(inputUrl, key === 'PROMO_VIDEO', true);
-        }
-
-        function refreshAssetPreview() {
-            let container = document.getElementById('assetPreviewContainer');
-            if(container) {
-                container.innerHTML = `<div class="text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-tntc-accent mx-auto mb-3"></div><p class="text-[10px] font-bold uppercase tracking-widest">Connecting to Cloud...</p></div>`;
-            }
-
-            if (typeof Papa !== 'undefined' && typeof ADMIN_ASSETS_CSV_URL !== 'undefined') {
-                Papa.parse(ADMIN_ASSETS_CSV_URL, {
-                    download: true,
-                    header: false,
-                    skipEmptyLines: 'greedy',
-                    complete: function(results) {
-                        if (results.data && results.data.length > 0) {
-                            if (!window.globalSiteAssets) window.globalSiteAssets = {};
-                            results.data.forEach(row => {
-                                let assetName = String(row[0]).trim().toUpperCase();
-                                let assetUrl = String(row[1]).trim();
-                                if (assetName && assetUrl) window.globalSiteAssets[assetName] = assetUrl;
-                            });
-                            updateAssetPreview(); 
-                        } else {
-                            renderAssetPreview("", false, false);
-                        }
-                    },
-                    error: function() { renderAssetPreview("", false, false); }
-                });
-            }
-        }
-
-        async function submitAssetUpdate() {
-            let payload = { action: "UPDATE_ASSET", data: { assetKey: document.getElementById('assetKey').value, newUrl: document.getElementById('assetUrl').value } };
-            if(!payload.data.newUrl) { showCustomAlert("Validation Failed", "Please enter a valid Image/Video URL.", true); return; }
-            await sendAdminRequest(payload, "Deploying Asset...", () => { 
-                document.getElementById('assetUrl').value = '';
-                refreshAssetPreview(); 
-            });
-        }
-
-        window.editEventMode = false;
-        window.editOriginalDate = "";
-        window.editOriginalName = "";
-        window.adminEventsList = [];
-
-        async function submitNewEvent() {
-            let payload = {
-                action: window.editEventMode ? "UPDATE_EVENT" : "ADD_EVENT",
-                data: {
-                    eventName: document.getElementById('addEvName').value,
-                    date: document.getElementById('addEvDate').value,
-                    category: document.getElementById('addEvCat').value,
-                    link: document.getElementById('addEvLink').value,
-                    imageLink: document.getElementById('addEvImage').value,
-                    attendedDrivers: Array.from(document.querySelectorAll('.admin-drv-chk:checked')).map(cb => cb.value)
-                }
-            };
-            if(window.editEventMode) { payload.data.originalDate = window.editOriginalDate; payload.data.originalName = window.editOriginalName; }
-            if(!payload.data.eventName || !payload.data.date) { showCustomAlert("Validation Failed", "Event Name and Date are required!", true); return; }
-            
-            let loadMsg = window.editEventMode ? "Updating Record..." : "Committing Record...";
-            await sendAdminRequest(payload, loadMsg, () => {
-                cancelEventEdit(); 
-                if(sessionStorage.getItem('tntc_role') === 'leader') setTimeout(fetchAdminEvents, 3000);
-            });
-        }
-
-        function populateAdminDriverChecklist() {
-            let container = document.getElementById('adminDriverChecklist');
-            if(!container) return;
-            
-            container.innerHTML = '<div class="col-span-full py-6 text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-tntc-accent mx-auto mb-3"></div><p class="text-[10px] font-bold uppercase tracking-widest">Syncing Roster...</p></div>';
-
-            if (typeof EVENT_SHEET_CSV_URL === 'undefined') {
-                container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: Missing CSV Link</p>';
-                return;
-            }
-
-            Papa.parse(EVENT_SHEET_CSV_URL, {
-                download: true, header: false, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        let headerRow = [];
-                        for(let i=0; i<Math.min(5, results.data.length); i++) {
-                            if(String(results.data[i][1]).toUpperCase().includes('DATE') || String(results.data[i][2]).toUpperCase().includes('EVENT')) {
-                                headerRow = results.data[i]; break;
-                            }
-                        }
-
-                        if(headerRow.length > 6) {
-                            let html = "";
-                            for(let i = 6; i < headerRow.length; i++) {
-                                let name = String(headerRow[i] || '').trim();
-                                let norm = name.toUpperCase();
-                                if(norm && norm !== 'UNKNOWN' && !norm.includes('ATTENDANCE')) {
-                                    html += `
-                                    <label class="flex items-center gap-3 cursor-pointer p-3 bg-black/40 hover:bg-white/5 rounded-xl border border-white/5 hover:border-tntc-accent/50 transition-all group">
-                                        <input type="checkbox" value="${norm}" class="admin-drv-chk accent-tntc-accent w-4 h-4 rounded border-gray-600 focus:ring-tntc-accent bg-[#05070a]">
-                                        <span class="text-xs font-black text-white truncate group-hover:text-tntc-accent transition-colors">${name}</span>
-                                    </label>`;
-                                }
-                            }
-                            container.innerHTML = html;
-                        } else {
-                            container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Error: Invalid Structure.</p>';
-                        }
-                    } else {
-                        container.innerHTML = '<p class="text-tntc-admin text-xs col-span-full py-4 text-center font-bold">Database empty.</p>';
-                    }
-                }
-            });
-        }
-
-        function fetchAdminEvents() {
-            let grid = document.getElementById('adminEventGrid');
-            if(!grid) return;
-            grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div><p class="text-[10px] font-bold uppercase tracking-widest">Scanning Database...</p></div>';
-
-            if (typeof EVENT_SHEET_CSV_URL === 'undefined') return;
-
-            Papa.parse(EVENT_SHEET_CSV_URL, {
-                download: true, header: false, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let rows = results.data;
-                    if (rows && rows.length > 0) {
-                        let headerIndex = 0;
-                        for (let i = 0; i < Math.min(5, rows.length); i++) {
-                            if (String(rows[i][1]).toUpperCase().includes('DATE') || String(rows[i][2]).toUpperCase().includes('EVENT')) {
-                                headerIndex = i; break;
-                            }
-                        }
-                        let headers = rows[headerIndex];
-                        let eventRows = rows.slice(headerIndex + 1);
-                        window.adminEventsList = [];
-                        let html = "";
-                        let validEvents = [];
-
-                        eventRows.forEach(row => {
-                            if (String(row[1]).trim() && String(row[2]).trim()) {
-                                let attended = [];
-                                for(let col = 6; col < headers.length; col++) {
-                                    let val = String(row[col]).trim().toUpperCase();
-                                    if(val === 'TRUE' || val === '1' || val === 'YES') attended.push(String(headers[col]).trim());
-                                }
-                                validEvents.push({ date: String(row[1]).trim(), name: String(row[2]).trim(), link: String(row[3]).trim(), category: String(row[4]).trim(), image: String(row[5]).trim(), drivers: attended });
-                            }
-                        });
-
-                        validEvents.reverse(); 
-                        window.adminEventsList = validEvents;
-
-                        validEvents.forEach((ev, idx) => {
-                            let safeName = ev.name.replace(/'/g, "\\'");
-                            let safeDate = ev.date.replace(/'/g, "\\'");
-                            html += `
-                            <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-xl flex flex-col relative group hover:border-white/20 transition-all duration-300">
-                                <div class="p-5 border-b border-white/5 bg-black/40 flex justify-between items-start relative z-10">
-                                    <div>
-                                        <span class="text-[8px] text-purple-400 font-black uppercase tracking-widest bg-purple-500/10 px-2 py-1 rounded shadow-sm border border-purple-500/20">${ev.category}</span>
-                                        <h3 class="text-base font-black text-white mt-3 leading-tight drop-shadow-md">${ev.name}</h3>
-                                        <p class="text-[10px] text-tntc-textSecondary mt-1 font-mono tracking-wider">${ev.date}</p>
-                                    </div>
-                                </div>
-                                <div class="p-5 flex-1 relative z-10">
-                                    <p class="text-[9px] text-tntc-textSecondary mb-3 uppercase tracking-widest font-bold">Attendance: <span class="text-white">${ev.drivers.length}</span></p>
-                                    <div class="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto custom-scrollbar pr-1">
-                                        ${ev.drivers.map(d => `<span class="bg-white/5 border border-white/10 text-tntc-textSecondary px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider">${d}</span>`).join('')}
-                                    </div>
-                                </div>
-                                <div class="p-3 bg-black/60 border-t border-white/5 flex justify-between gap-2 relative z-10">
-                                    <button onclick="loadEventForEdit(${idx})" class="flex-1 bg-tntc-accent/10 hover:bg-tntc-accent text-tntc-accent hover:text-[#05070a] border border-tntc-accent/30 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"><i data-lucide="edit-2" class="w-3.5 h-3.5 inline-block mr-1"></i> Override</button>
-                                    <button onclick="confirmDeleteEvent('${safeDate}', '${safeName}')" class="flex-1 bg-tntc-admin/10 hover:bg-tntc-admin text-tntc-admin hover:text-white border border-tntc-admin/30 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5 inline-block mr-1"></i> Purge</button>
-                                </div>
-                            </div>`;
-                        });
-                        grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-tntc-textSecondary bg-slate-900/40 rounded-2xl border border-white/5 font-bold tracking-widest uppercase text-xs">No records found.</div>';
-                        lucide.createIcons();
-                    }
-                }
-            });
-        }
-
-        function loadEventForEdit(index) {
-            let ev = window.adminEventsList[index];
-            if(!ev) return;
-
-            if(document.querySelectorAll('.admin-drv-chk').length === 0) {
-                showCustomAlert("Syncing Drivers", "Fetching roster from database. Please wait and click Override again.", false);
-                populateAdminDriverChecklist(); return;
-            }
-
-            document.getElementById('addEvName').value = ev.name;
-            document.getElementById('addEvCat').value = ev.category || 'DIVISION EVENT';
-            document.getElementById('addEvLink').value = ev.link;
-            document.getElementById('addEvImage').value = ev.image;
-
-            let d = new Date(ev.date);
-            if(!isNaN(d)) { document.getElementById('addEvDate').value = d.toISOString().split('T')[0]; } 
-            else { document.getElementById('addEvDate').value = ""; }
-            updateDateDisplay(document.getElementById('addEvDate'), 'display-addEvDate');
-
-            document.querySelectorAll('.admin-drv-chk').forEach(cb => { cb.checked = ev.drivers.map(d => d.toUpperCase()).includes(cb.value.toUpperCase()); });
-
-            window.editEventMode = true; window.editOriginalDate = ev.date; window.editOriginalName = ev.name;
-
-            let btn = document.getElementById('btnSubmitEvent');
-            btn.className = "flex-1 w-full bg-amber-500 hover:bg-amber-400 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all flex items-center justify-center gap-2";
-            document.getElementById('submitEventText').innerText = "UPDATE RECORD";
-            document.getElementById('submitEventIcon').setAttribute('data-lucide', 'save');
-            document.getElementById('btnCancelEditEvent').classList.remove('hidden');
-
-            lucide.createIcons();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function cancelEventEdit() {
-            window.editEventMode = false; window.editOriginalDate = ""; window.editOriginalName = "";
-            document.getElementById('addEvName').value = ''; document.getElementById('addEvDate').value = '';
-            document.getElementById('addEvCat').value = 'DIVISION EVENT'; document.getElementById('addEvLink').value = ''; document.getElementById('addEvImage').value = '';
-            updateDateDisplay(document.getElementById('addEvDate'), 'display-addEvDate');
-            document.querySelectorAll('.admin-drv-chk').forEach(cb => cb.checked = false);
-
-            let btn = document.getElementById('btnSubmitEvent');
-            btn.className = "flex-1 w-full bg-tntc-accent hover:bg-tntc-accent/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(56,189,248,0.3)] transition-all flex items-center justify-center gap-2";
-            document.getElementById('submitEventText').innerText = "Commit Record";
-            document.getElementById('submitEventIcon').setAttribute('data-lucide', 'upload-cloud');
-            document.getElementById('btnCancelEditEvent').classList.add('hidden');
-            lucide.createIcons();
-        }
-
-        function confirmDeleteEvent(date, name) {
-            showCustomAlert("Confirm Purge", `Are you sure you want to permanently delete this event?\n\nTarget: "${name}"\nTimestamp: "${date}"\n\nThis action cannot be undone.`, true, async () => {
-                let payload = { action: "DELETE_EVENT", data: { date: date, eventName: name } };
-                await sendAdminRequest(payload, "Purging Record...", () => { setTimeout(fetchAdminEvents, 3000); });
-            });
-        }
-
-        window.editTourMode = false; window.editOriginalTourName = ""; window.adminToursList = [];
-
-        function addRouteRow() {
-            let container = document.getElementById('route-container');
-            if(!container) return;
-            let div = document.createElement('div');
-            
-            div.className = "grid grid-cols-2 md:grid-cols-6 gap-3 route-row bg-slate-900/40 p-5 rounded-2xl border border-white/5 mb-3 relative group backdrop-blur-md";
-            div.innerHTML = `
-                <input type="text" placeholder="Source City" class="route-src bg-[#05070a]/80 border border-white/10 rounded-xl p-3 h-[46px] text-xs text-white outline-none focus:border-amber-500 shadow-inner">
-                <input type="text" placeholder="Source Co." class="route-src-co bg-[#05070a]/80 border border-white/10 rounded-xl p-3 h-[46px] text-xs text-white outline-none focus:border-amber-500 shadow-inner">
-                <input type="text" placeholder="Dest City" class="route-dst bg-[#05070a]/80 border border-white/10 rounded-xl p-3 h-[46px] text-xs text-white outline-none focus:border-amber-500 shadow-inner">
-                <input type="text" placeholder="Dest Co." class="route-dst-co bg-[#05070a]/80 border border-white/10 rounded-xl p-3 h-[46px] text-xs text-white outline-none focus:border-amber-500 shadow-inner">
-                <input type="number" placeholder="Dist (KM)" class="route-km bg-[#05070a]/80 border border-white/10 rounded-xl p-3 h-[46px] text-xs text-white outline-none focus:border-amber-500 shadow-inner">
-                <input type="text" placeholder="Image URL" class="route-img bg-[#05070a]/80 border border-white/10 rounded-xl p-3 h-[46px] text-xs text-white outline-none focus:border-amber-500 shadow-inner">
-                <button onclick="this.parentElement.remove()" class="absolute -right-2 -top-2 bg-tntc-admin text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-[0_0_15px_rgba(244,63,94,0.6)] transform scale-90 group-hover:scale-100" title="Remove Waypoint">
-                    <i data-lucide="x" class="w-3 h-3"></i>
-                </button>
-            `;
-            container.appendChild(div);
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        async function submitNewTour() {
-            let tName = document.getElementById('addTourName').value; let sDate = document.getElementById('addTourStart').value;
-            if(!tName || !sDate) { showCustomAlert("Validation Failed", "Codename and Start Date are required!", true); return; }
-            
-            if (window.editTourMode) {
-                let payload = { action: "UPDATE_TOUR_MASTER", data: { originalName: window.editOriginalTourName, tourName: tName, startDate: sDate, endDate: document.getElementById('addTourEnd').value, bannerUrl: document.getElementById('addTourBanner').value } };
-                await sendAdminRequest(payload, "Updating Campaign Params...", () => { cancelTourEdit(); if(sessionStorage.getItem('tntc_role') === 'leader') setTimeout(fetchAdminTours, 3000); });
-                return;
-            }
-
-            let routes = [];
-            document.querySelectorAll('.route-row').forEach(row => {
-                routes.push({ source: row.querySelector('.route-src').value, sourceCo: row.querySelector('.route-src-co').value, dest: row.querySelector('.route-dst').value, destCo: row.querySelector('.route-dst-co').value, dist: row.querySelector('.route-km').value, img: row.querySelector('.route-img').value });
-            });
-
-            let sD = new Date(sDate);
-            let payload = { action: "CREATE_TOUR", data: { tourName: tName, startDate: sDate, endDate: document.getElementById('addTourEnd').value, bannerUrl: document.getElementById('addTourBanner').value, startYear: sD.getFullYear(), startMonth: sD.getMonth() + 1, startDay: sD.getDate(), routes: routes } };
-            
-            await sendAdminRequest(payload, "Compiling Manifest...", () => {
-                document.getElementById('addTourName').value = ''; document.getElementById('addTourStart').value = ''; document.getElementById('addTourEnd').value = ''; document.getElementById('addTourBanner').value = '';
-                updateDateDisplay(document.getElementById('addTourStart'), 'display-addTourStart'); updateDateDisplay(document.getElementById('addTourEnd'), 'display-addTourEnd');
-                let routeContainer = document.getElementById('route-container');
-                if(routeContainer) { routeContainer.innerHTML = '<label class="block text-xs font-black text-amber-500 uppercase tracking-widest mb-4 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]"><i data-lucide="milestone" class="w-4 h-4 inline-block mr-1"></i> Route Waypoints</label>'; addRouteRow(); }
-                if(sessionStorage.getItem('tntc_role') === 'leader') setTimeout(fetchAdminTours, 3000);
-            });
-        }
-
-        function fetchAdminTours() {
-            let grid = document.getElementById('adminTourGrid');
-            if(!grid) return;
-            grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div><p class="text-[10px] font-bold uppercase tracking-widest">Scanning Grid...</p></div>';
-
-            if (typeof TOUR_SHEET_CSV_URL === 'undefined') return;
-
-            Papa.parse(TOUR_SHEET_CSV_URL, {
-                download: true, header: false, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let rows = results.data;
-                    if (rows && rows.length > 1) {
-                        window.adminToursList = [];
-                        let html = "";
-                        for(let i=1; i<rows.length; i++) {
-                            if(!rows[i][0]) continue;
-                            window.adminToursList.push({ name: rows[i][0], start: rows[i][1], end: rows[i][2], status: rows[i][3], banner: rows[i][5] });
-                        }
-
-                        window.adminToursList.reverse().forEach((t, idx) => {
-                            let safeName = t.name.replace(/'/g, "\\'");
-                            let statusColor = t.status === 'LIVE' ? 'text-green-400 bg-green-500/10 border-green-500/30' : 
-                                              t.status === 'PAUSED' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' :
-                                              (t.status === 'COMING SOON' || t.status === 'COMING_SOON') ? 'text-blue-400 bg-blue-500/10 border-blue-500/30' :
-                                              'text-tntc-admin bg-tntc-admin/10 border-tntc-admin/30';
-                                              
-                            html += `
-                            <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-xl flex flex-col relative group hover:border-white/20 transition-all duration-300">
-                                <div class="h-28 bg-[#05070a] relative overflow-hidden">
-                                    <img src="${t.banner}" class="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                                    <span class="absolute top-3 right-3 text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded shadow-sm border ${statusColor} backdrop-blur-md">${t.status}</span>
-                                </div>
-                                <div class="p-5 flex-1 -mt-6 relative z-10">
-                                    <h3 class="text-base font-black text-white leading-tight drop-shadow-md mb-2">${t.name}</h3>
-                                    <p class="text-[9px] text-tntc-textSecondary font-mono uppercase tracking-widest bg-white/5 border border-white/10 px-2 py-1 rounded inline-block">S: ${t.start} <span class="mx-1 opacity-50">|</span> E: ${t.end || 'TBD'}</p>
-                                </div>
-                                <div class="p-3 bg-black/60 border-t border-white/5 flex justify-between gap-2 relative z-10">
-                                    <button onclick="loadTourForEdit(${idx})" class="flex-1 bg-amber-500/10 hover:bg-amber-500 text-amber-500 hover:text-[#05070a] border border-amber-500/30 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"><i data-lucide="edit-2" class="w-3.5 h-3.5 inline-block mr-1"></i> Override Config</button>
-                                    <button onclick="confirmDeleteTour('${safeName}')" class="flex-1 bg-tntc-admin/10 hover:bg-tntc-admin text-tntc-admin hover:text-white border border-tntc-admin/30 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5 inline-block mr-1"></i> Purge Manifest</button>
-                                </div>
-                            </div>`;
-                        });
-                        grid.innerHTML = html; lucide.createIcons();
-                    } else {
-                        grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary bg-slate-900/40 rounded-2xl border border-white/5 font-bold tracking-widest uppercase text-xs">No active campaigns.</div>';
-                    }
-                }
-            });
-        }
-
-        function loadTourForEdit(index) {
-            let t = window.adminToursList[index];
-            if(!t) return;
-
-            document.getElementById('addTourName').value = t.name; document.getElementById('addTourBanner').value = t.banner;
-            let dS = new Date(t.start);
-            if(!isNaN(dS)) { document.getElementById('addTourStart').value = dS.toISOString().split('T')[0]; updateDateDisplay(document.getElementById('addTourStart'), 'display-addTourStart'); }
-            if (t.end) { let dE = new Date(t.end); if(!isNaN(dE)) { document.getElementById('addTourEnd').value = dE.toISOString().split('T')[0]; updateDateDisplay(document.getElementById('addTourEnd'), 'display-addTourEnd'); } } 
-            else { document.getElementById('addTourEnd').value = ''; updateDateDisplay(document.getElementById('addTourEnd'), 'display-addTourEnd'); }
-
-            window.editTourMode = true; window.editOriginalTourName = t.name;
-            document.getElementById('route-container').classList.add('hidden'); document.getElementById('btnAddRoute').classList.add('hidden');
-
-            let btn = document.getElementById('btnSubmitTour');
-            btn.className = "flex-1 w-full bg-purple-500 hover:bg-purple-400 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all flex items-center justify-center gap-2";
-            document.getElementById('submitTourText').innerText = "OVERRIDE PARAMS"; document.getElementById('submitTourIcon').setAttribute('data-lucide', 'save');
-            document.getElementById('btnCancelEditTour').classList.remove('hidden');
-
-            lucide.createIcons(); window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function cancelTourEdit() {
-            window.editTourMode = false; window.editOriginalTourName = "";
-            document.getElementById('addTourName').value = ''; document.getElementById('addTourBanner').value = ''; document.getElementById('addTourStart').value = ''; document.getElementById('addTourEnd').value = '';
-            updateDateDisplay(document.getElementById('addTourStart'), 'display-addTourStart'); updateDateDisplay(document.getElementById('addTourEnd'), 'display-addTourEnd');
-            document.getElementById('route-container').classList.remove('hidden'); document.getElementById('btnAddRoute').classList.remove('hidden');
-
-            let btn = document.getElementById('btnSubmitTour');
-            btn.className = "flex-1 w-full bg-tntc-distance hover:bg-tntc-distance/80 text-[#05070a] font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(74,222,128,0.3)] hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] transition-all flex items-center justify-center gap-2";
-            document.getElementById('submitTourText').innerText = "Compile Manifest"; document.getElementById('submitTourIcon').setAttribute('data-lucide', 'folder-plus');
-            document.getElementById('btnCancelEditTour').classList.add('hidden'); lucide.createIcons();
-        }
-
-        function confirmDeleteTour(tourName) {
-            showCustomAlert("Confirm Purge", `Are you sure you want to permanently delete this Campaign?\n\nTarget: "${tourName}"\n\nThis obliterates the master record AND the specific route sheet. Cannot be undone.`, true, async () => {
-                let payload = { action: "DELETE_TOUR", data: { tourName: tourName } };
-                await sendAdminRequest(payload, "Purging Manifest...", () => { setTimeout(fetchAdminTours, 3000); });
-            });
-        }
-
-        function loadToursForAdmin() {
-            let select = document.getElementById('manageTourSelect');
-            if (!select) return;
-            select.innerHTML = '<option value="">Connecting to database...</option>';
-
-            if (typeof TOUR_SHEET_CSV_URL === 'undefined') return;
-
-            Papa.parse(TOUR_SHEET_CSV_URL, {
-                download: true, header: false, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let rows = results.data;
-                    if (rows.length <= 1) { select.innerHTML = '<option value="">No campaigns available</option>'; return; }
-                    
-                    let html = '<option value="">-- Select Target Campaign --</option>';
-                    for (let i = 1; i < rows.length; i++) {
-                        let tName = String(rows[i][0]).trim(); let tStatus = String(rows[i][3]).trim().toUpperCase();
-                        if (!tName) continue;
-                        let emoji = tStatus === 'LIVE' ? '🟢' : tStatus === 'COMING SOON' || tStatus === 'COMING_SOON' ? '🔵' : tStatus === 'PAUSED' ? '🟡' : '🔴';
-                        html += `<option value="${tName}">${emoji} ${tName} (${tStatus})</option>`;
-                    }
-                    select.innerHTML = html;
-                }
-            });
-        }
-
-        async function submitTourStatusUpdate() {
-            let payload = { action: "UPDATE_TOUR_STATUS", data: { tourName: document.getElementById('manageTourSelect').value, status: document.getElementById('manageTourStatus').value, reason: document.getElementById('manageTourReason').value } };
-            if(!payload.data.tourName) { showCustomAlert("Validation Failed", "Please select a target campaign.", true); return; }
-            if(payload.data.status === 'PAUSED' && !payload.data.reason) { showCustomAlert("Validation Failed", "A broadcast reason is required when halting a tour.", true); return; }
-            await sendAdminRequest(payload, "Transmitting Status...", () => { document.getElementById('manageTourReason').value = ''; loadToursForAdmin(); });
-        }
-
-        async function submitNewNews() {
-            let rawDate = document.getElementById('addNewsDate').value;
-            let formattedDate = rawDate;
-            if(rawDate) { let parts = rawDate.split('-'); let d = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]); formattedDate = d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
-            let payload = { action: "ADD_NEWS", data: { title: document.getElementById('addNewsTitle').value, date: formattedDate, category: document.getElementById('addNewsCat').value, image: document.getElementById('addNewsImg').value, desc: document.getElementById('addNewsDesc').value, link: document.getElementById('addNewsLink').value } };
-            if(!payload.data.title || !rawDate) { showCustomAlert("Validation Failed", "Headline and Date are required!", true); return; }
-            
-            await sendAdminRequest(payload, "Broadcasting Intel...", () => {
-                document.getElementById('addNewsTitle').value = ''; document.getElementById('addNewsDate').value = ''; document.getElementById('addNewsCat').value = ''; document.getElementById('addNewsImg').value = ''; document.getElementById('addNewsDesc').value = ''; document.getElementById('addNewsLink').value = '';
-                updateDateDisplay(document.getElementById('addNewsDate'), 'display-addNewsDate'); setTimeout(fetchAdminNews, 3000); 
-            });
-        }
-
-        function fetchAdminNews() {
-            let grid = document.getElementById('adminNewsGrid');
-            if(!grid) return;
-            grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-tntc-accent mx-auto mb-4"></div><p class="text-[10px] font-bold uppercase tracking-widest">Tapping into stream...</p></div>';
-
-            Papa.parse(ADMIN_NEWS_CSV_URL, { 
-                download: true, header: true, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    if(results.data && results.data.length > 0 && results.data[0].TITLE) {
-                        let html = ""; let recentItems = results.data.slice(-6).reverse(); 
-                        recentItems.forEach(item => {
-                            if(item.TITLE) {
-                                let safeTitle = (item.TITLE || '').replace(/'/g, "\\'");
-                                html += `
-                                <div class="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-xl relative group hover:border-white/20 transition-all duration-300">
-                                    <div class="h-36 bg-[#05070a] relative overflow-hidden">
-                                        <img src="${item.IMAGE_URL}" class="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://placehold.co/400x200/05070a/06b6d4?text=News'">
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                                        <button onclick="confirmDeleteNews('${safeTitle}')" class="absolute top-3 right-3 bg-tntc-admin/90 hover:bg-tntc-admin text-white p-2 rounded-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all shadow-[0_0_15px_rgba(244,63,94,0.5)] transform scale-90 group-hover:scale-100" title="Purge Dispatch">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                    <div class="p-5 relative z-10 -mt-8">
-                                        <span class="text-[8px] text-tntc-accent font-black uppercase tracking-widest bg-tntc-accent/10 px-2 py-1 rounded shadow-sm border border-tntc-accent/30 backdrop-blur-md">${item.CATEGORY}</span>
-                                        <h3 class="text-base font-black text-white mt-3 leading-tight line-clamp-2 drop-shadow-md">${item.TITLE}</h3>
-                                        <p class="text-[9px] text-tntc-textSecondary mt-2 font-mono tracking-widest">${item.DATE}</p>
-                                    </div>
-                                </div>`;
-                            }
-                        });
-                        grid.innerHTML = html; lucide.createIcons();
-                    } else {
-                        grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary bg-slate-900/40 rounded-2xl border border-white/5 font-bold tracking-widest uppercase text-xs">Stream is empty.</div>';
-                    }
-                }
-            });
-        }
-
-        function confirmDeleteNews(title) {
-            showCustomAlert("Confirm Purge", `Are you sure you want to permanently delete this dispatch?\n\nTarget: "${title}"\n\nThis action cannot be undone.`, true, async () => {
-                let payload = { action: "DELETE_NEWS", data: { title: title } };
-                await sendAdminRequest(payload, "Purging Dispatch...", () => { setTimeout(fetchAdminNews, 3000); });
-            });
-        }
-
-        async function submitNewGallery() {
-            let payload = { action: "ADD_GALLERY", data: { image: document.getElementById('addGalleryImg').value } };
-            if(!payload.data.image) { showCustomAlert("Validation Failed", "Image URL is required!", true); return; }
-            await sendAdminRequest(payload, "Injecting Media...", () => { document.getElementById('addGalleryImg').value = ''; setTimeout(fetchAdminGallery, 3000); });
-        }
-
-        function fetchAdminGallery() {
-            let grid = document.getElementById('adminGalleryGrid');
-            if(!grid) return;
-            grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-tntc-distance mx-auto mb-4"></div><p class="text-[10px] font-bold uppercase tracking-widest">Scanning Vault...</p></div>';
-
-            Papa.parse(ADMIN_GALLERY_CSV_URL, { 
-                download: true, header: true, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    if(results.data && results.data.length > 0 && results.data[0].IMAGE_URL) {
-                        let html = ""; let recentItems = results.data.slice(-10).reverse();
-                        recentItems.forEach(item => {
-                            if(item.IMAGE_URL) {
-                                let safeImg = item.IMAGE_URL.replace(/'/g, "\\'");
-                                html += `
-                                <div class="aspect-square bg-[#05070a] border border-white/5 rounded-2xl overflow-hidden shadow-xl relative group">
-                                    <img src="${item.IMAGE_URL}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" onerror="this.src='https://placehold.co/400x400/05070a/4ade80?text=Media'">
-                                    <button onclick="confirmDeleteGallery('${safeImg}')" class="absolute top-2 right-2 bg-tntc-admin/90 hover:bg-tntc-admin text-white p-2.5 rounded-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all shadow-[0_0_20px_rgba(244,63,94,0.6)] transform scale-90 group-hover:scale-100" title="Purge Asset">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </div>`;
-                            }
-                        });
-                        grid.innerHTML = html; lucide.createIcons();
-                    } else {
-                        grid.innerHTML = '<div class="col-span-full py-16 text-center text-tntc-textSecondary bg-slate-900/40 rounded-2xl border border-white/5 font-bold tracking-widest uppercase text-xs">Vault is empty.</div>';
-                    }
-                }
-            });
-        }
-
-        function confirmDeleteGallery(imageUrl) {
-            showCustomAlert("Confirm Purge", `Are you sure you want to permanently remove this asset from the fleet vault?\n\nThis action cannot be undone.`, true, async () => {
-                let payload = { action: "DELETE_GALLERY", data: { image: imageUrl } };
-                await sendAdminRequest(payload, "Purging Asset...", () => { setTimeout(fetchAdminGallery, 3000); });
-            });
-        }
-
-        async function fetchCrewData() {
-            let pendingBody = document.getElementById('pendingTableBody');
-            let activeBody = document.getElementById('activeTableBody');
-            if (pendingBody) pendingBody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-yellow-500 font-bold tracking-widest uppercase text-[10px]"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-500 inline-block align-middle mr-2"></div> Extracting clearances...</td></tr>';
-            if (activeBody) activeBody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-tntc-distance font-bold tracking-widest uppercase text-[10px]"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-tntc-distance inline-block align-middle mr-2"></div> Syncing roster...</td></tr>';
-            lucide.createIcons();
-
-            try {
-                const response = await fetch(ADMIN_WEBAPP_URL + "?action=GET_USERS", { method: 'GET' });
-                const result = await response.json();
-                
-                if (result.status === "success" && result.data) {
-                    let pendingHtml = ''; let activeHtml = ''; let role = sessionStorage.getItem('tntc_role');
-                    
-                    result.data.forEach(user => {
-                        if (user.status === 'PENDING') {
-                            pendingHtml += `
-                            <tr class="hover:bg-white/5 transition-colors group">
-                                <td class="p-5 font-mono text-tntc-textSecondary text-[10px]">${user.joinDate || 'New'}</td>
-                                <td class="p-5 font-black text-white text-base tracking-wide">${user.username} <span class="block text-[9px] text-tntc-accent font-mono mt-1 tracking-widest uppercase">ID: ${user.trackerName}</span></td>
-                                <td class="p-5 font-bold text-yellow-500 text-xs">${user.discord} <span class="text-tntc-textSecondary font-mono block text-[9px] mt-1 tracking-widest uppercase">TMP: ${user.tmp}</span></td>
-                                <td class="p-5 text-right flex justify-end gap-3 h-full items-center">
-                                    <button onclick="approveUserAccount('${user.username}', '${user.trackerName}')" class="px-4 py-2.5 bg-tntc-distance/10 border border-tntc-distance/30 hover:bg-tntc-distance hover:text-[#05070a] rounded-xl text-[10px] font-black uppercase tracking-widest text-tntc-distance inline-flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(74,222,128,0.15)] group-hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]">
-                                        <i data-lucide="check" class="w-4 h-4"></i> Approve
-                                    </button>
-                                    <button onclick="viewApplicationDetails('${user.username}', '${user.trackerName}', '${user.discord}', '${user.tmp}', '${(user.reason||'').replace(/'/g, "\\'")}')" class="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-tntc-accent/50 rounded-xl text-[10px] font-black text-tntc-accent inline-flex items-center gap-2 transition-all">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </button>
-                                </td>
-                            </tr>`;
-                        } else if (user.status === 'ACTIVE') {
-                            let roleColor = user.role.toUpperCase() === 'LEADER' ? 'text-amber-500 bg-amber-500/10 border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 
-                                            user.role.toUpperCase() === 'ADMIN' ? 'text-tntc-admin bg-tntc-admin/10 border-tntc-admin/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]' : 
-                                            'text-tntc-accent bg-tntc-accent/10 border-tntc-accent/30 shadow-[0_0_10px_rgba(56,189,248,0.2)]';
-                                            
-                            let manageControls = "";
-                            if (role === 'leader' && user.username !== 'MASTER') {
-                                manageControls = `
-                                    <select onchange="manageUserRole('${user.username}', this.value)" class="bg-[#05070a]/80 border border-white/10 text-white rounded-lg text-[9px] px-3 py-1.5 outline-none focus:border-yellow-500 shadow-inner tracking-widest font-bold uppercase">
-                                        <option value="" disabled selected>Modify Rank</option>
-                                        <option value="RIDER">Make Rider</option>
-                                        <option value="ADMIN">Make Admin</option>
-                                    </select>
-                                    <button onclick="suspendUser('${user.username}')" class="px-3 py-1.5 bg-tntc-admin/10 border border-tntc-admin/30 hover:bg-tntc-admin hover:text-white rounded-lg text-[9px] font-black tracking-widest uppercase text-tntc-admin transition-all shadow-sm ml-2">Revoke</button>
-                                `;
-                            } else if (role === 'admin' && user.role.toUpperCase() === 'RIDER') {
-                                manageControls = `
-                                    <button onclick="suspendUser('${user.username}')" class="px-3 py-1.5 bg-tntc-admin/10 border border-tntc-admin/30 hover:bg-tntc-admin hover:text-white rounded-lg text-[9px] font-black tracking-widest uppercase text-tntc-admin transition-all shadow-sm">Revoke</button>
-                                `;
-                            }
-
-                            activeHtml += `
-                            <tr class="hover:bg-white/5 transition-colors">
-                                <td class="p-5 font-mono text-tntc-textSecondary text-[10px]">${user.joinDate}</td>
-                                <td class="p-5 font-black text-white text-base tracking-wide">${user.username} <span class="block text-[9px] text-tntc-textSecondary font-mono mt-1 tracking-widest uppercase">ID: ${user.trackerName}</span></td>
-                                <td class="p-5"><span class="px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase border ${roleColor} backdrop-blur-md">${user.role}</span></td>
-                                <td class="p-5 text-right flex justify-end gap-2 items-center h-full">${manageControls}</td>
-                            </tr>`;
-                        }
-                    });
-
-                    if (pendingBody) pendingBody.innerHTML = pendingHtml || '<tr><td colspan="4" class="p-10 text-center text-tntc-textSecondary font-bold tracking-widest uppercase text-[10px]">No pending clearances.</td></tr>';
-                    if (activeBody) activeBody.innerHTML = activeHtml || '<tr><td colspan="4" class="p-10 text-center text-tntc-textSecondary font-bold tracking-widest uppercase text-[10px]">Roster is empty.</td></tr>';
-                    lucide.createIcons();
-                }
-            } catch (err) {
-                if (pendingBody) pendingBody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-tntc-admin font-black tracking-widest uppercase text-xs"><i data-lucide="alert-triangle" class="w-5 h-5 inline mr-2"></i> Connection Severed</td></tr>';
-                lucide.createIcons();
-            }
-        }
-
-        async function approveUserAccount(username, tracker) {
-            showCustomAlert("Authorize Clearance", `Grant full access to ${username}?\nThis adds their ID (${tracker}) to the active telemetry grid.`, false, async () => {
-                let payload = { action: "APPROVE_USER", data: { username: username } };
-                await sendAdminRequest(payload, "Authorizing Access...", () => { setTimeout(fetchCrewData, 2000); });
-            });
-        }
-
-        async function manageUserRole(username, newRole) {
-            showCustomAlert("Modify Rank", `Confirm promotion/demotion of ${username} to ${newRole}?`, false, async () => {
-                let payload = { action: "MANAGE_USER", data: { username: username, actionType: "CHANGE_ROLE", newRole: newRole } };
-                await sendAdminRequest(payload, "Updating Clearances...", () => { setTimeout(fetchCrewData, 2000); });
-            });
-        }
-
-        async function suspendUser(username) {
-            showCustomAlert("Revoke Clearance", `Terminate access for ${username}?\nThey will be locked out of the terminal and removed from active telemetry tracking.`, true, async () => {
-                let payload = { action: "MANAGE_USER", data: { username: username, actionType: "SUSPEND" } };
-                await sendAdminRequest(payload, "Revoking Access...", () => { setTimeout(fetchCrewData, 2000); });
-            });
-        }
-
-        function viewApplicationDetails(name, tracker, discord, tmpId, reason) {
-            const title = `Intel: ${name}`;
-            const message = `Callsign: ${tracker}\nComms (Discord): ${discord}\nTMP ID: ${tmpId}\n\nMotivation Report:\n${reason}`;
-            showCustomAlert(title, message, false);
-        }
-
-        // ==========================================
-        // ECONOMY CONFIG FUNCTIONS (Live Search & Sort)
-        // ==========================================
-        window.economyData = [];
-        window.currentSortCol = '';
-        window.currentSortAsc = true;
-
-        async function submitCargoRate() {
-            let cName = document.getElementById('cargoNameInput').value.trim();
-            let cPrice = parseFloat(document.getElementById('cargoPriceInput').value);
-            
-            if (!cName || isNaN(cPrice)) {
-                showCustomAlert("Validation Failed", "Please enter a valid Cargo Name and a numeric Base Price.", true);
-                return;
-            }
-            
-            let payload = {
-                action: "UPDATE_CARGO_RATE",
-                data: { cargoName: cName, basePrice: cPrice }
-            };
-            
-            await sendAdminRequest(payload, "Updating Economy Matrix...", () => {
-                document.getElementById('cargoNameInput').value = '';
-                document.getElementById('cargoPriceInput').value = '';
-                setTimeout(fetchCargoRates, 3000); 
-            });
-        }
-
-        function fetchCargoRates() {
-            let grid = document.getElementById('cargoRatesGrid');
-            if (!grid) return;
-            
-            grid.innerHTML = '<tr><td colspan="4" class="p-10 text-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-4"></div><p class="text-[10px] font-bold text-tntc-textSecondary uppercase tracking-widest">Scanning Matrix...</p></td></tr>';
-
-            if (typeof Papa === 'undefined' || typeof ADMIN_CARGO_CSV_URL === 'undefined') return;
-
-            Papa.parse(ADMIN_CARGO_CSV_URL, {
-                download: true, header: false, skipEmptyLines: 'greedy',
-                complete: function(results) {
-                    let rows = results.data;
-                    window.economyData = []; // Reset global state
-                    
-                    if (rows && rows.length > 1) {
-                        // Parse rows into objects
-                        for (let i = 1; i < rows.length; i++) {
-                            let name = String(rows[i][0] || '').trim();
-                            let weightStr = String(rows[i][2] || '').trim();
-                            let price = parseFloat(rows[i][4]) || 0;
-                            
-                            if (!name) continue;
-                            
-                            // Parse the first valid number from the weight string
-                            let parsedWeight = 1; 
-                            let weightMatch = weightStr.match(/\d+(\.\d+)?/);
-                            if (weightMatch) {
-                                parsedWeight = parseFloat(weightMatch[0]);
-                            }
-                            
-                            // Calculate the 1000km Estimate
-                            let estimate = parsedWeight * price * 1000;
-
-                            window.economyData.push({
-                                name: name,
-                                weightStr: weightStr,
-                                parsedWeight: parsedWeight,
-                                price: price,
-                                estimate: estimate
-                            });
-                        }
-                        
-                        // Initial render
-                        filterCargoTable();
-                    } else {
-                        grid.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-tntc-textSecondary font-bold text-[10px] uppercase tracking-widest">Database is empty.</td></tr>';
-                    }
-                },
-                error: function() {
-                    grid.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-tntc-admin font-bold text-[10px] uppercase tracking-widest"><i data-lucide="alert-triangle" class="w-4 h-4 inline-block mb-1"></i> Connection Severed.</td></tr>';
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-            });
-        }
-
-        function filterCargoTable() {
-            let query = document.getElementById('cargoNameInput').value.trim().toLowerCase();
-            let filtered = window.economyData;
-            
-            // 1. Filter by Name
-            if (query !== "") {
-                filtered = window.economyData.filter(item => item.name.toLowerCase().includes(query));
-            }
-            
-            // 2. Apply Sort Logic
-            if (window.currentSortCol) {
-                filtered.sort((a, b) => {
-                    let valA = a[window.currentSortCol];
-                    let valB = b[window.currentSortCol];
-                    
-                    if (typeof valA === 'string') {
-                        return window.currentSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                    } else {
-                        return window.currentSortAsc ? valA - valB : valB - valA;
-                    }
-                });
-            }
-            
-            renderCargoTable(filtered);
-        }
-
-        function sortCargoTable(column) {
-            if (window.currentSortCol === column) {
-                window.currentSortAsc = !window.currentSortAsc; // Toggle direction
-            } else {
-                window.currentSortCol = column; // New column
-                window.currentSortAsc = true; // Default to Ascending
-            }
-            filterCargoTable(); // Re-filter and render
-        }
-
-        function renderCargoTable(dataToRender) {
-            let grid = document.getElementById('cargoRatesGrid');
-            if (!grid) return;
-            
-            if (dataToRender.length === 0) {
-                grid.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-tntc-textSecondary font-bold text-[10px] uppercase tracking-widest">No matching cargo found.</td></tr>';
-                updateSortIcons();
-                return;
-            }
-            
-            let html = "";
-            dataToRender.forEach(item => {
-                let safeName = item.name.replace(/'/g, "\\'");
-                html += `
-                <tr class="hover:bg-white/5 transition-colors group cursor-pointer" onclick="document.getElementById('cargoNameInput').value='${safeName}'; document.getElementById('cargoPriceInput').value='${item.price}'; filterCargoTable();">
-                    <td class="p-4 font-black text-white group-hover:text-tntc-accent drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] transition-colors">${item.name}</td>
-                    <td class="p-4 text-center text-tntc-textSecondary font-bold">${item.weightStr || '-'}</td>
-                    <td class="p-4 text-center font-mono font-black text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]">€${item.price.toFixed(2)}</td>
-                    <td class="p-4 text-right font-mono font-black text-tntc-distance drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">€${Math.round(item.estimate).toLocaleString()}</td>
-                </tr>`;
-            });
-            
-            grid.innerHTML = html;
-            updateSortIcons();
-        }
-
-        function updateSortIcons() {
-            const columns = ['name', 'parsedWeight', 'price', 'estimate'];
-            columns.forEach(col => {
-                let th = document.getElementById(`th-${col}`);
-                if (!th) return;
-                
-                let iconColor = window.currentSortCol === col ? "text-tntc-accent opacity-100" : "opacity-30 group-hover:opacity-100 text-tntc-textSecondary";
-                let iconType = (window.currentSortCol === col && !window.currentSortAsc) ? "chevron-up" : "chevron-down";
-                
-                // Target specific header alignments
-                let text = ""; let justifyClass = "";
-                if (col === 'name') { text = "Cargo Name"; justifyClass = "justify-start"; }
-                else if (col === 'parsedWeight') { text = "Weight (Tons)"; justifyClass = "justify-center"; }
-                else if (col === 'price') { text = "Base Price (€)"; justifyClass = "justify-center"; }
-                else if (col === 'estimate') { text = "Est. 1000km Revenue (€)"; justifyClass = "justify-end"; }
-
-                // Completely replace inner HTML to ensure Lucide triggers properly
-                th.innerHTML = `<div class="flex items-center ${justifyClass} gap-1">${text} <i data-lucide="${iconType}" class="w-3 h-3 transition-opacity ${iconColor}"></i></div>`;
-            });
-            
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-    </script>
+    <script src="admin.js"></script>
 </body>
 </html>

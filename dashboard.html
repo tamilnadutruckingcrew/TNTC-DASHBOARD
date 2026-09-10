@@ -6,8 +6,6 @@
     <title>TAMILNADU TRUCKING CREW - Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <!-- Lucide Icons -->
@@ -36,16 +34,16 @@
         ::-webkit-scrollbar-track { background: #05070a; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         
-        /* Premium Tab Styling */
-        .tab-active { background-color: rgba(56, 189, 248, 0.1); color: #38bdf8; font-weight: 900; border-color: rgba(56, 189, 248, 0.5); box-shadow: 0 0 20px rgba(56,189,248,0.2); }
-        .tab-inactive { background-color: rgba(255, 255, 255, 0.02); color: #94a3b8; border-color: rgba(255, 255, 255, 0.05); }
-        .tab-inactive:hover { background-color: rgba(255, 255, 255, 0.05); color: #f8fafc; border-color: rgba(255, 255, 255, 0.15); }
+        /* Refined Tab Styling for Unified Header */
+        .tab-active { color: #38bdf8; border-bottom: 2px solid #38bdf8; background-color: rgba(255,255,255,0.05); }
+        .tab-inactive { color: #94a3b8; border-bottom: 2px solid transparent; }
+        .tab-inactive:hover { color: #f8fafc; background-color: rgba(255,255,255,0.02); border-bottom-color: rgba(255,255,255,0.2); }
         
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         
-        /* Modals */
+        /* Modals & Collapses */
         .custom-modal { transition: opacity 0.3s ease-out; }
         .custom-modal-content { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-open.custom-modal { opacity: 1; pointer-events: auto; }
@@ -58,7 +56,6 @@
         
         /* Energy Meter Stripes */
         .progress-bar-stripes { background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; }
-        .animate-stripes { animation: progress-stripes 1s linear infinite; }
         @keyframes progress-stripes { from { background-position: 1rem 0; } to { background-position: 0 0; } }
         
         .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #38bdf8; width: 24px; height: 24px; animation: spin 1s linear infinite; }
@@ -79,55 +76,58 @@
         <h1 class="text-lg md:text-xl font-black text-white tracking-[0.2em] uppercase drop-shadow-md">Tamilnadu Logistics</h1>
     </div>
 
-    <!-- Dashboard Header -->
-    <header data-bg-asset="DASHBOARD_BANNER" class="relative flex flex-col md:flex-row justify-between items-center mb-8 p-6 md:p-8 rounded-3xl bg-tntc-card bg-cover bg-center border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden z-10">
-        <div class="absolute inset-0 bg-gradient-to-r from-[#05070a] via-[#05070a]/90 to-[#05070a]/40 z-0"></div>
+    <!-- Unified Dashboard Header & Navigation -->
+    <div class="relative bg-tntc-card bg-cover bg-center rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden mb-8 z-10" data-bg-asset="DASHBOARD_BANNER">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#05070a]/60 via-[#05070a]/80 to-[#05070a] z-0"></div>
 
-        <div class="flex items-center gap-5 z-10 w-full md:w-auto justify-center md:justify-start">
-            <div class="p-1.5 rounded-2xl shadow-[0_0_30px_rgba(56,189,248,0.3)] bg-tntc-accent/10 border border-tntc-accent/40 relative backdrop-blur-md">
-                <img data-asset="TNTC_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover">
+        <!-- Top Section: Welcome Info & Action Buttons -->
+        <header class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-5 w-full md:w-auto justify-center md:justify-start">
+                <div class="p-1.5 rounded-2xl shadow-[0_0_30px_rgba(56,189,248,0.3)] bg-tntc-accent/10 border border-tntc-accent/40 relative backdrop-blur-md">
+                    <img data-asset="TNTC_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png" alt="TNTC Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover">
+                </div>
+                <div class="text-center md:text-left drop-shadow-md">
+                    <h2 class="text-2xl md:text-4xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                        Welcome, <span id="headerUsername" class="text-transparent bg-clip-text bg-gradient-to-r from-tntc-accent to-blue-500 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]">Driver</span>
+                    </h2>
+                    <p class="text-tntc-textSecondary text-[10px] tracking-[0.2em] uppercase mt-1 font-black flex items-center gap-2 justify-center md:justify-start">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-tntc-distance"></i> TNTC Division Portal
+                    </p>
+                </div>
             </div>
-            <div class="text-center md:text-left drop-shadow-md">
-                <h2 class="text-2xl md:text-4xl font-black tracking-tight text-white uppercase flex items-center gap-2">
-                    Welcome, <span id="headerUsername" class="text-transparent bg-clip-text bg-gradient-to-r from-tntc-accent to-blue-500 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]">Driver</span>
-                </h2>
-                <p class="text-tntc-textSecondary text-[10px] tracking-[0.2em] uppercase mt-1 font-black flex items-center gap-2 justify-center md:justify-start">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-tntc-distance"></i> TNTC Division Portal
-                </p>
+
+            <div class="flex items-center gap-3 mt-2 md:mt-0">
+                <button id="navWebsiteBtn" class="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md flex items-center gap-2 hover:-translate-y-1">
+                    <i data-lucide="globe" class="w-4 h-4"></i> Website
+                </button>
+                <button id="adminToolsBtn" class="admin-only hidden bg-tntc-admin/80 hover:bg-tntc-admin text-white border border-tntc-admin/50 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] backdrop-blur-md items-center gap-2 hover:-translate-y-1">
+                    <i data-lucide="terminal" class="w-4 h-4"></i> Command
+                </button>
+                <button id="headerLogoutBtn" class="bg-black/60 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/50 p-3 rounded-xl text-white transition-all backdrop-blur-md shadow-lg" title="Logout">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+                <div class="hidden sm:flex bg-black/60 px-5 py-3 rounded-xl border border-white/10 items-center gap-3 shadow-lg backdrop-blur-md">
+                    <span class="relative flex h-2.5 w-2.5">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-distance opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tntc-distance shadow-[0_0_8px_#4ade80]"></span>
+                    </span>
+                    <span id="syncStatus" class="text-[10px] font-black uppercase tracking-widest text-white">Syncing</span>
+                </div>
             </div>
+        </header>
+
+        <!-- Bottom Section: Navigation Tabs -->
+        <div id="dashboardNavTabs" class="relative z-10 border-t border-white/10 bg-black/40 px-6 overflow-x-auto flex gap-2 custom-scrollbar">
+            <button data-tab="hub" class="tab-active py-4 px-4 text-[10px] font-black tracking-widest uppercase transition-colors whitespace-nowrap flex items-center gap-2"><i data-lucide="user" class="w-4 h-4"></i> Dashboard</button>
+            <button data-tab="overview" class="tab-inactive py-4 px-4 text-[10px] font-black tracking-widest uppercase transition-colors whitespace-nowrap flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
+            <button data-tab="logs" class="tab-inactive py-4 px-4 text-[10px] font-black tracking-widest uppercase transition-colors whitespace-nowrap flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i> Jobs</button>
+            <button data-tab="events" class="tab-inactive py-4 px-4 text-[10px] font-black tracking-widest uppercase transition-colors whitespace-nowrap flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4"></i> Records</button>
+            <button data-tab="campaign" class="tab-inactive py-4 px-4 text-[10px] font-black tracking-widest uppercase transition-colors whitespace-nowrap flex items-center gap-2"><i data-lucide="route" class="w-4 h-4"></i> Tours</button>
+            <button data-tab="liveriders" class="tab-inactive py-4 px-4 text-[10px] font-black tracking-widest uppercase transition-colors whitespace-nowrap flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-red-500 animate-pulse drop-shadow-[0_0_5px_rgba(244,63,94,0.8)]"></i> Live Fleet</button>
         </div>
-
-        <div class="flex items-center gap-3 z-10 mt-6 md:mt-0">
-            <button onclick="window.location.href='index.html'" class="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md flex items-center gap-2 hover:-translate-y-1">
-                <i data-lucide="globe" class="w-4 h-4"></i> Website
-            </button>
-            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tntc-admin/80 hover:bg-tntc-admin text-white border border-tntc-admin/50 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(244,63,94,0.4)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] backdrop-blur-md items-center gap-2 hover:-translate-y-1">
-                <i data-lucide="terminal" class="w-4 h-4"></i> Command
-            </button>
-            <button onclick="logout()" class="bg-black/60 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/50 p-3 rounded-xl text-white transition-all backdrop-blur-md shadow-lg" title="Logout">
-                <i data-lucide="log-out" class="w-4 h-4"></i>
-            </button>
-            <div class="bg-black/60 px-5 py-3 rounded-xl border border-white/10 flex items-center gap-3 shadow-lg backdrop-blur-md">
-                <span class="relative flex h-2.5 w-2.5">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tntc-distance opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tntc-distance shadow-[0_0_8px_#4ade80]"></span>
-                </span>
-                <span id="syncStatus" class="text-[10px] font-black uppercase tracking-widest text-white">Syncing Telemetry</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- Navigation Tabs -->
-    <div class="flex flex-wrap gap-3 mb-10 relative z-10">
-        <button onclick="switchTab('hub')" id="btn-hub" class="tab-active px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md"><i data-lucide="user" class="w-4 h-4"></i> Dashboard</button>
-        <button onclick="switchTab('overview')" id="btn-overview" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
-        <button onclick="switchTab('logs')" id="btn-logs" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="database" class="w-4 h-4"></i> Jobs</button>
-        <button onclick="switchTab('events')" id="btn-events" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="calendar-days" class="w-4 h-4"></i> Records</button>
-        <button onclick="switchTab('campaign')" id="btn-campaign" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="route" class="w-4 h-4"></i> Tours</button>
-        <button onclick="switchTab('liveriders')" id="btn-liveriders" class="tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg"><i data-lucide="radio" class="w-4 h-4 text-red-500 animate-pulse drop-shadow-[0_0_5px_rgba(244,63,94,0.8)]"></i> Live Raiders</button>
     </div>
 
-    <!-- 🚀 TAB 0: MY TERMINAL (NEW PERSONAL HUB) 🚀 -->
+    <!-- 🚀 TAB 0: MY TERMINAL (PERSONAL HUB) 🚀 -->
     <div id="tab-hub" class="block relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             
@@ -334,7 +334,7 @@
         <div class="flex flex-col xl:flex-row justify-between items-center bg-slate-900/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-xl mb-8 gap-4">
             <div class="flex items-center justify-between w-full xl:w-auto gap-4">
                <h2 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tntc-accent"></i> Division Analysis</h2>
-               <button onclick="fetchVTCData(false)" class="text-[10px] uppercase font-black tracking-widest bg-white/5 border border-white/10 hover:bg-white/10 hover:text-tntc-accent text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh</button>
+               <button id="overviewRefreshBtn" class="text-[10px] uppercase font-black tracking-widest bg-white/5 border border-white/10 hover:bg-white/10 hover:text-tntc-accent text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh</button>
             </div>
             
             <div class="tntc-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end" data-target="overview">
@@ -363,12 +363,13 @@
             <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-white/5 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all group"><div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="calendar-check" class="w-24 h-24 text-purple-400"></i></div><p class="text-tntc-textSecondary text-[9px] font-black uppercase tracking-widest mb-2 relative z-10">Convoys Joined</p><h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)] relative z-10">0</h2></div>
         </div>
         
-        <!-- PREMIUM CUSTOM CSS CHARTS SECTION -->
+        <!-- CUSTOM CSS CHARTS SECTION -->
         <div id="customChartContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Charts injected via JS -->
+            <div id="distance-chart-container" class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-xl flex flex-col min-h-[300px]"></div>
+            <div id="attendance-leaderboard-container" class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-xl flex flex-col min-h-[300px]"></div>
         </div>
 
-        <!-- PREMIUM LEADERBOARDS SECTION -->
+        <!-- LEADERBOARDS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-[0_0_20px_rgba(250,204,21,0.03)] hover:border-tntc-revenue/30 hover:shadow-[0_0_30px_rgba(250,204,21,0.1)] transition-all duration-300 flex flex-col h-[420px] relative overflow-hidden group">
                 <div class="absolute inset-0 bg-gradient-to-b from-tntc-revenue/5 to-transparent opacity-50 z-0"></div>
@@ -404,12 +405,12 @@
         <div class="bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
             <h3 class="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center justify-between border-b border-white/10 pb-4">
                 <span class="flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i> Waybill Database Query</span>
-                <button onclick="fetchVTCData(false)" class="text-[9px] text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-tntc-accent hover:text-tntc-accent px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm uppercase"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync DB</button>
+                <button id="logsRefreshBtn" class="text-[9px] text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-tntc-accent hover:text-tntc-accent px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm uppercase"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync DB</button>
             </h3>
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
                 <div class="col-span-2 lg:col-span-1">
                     <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Select Operative</label>
-                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 shadow-inner transition-all"><option value="ALL">All Drivers</option></select>
+                    <select id="filterDriver" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 shadow-inner transition-all"><option value="ALL">All Drivers</option></select>
                 </div>
                 
                 <div class="col-span-2 lg:col-span-2">
@@ -434,7 +435,7 @@
 
                 <div class="col-span-1 lg:col-span-1">
                     <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Render Limit</label>
-                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 shadow-inner transition-all">
+                    <select id="jobPageLimit" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-tntc-accent focus:ring-2 focus:ring-tntc-accent/50 shadow-inner transition-all">
                         <option value="10" selected>10 rows</option>
                         <option value="25">25 rows</option>
                         <option value="50">50 rows</option>
@@ -467,9 +468,9 @@
                 </table>
             </div>
             <div class="flex items-center justify-between p-5 bg-black/60 border-t border-white/10">
-                <button id="btnPrevPage" onclick="prevJobPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <button id="btnPrevPage" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
                 <span id="jobPageInfo" class="text-[10px] font-black text-tntc-accent tracking-widest uppercase bg-tntc-accent/10 border border-tntc-accent/30 px-3 py-1.5 rounded-lg shadow-sm">PAGE 1 OF 1</span>
-                <button id="btnNextPage" onclick="nextJobPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                <button id="btnNextPage" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
@@ -479,16 +480,16 @@
         <div class="bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl mb-8">
             <h3 class="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center justify-between border-b border-white/10 pb-4">
              <span class="flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]"></i> Event Roster Query</span>
-             <button onclick="fetchVTCData(false)" class="text-[9px] text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-400 hover:text-purple-400 px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm uppercase"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync DB</button>
+             <button id="eventsRefreshBtn" class="text-[9px] text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-400 hover:text-purple-400 px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm uppercase"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync DB</button>
             </h3>
             <div class="grid grid-cols-2 lg:grid-cols-6 gap-5">
                 <div class="col-span-2 lg:col-span-1">
                     <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Classification</label>
-                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all"><option value="ALL">All Events</option></select>
+                    <select id="filterEventCategory" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all"><option value="ALL">All Events</option></select>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                     <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Operative</label>
-                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all"><option value="ALL">All Drivers</option></select>
+                    <select id="filterEventDriver" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all"><option value="ALL">All Drivers</option></select>
                 </div>
 
                 <div class="col-span-2 lg:col-span-2">
@@ -513,7 +514,7 @@
 
                 <div class="col-span-1 lg:col-span-1">
                     <label class="block text-[10px] font-black text-tntc-textSecondary mb-2 uppercase tracking-widest">Render Limit</label>
-                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all">
+                    <select id="eventPageLimit" class="w-full bg-black/60 border border-white/10 text-white text-xs font-bold rounded-xl h-11 px-4 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 shadow-inner transition-all">
                         <option value="10" selected>10 rows</option>
                         <option value="25">25 rows</option>
                         <option value="50">50 rows</option>
@@ -547,9 +548,9 @@
                 </table>
             </div>
             <div class="flex items-center justify-between p-5 bg-black/60 border-t border-white/10">
-                <button id="btnPrevEventPage" onclick="prevEventPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <button id="btnPrevEventPage" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
                 <span id="eventPageInfo" class="text-[10px] font-black text-purple-400 tracking-widest uppercase bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-lg shadow-sm">PAGE 1 OF 1</span>
-                <button id="btnNextEventPage" onclick="nextEventPage()" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                <button id="btnNextEventPage" class="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 disabled:opacity-30 transition-all">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
@@ -585,14 +586,14 @@
         <div id="liveRidersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </div>
 
-    <!-- 🔴 PREMIUM JOB DETAILS MODAL 🔴 -->
+    <!-- JOB DETAILS MODAL -->
     <div id="jobDetailsModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/90 backdrop-blur-xl">
-        <div class="absolute inset-0 cursor-pointer" onclick="closeJobModal()"></div>
+        <div class="absolute inset-0 cursor-pointer modal-backdrop"></div>
         <div class="custom-modal-content relative z-10 bg-slate-900/80 backdrop-blur-2xl border border-white/10 w-full sm:max-w-md md:max-w-3xl sm:rounded-3xl h-[95vh] sm:h-[85vh] overflow-hidden flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.9)]">
             <div data-bg-asset="JOB_MODAL_BG" class="h-40 sm:h-56 bg-[#05070a] relative w-full shrink-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80');">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent z-10"></div>
                 <div class="absolute top-6 left-6 z-20">
-                    <button onclick="closeJobModal()" class="flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-black/90 border border-white/10 hover:border-white/30 rounded-full text-white text-[10px] font-black tracking-widest uppercase transition-all backdrop-blur-md shadow-lg">
+                    <button class="modal-close-btn flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-black/90 border border-white/10 hover:border-white/30 rounded-full text-white text-[10px] font-black tracking-widest uppercase transition-all backdrop-blur-md shadow-lg">
                         <i data-lucide="arrow-left" class="w-4 h-4"></i> Close
                     </button>
                 </div>
@@ -607,7 +608,6 @@
             </div>
             
             <div class="p-8 md:p-10 overflow-y-auto custom-scrollbar flex-1 space-y-8 bg-gradient-to-b from-transparent to-[#05070a]/50 relative z-20">
-                
                 <div class="flex flex-col sm:flex-row items-center justify-between bg-black/40 border border-white/5 hover:border-yellow-500/30 p-5 rounded-2xl relative overflow-hidden group transition-all shadow-inner">
                     <div class="absolute top-1/2 left-8 -translate-y-1/2 w-24 h-24 bg-yellow-500/10 blur-[30px] rounded-full group-hover:bg-yellow-500/20 transition-colors duration-500"></div>
                     <div class="flex items-center gap-5 relative z-10 w-full sm:w-auto mb-4 sm:mb-0">
@@ -689,18 +689,17 @@
                     <h4 class="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 mb-8"><i data-lucide="clock" class="w-4 h-4 text-yellow-500"></i> Event Chronology</h4>
                     <div class="relative pl-6 border-l-2 border-white/10 space-y-8" id="modalTimelineContainer"></div>
                 </div>
-
             </div>
         </div>
     </div>
 
     <!-- EVENT MODAL -->
     <div id="eventModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/90 backdrop-blur-xl">
-        <div class="absolute inset-0 cursor-pointer" onclick="closeModal('eventModal')"></div>
+        <div class="absolute inset-0 cursor-pointer modal-backdrop"></div>
         <div class="custom-modal-content relative z-10 bg-slate-900/80 backdrop-blur-2xl border border-white/10 w-full max-w-xl mx-4 rounded-3xl shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col max-h-[90vh]">
             <div id="modalImageContainer" class="w-full h-48 sm:h-56 shrink-0 relative bg-cover bg-center border-b border-white/10">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent z-10"></div>
-                <button onclick="closeModal('eventModal')" class="absolute top-5 right-5 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2.5 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg">
+                <button class="modal-close-btn absolute top-5 right-5 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2.5 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -725,11 +724,11 @@
 
     <!-- CAMPAIGN ROUTE MODAL -->
     <div id="campaignModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/90 backdrop-blur-xl">
-        <div class="absolute inset-0 cursor-pointer" onclick="closeModal('campaignModal')"></div>
+        <div class="absolute inset-0 cursor-pointer modal-backdrop"></div>
         <div class="custom-modal-content relative z-10 bg-slate-900/80 backdrop-blur-2xl border border-white/10 w-full max-w-xl mx-4 rounded-3xl shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-hidden relative flex flex-col max-h-[90vh]">
             <div id="campModalHeader" class="w-full h-48 sm:h-56 relative border-b border-white/10 overflow-hidden bg-cover bg-center shrink-0">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent z-10"></div>
-                <button onclick="closeModal('campaignModal')" class="absolute top-5 right-5 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2.5 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg">
+                <button class="modal-close-btn absolute top-5 right-5 bg-black/50 hover:bg-red-500/80 border border-white/10 hover:border-red-500 p-2.5 rounded-full text-white transition-all z-20 backdrop-blur-md shadow-lg">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -770,519 +769,6 @@
     <script src="tour.js"></script>
     <script src="liveriders.js"></script>
     <script src="init.js"></script>
-    
-    <script>
-        // GLOBAL VTC FILTER STATE
-        window.vtcFilterStates = { overview: { mode: 'ALL', value: '' }, logs: { mode: 'ALL', value: '' }, events: { mode: 'ALL', value: '' } };
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const role = sessionStorage.getItem('tntc_role');
-            const username = sessionStorage.getItem('tntc_username');
-            const trackerName = sessionStorage.getItem('tntc_tracker');
-
-            if (role === 'leader' || role === 'admin') {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-            }
-
-            if (username) {
-                document.getElementById('headerUsername').innerText = username;
-                document.getElementById('hubDriverName').innerText = username;
-            }
-            if (role) document.getElementById('hubRoleBadge').innerText = role;
-            if (trackerName) document.getElementById('hubTrackerName').innerText = trackerName;
-
-            document.querySelectorAll('.tntc-vtc-filter').forEach(container => {
-                const tabs = container.querySelectorAll('.filter-tab');
-                const pickerContainer = container.querySelector('.picker-container');
-                const pickerLabel = container.querySelector('.picker-label');
-                const pickerDisplay = container.querySelector('.picker-display');
-                const monthInput = container.querySelector('.month-input');
-                const dateInput = container.querySelector('.date-input');
-                const targetFunc = container.dataset.target; 
-
-                const now = new Date();
-                const curMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                const curDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                monthInput.value = curMonth; 
-                dateInput.value = curDate;
-
-                tabs.forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        tabs.forEach(t => {
-                            t.classList.remove('text-tntc-revenue', 'bg-white/10');
-                            t.classList.add('text-tntc-textSecondary', 'bg-transparent');
-                        });
-                        tab.classList.remove('text-tntc-textSecondary', 'bg-transparent');
-                        tab.classList.add('text-tntc-revenue', 'bg-white/10');
-
-                        let mode = tab.dataset.mode;
-                        const freshNow = new Date();
-                        const freshMonth = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}`;
-                        const freshDate = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}-${String(freshNow.getDate()).padStart(2, '0')}`;
-
-                        if (mode === 'ALL') {
-                            pickerContainer.classList.add('hidden');
-                            triggerFilter(targetFunc, mode, '');
-                        } else if (mode === 'MONTHLY') {
-                            pickerContainer.classList.remove('hidden');
-                            if (pickerLabel) pickerLabel.innerText = 'MONTH';
-                            monthInput.classList.remove('hidden'); 
-                            dateInput.classList.add('hidden');
-                            monthInput.value = freshMonth;
-                            updateDisplay(monthInput.value, 'month');
-                            triggerFilter(targetFunc, mode, monthInput.value);
-                        } else if (mode === 'DAILY') {
-                            pickerContainer.classList.remove('hidden');
-                            if (pickerLabel) pickerLabel.innerText = 'DATE';
-                            monthInput.classList.add('hidden'); 
-                            dateInput.classList.remove('hidden');
-                            dateInput.value = freshDate;
-                            updateDisplay(dateInput.value, 'date');
-                            triggerFilter(targetFunc, mode, dateInput.value);
-                        }
-                    });
-                });
-
-                monthInput.addEventListener('change', (e) => { updateDisplay(e.target.value, 'month'); triggerFilter(targetFunc, 'MONTHLY', e.target.value); });
-                dateInput.addEventListener('change', (e) => { updateDisplay(e.target.value, 'date'); triggerFilter(targetFunc, 'DAILY', e.target.value); });
-
-                function updateDisplay(val, type) {
-                    if (!val) { pickerDisplay.innerText = "Select..."; return; }
-                    const parts = val.split('-');
-                    let d;
-                    if (type === 'month') {
-                        d = new Date(parts[0], parseInt(parts[1]) - 1, 1);
-                        pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-                    } else {
-                        d = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
-                        pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    }
-                }
-            });
-
-            if (typeof fetchSiteAssets === 'function') fetchSiteAssets();
-            setTimeout(calculatePersonalTerminal, 2000);
-            
-            // Start the Local Tracker Polling
-            startTelemetryPolling();
-        });
-
-        // 🚀 THE SMART PERSONAL TERMINAL ENGINE 🚀
-        function calculatePersonalTerminal() {
-            const trackerName = sessionStorage.getItem('tntc_tracker');
-            if (!trackerName) return;
-            
-            // Wait until data is fully loaded!
-            if (typeof globalJobData === 'undefined' || globalJobData.length === 0 || typeof globalEventData === 'undefined' || !globalEventData.rows) {
-                setTimeout(calculatePersonalTerminal, 500);
-                return;
-            }
-            
-            let myDist = 0;
-            let myJobs = 0;
-            let myRev = 0;
-            let myFuel = 0;
-            let myEvents = 0;
-            
-            // Calculate My Jobs & Metrics
-            globalJobData.forEach(rawRow => {
-                let row = Array.isArray(rawRow) ? rawRow : Object.values(rawRow);
-                if (row.length < 5) return;
-                
-                let driverName = String(row[2] || '').trim().toUpperCase();
-                if(driverName === trackerName.toUpperCase()) {
-                    let distStr = String(row[12] || '0').replace(/[^0-9.-]/g, '');
-                    let revStr = String(row[15] || '0').replace(/[^0-9.-]/g, '');
-                    let fuelStr = String(row[17] || '0').replace(/[^0-9.-]/g, '');
-                    
-                    myDist += parseFloat(distStr) || 0;
-                    myRev += parseFloat(revStr) || 0;
-                    myFuel += parseFloat(fuelStr) || 0;
-                    myJobs++;
-                }
-            });
-            
-            // Calculate My Events
-            let headers = globalEventData.headers || [];
-            globalEventData.rows.forEach(rawRow => {
-                let row = Array.isArray(rawRow) ? rawRow : Object.values(rawRow);
-                for (let i = 6; i < headers.length; i++) {
-                    if (String(headers[i]).trim().toUpperCase() === trackerName.toUpperCase()) {
-                        let val = String(row[i] || '').replace(/["']/g, '').trim().toUpperCase();
-                        if(['TRUE', '1', 'YES', '✓', '✔', '☑'].some(v => val.includes(v))) {
-                            myEvents++;
-                        }
-                    }
-                }
-            });
-            
-            document.getElementById('hubTotalKm').innerText = Math.floor(myDist).toLocaleString();
-            document.getElementById('hubTotalJobs').innerText = myJobs.toLocaleString();
-            document.getElementById('hubTotalRevenue').innerText = Math.floor(myRev).toLocaleString();
-            document.getElementById('hubTotalEvents').innerText = myEvents.toLocaleString();
-            
-            let avgDist = myJobs > 0 ? Math.floor(myDist / myJobs) : 0;
-            let avgEl = document.getElementById('hubAvgDist');
-            if (avgEl) avgEl.innerText = avgDist.toLocaleString() + " km";
-            
-            let fuelEl = document.getElementById('hubTotalFuel');
-            if (fuelEl) fuelEl.innerText = Math.floor(myFuel).toLocaleString() + " L";
-            
-            let title = "ROOKIE";
-            let colorClass = "text-tntc-textSecondary drop-shadow-none";
-            let progress = 0;
-            let nextTier = "PRO (5,000 KM)";
-            
-            if (myDist < 5000) {
-                title = "ROOKIE"; colorClass = "text-tntc-textSecondary drop-shadow-none"; progress = (myDist / 5000) * 100; nextTier = "PRO (5,000 KM)";
-            } else if (myDist >= 5000 && myDist < 20000) {
-                title = "PRO TRUCKER"; colorClass = "text-tntc-distance drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]"; progress = ((myDist - 5000) / 15000) * 100; nextTier = "VETERAN (20,000 KM)";
-            } else if (myDist >= 20000 && myDist < 50000) {
-                title = "VETERAN"; colorClass = "text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"; progress = ((myDist - 20000) / 30000) * 100; nextTier = "ELITE (50,000 KM)";
-            } else {
-                title = "ELITE DRIVER"; colorClass = "text-tntc-accent drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]"; progress = 100; nextTier = "MAX RANK REACHED";
-            }
-            
-            const titleEl = document.getElementById('hubRankTitle');
-            titleEl.className = `text-4xl md:text-5xl font-black tracking-tighter flex items-center gap-3 ${colorClass}`;
-            titleEl.innerHTML = `${title} <i data-lucide="award" class="w-8 h-8"></i>`;
-            
-            document.getElementById('hubRankProgress').style.width = `${progress}%`;
-            document.getElementById('hubCurrentTier').innerText = title;
-            document.getElementById('hubNextTierTarget').innerText = nextTier;
-            
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-
-            applyPersonalFilters(trackerName);
-        }
-
-        function applyPersonalFilters(trackerName) {
-            let jobSelect = document.getElementById('filterDriver');
-            if (jobSelect && jobSelect.options.length > 0) {
-                let targetOpt = Array.from(jobSelect.options).find(opt => opt.value.toUpperCase() === trackerName.toUpperCase());
-                if (targetOpt) {
-                    if (jobSelect.value !== targetOpt.value) {
-                        jobSelect.value = targetOpt.value; 
-                        if(typeof applyLogFilters === 'function') applyLogFilters();
-                    }
-                } else {
-                    jobSelect.value = 'ALL';
-                    if(typeof applyLogFilters === 'function') applyLogFilters();
-                }
-            }
-
-            let eventSelect = document.getElementById('filterEventDriver');
-            if (eventSelect && eventSelect.options.length > 0) {
-                let targetOpt = Array.from(eventSelect.options).find(opt => opt.value.toUpperCase() === trackerName.toUpperCase());
-                if (targetOpt) {
-                    if (eventSelect.value !== targetOpt.value) {
-                        eventSelect.value = targetOpt.value; 
-                        if(typeof applyEventFilters === 'function') applyEventFilters();
-                    }
-                } else {
-                    eventSelect.value = 'ALL';
-                    if(typeof applyEventFilters === 'function') applyEventFilters();
-                }
-            }
-        }
-
-        window.switchTab = function(tab) {
-            const allTabs = ['hub', 'overview', 'logs', 'events', 'campaign', 'liveriders'];
-            
-            allTabs.forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                const btn = document.getElementById(`btn-${t}`);
-                
-                if (el) {
-                    if (tab === t) {
-                        el.style.display = 'block'; 
-                        el.classList.remove('hidden');
-                    } else {
-                        el.style.display = 'none'; 
-                        el.classList.add('hidden');
-                    }
-                }
-                
-                if (btn) {
-                    if (tab === t) {
-                        btn.className = "tab-active px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md";
-                    } else {
-                        btn.className = "tab-inactive px-6 py-3.5 rounded-xl flex items-center gap-2 text-xs transition-all border flex-1 sm:flex-none justify-center tracking-widest uppercase backdrop-blur-md shadow-lg";
-                    }
-                }
-            });
-
-            if (tab === 'campaign' && typeof fetchTourData === 'function') fetchTourData(); 
-            if (tab === 'liveriders') {
-                if (typeof fetchLiveRiders === 'function') fetchLiveRiders(); 
-                if (typeof initLiveRiders === 'function') initLiveRiders();
-            }
-
-            const trackerName = sessionStorage.getItem('tntc_tracker');
-            if (trackerName) {
-                if (tab === 'logs') {
-                    let jobSelect = document.getElementById('filterDriver');
-                    if (jobSelect) {
-                        let targetOpt = Array.from(jobSelect.options).find(opt => opt.value.toUpperCase() === trackerName.toUpperCase());
-                        if(targetOpt) {
-                            jobSelect.value = targetOpt.value; 
-                            if(typeof applyLogFilters === 'function') applyLogFilters();
-                        }
-                    }
-                }
-                if (tab === 'events') {
-                    let evSelect = document.getElementById('filterEventDriver');
-                    if (evSelect) {
-                        let targetOpt = Array.from(evSelect.options).find(opt => opt.value.toUpperCase() === trackerName.toUpperCase());
-                        if(targetOpt) {
-                            evSelect.value = targetOpt.value; 
-                            if(typeof applyEventFilters === 'function') applyEventFilters();
-                        }
-                    }
-                }
-            }
-        };
-
-        function triggerFilter(target, mode, value) {
-            window.vtcFilterStates[target] = { mode: mode, value: value };
-            if (target === 'overview' && typeof applyOverviewFilter === 'function') applyOverviewFilter();
-            if (target === 'logs' && typeof applyLogFilters === 'function') applyLogFilters();
-            if (target === 'events' && typeof applyEventFilters === 'function') applyEventFilters();
-        }
-
-        window.openJobModal = function(index) {
-            try {
-                if (typeof globalFilteredJobs === 'undefined') return;
-                const row = globalFilteredJobs[index];
-                if (!row) return;
-                
-                document.getElementById('modalJobId').innerText = 'JOB #' + (row[1] || 'UNKNOWN');
-                document.getElementById('modalRoute').innerHTML = `${row[5] || '-'} <span class="text-tntc-accent mx-2 font-light opacity-50">→</span> ${row[7] || '-'}`;
-                document.getElementById('modalCargoSub').innerText = `${row[3] || 'Cargo'} • ${row[12] || '0 km'} driven`;
-                
-                document.getElementById('modalDriver').innerText = row[2] || 'DRIVER';
-                document.getElementById('modalTime').innerText = row[18] || '0h 0m';
-                document.getElementById('modalRevenueTop').innerText = row[15] || '€0';
-                
-                document.getElementById('modalStartTime').innerText = row[0] || 'Unknown';
-                document.getElementById('modalDepCity').innerText = row[5] || '-';
-                document.getElementById('modalDepCo').innerText = row[6] || '-';
-                document.getElementById('modalDestCity').innerText = row[7] || '-';
-                document.getElementById('modalDestCo').innerText = row[8] || '-';
-                
-                document.getElementById('modalTruck').innerText = row[9] || 'Unknown';
-                document.getElementById('modalDamage').innerText = row[14] || '0%';
-                document.getElementById('modalTrailer').innerText = row[10] || 'Unknown';
-                document.getElementById('modalWeight').innerText = row[4] || '0 t';
-                
-                document.getElementById('statCargo').innerText = row[3] || '-';
-                document.getElementById('statDist').innerText = row[12] || '0 km';
-                document.getElementById('statPlan').innerText = row[11] || '0 km';
-                document.getElementById('statTime').innerText = row[18] || '0h 0m';
-                document.getElementById('statRev').innerText = row[15] || '€0';
-                document.getElementById('statFuel').innerText = row[17] || '0 L';
-                document.getElementById('statTopSpd').innerText = row[13] || '0 km/h';
-                document.getElementById('statAvgSpd').innerText = row[19] || '0 km/h';
-                document.getElementById('statPark').innerText = row[16] || 'NO';
-                
-                const tlContainer = document.getElementById('modalTimelineContainer');
-                let tlHtml = `
-                    <div class="relative">
-                        <div class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-tntc-accent border-2 border-[#05070a] shadow-[0_0_10px_rgba(56,189,248,0.8)]"></div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-white">Engine Ignition</p>
-                        <p class="text-[10px] text-tntc-textSecondary font-mono mt-1">${(row[0] || '').split(' ')[1] || '00:00'}</p>
-                    </div>
-                `;
-                
-                let timelineStr = row[20] || '';
-                if(timelineStr && timelineStr !== 'Clean Drive') {
-                    let events = timelineStr.split('|');
-                    events.forEach(evt => {
-                        if(evt.trim()) {
-                            tlHtml += `
-                            <div class="relative mt-8">
-                                <div class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-tntc-admin border-2 border-[#05070a] shadow-[0_0_10px_rgba(244,63,94,0.8)]"></div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-tntc-admin drop-shadow-[0_0_5px_rgba(244,63,94,0.5)]">Integrity Compromised</p>
-                                <p class="text-[10px] text-tntc-textSecondary font-mono mt-1">${evt.trim()}</p>
-                            </div>`;
-                        }
-                    });
-                }
-                
-                tlHtml += `
-                    <div class="relative mt-8">
-                        <div class="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-tntc-distance border-2 border-[#05070a] shadow-[0_0_10px_rgba(74,222,128,0.8)]"></div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-tntc-distance drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Payload Delivered</p>
-                        <p class="text-[10px] text-tntc-textSecondary font-mono mt-1">Safe Arrival</p>
-                    </div>
-                `;
-                if(tlContainer) tlContainer.innerHTML = tlHtml;
-                
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-                const modal = document.getElementById('jobDetailsModal');
-                if(modal) {
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                    requestAnimationFrame(() => {
-                        modal.classList.add('modal-open');
-                        modal.classList.remove('modal-closed');
-                    });
-                }
-                
-            } catch(e) {
-                console.error("Modal Error:", e);
-            }
-        };
-
-        window.closeJobModal = function() {
-            const modal = document.getElementById('jobDetailsModal');
-            if(modal) {
-                modal.classList.remove('modal-open');
-                modal.classList.add('modal-closed');
-                setTimeout(() => { 
-                    modal.classList.add('hidden'); 
-                    modal.classList.remove('flex');
-                }, 300);
-            }
-        };
-
-        // ==========================================
-        // 🚀 LIVE LOCAL TELEMETRY POLLING 🚀
-        // ==========================================
-        const TELEMETRY_API_URL = "http://localhost:25555/api/ets2/telemetry"; 
-        let telemetryPollInterval = null;
-        let lastRenderedDispatchHTML = ""; 
-
-        async function fetchActiveDispatch() {
-            const dispatchContainer = document.getElementById('activeDispatchContainer');
-            const dispatchBadge = document.getElementById('activeDispatchBadge');
-            
-            if (!dispatchContainer) return;
-
-            // Helper function to render the "Offline / Game Closed" UI
-            const setOfflineState = () => {
-                if (dispatchBadge) {
-                    dispatchBadge.className = "text-[8px] bg-tntc-admin/10 text-tntc-admin border border-tntc-admin/30 px-2.5 py-1 rounded-full font-black tracking-widest shadow-[0_0_10px_rgba(244,63,94,0.2)]";
-                    dispatchBadge.innerText = "OFFLINE";
-                }
-                
-                const offlineHtml = `
-                    <div class="flex flex-col items-center justify-center py-10 opacity-60 h-full">
-                        <div class="w-12 h-12 rounded-full bg-tntc-admin/10 border border-tntc-admin/30 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(244,63,94,0.2)]">
-                            <i data-lucide="power-off" class="w-5 h-5 text-tntc-admin drop-shadow-[0_0_5px_rgba(244,63,94,0.8)]"></i>
-                        </div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-tntc-admin mb-1">System Offline</p>
-                        <p class="text-[9px] font-bold text-tntc-textSecondary text-center tracking-wider">No active logistics detected.</p>
-                    </div>
-                `;
-                
-                // Only update the DOM if the HTML actually changed (prevents icon flickering)
-                if (lastRenderedDispatchHTML !== offlineHtml) {
-                    dispatchContainer.innerHTML = offlineHtml;
-                    lastRenderedDispatchHTML = offlineHtml;
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-            };
-
-            try {
-                const response = await fetch(TELEMETRY_API_URL);
-                
-                // If the server responds with a 404, 500, etc., trigger offline state
-                if (!response.ok) {
-                    throw new Error("Telemetry API returned an error status.");
-                }
-                
-                const data = await response.json();
-                
-                // Check if game is disconnected, payload is empty, or no job is loaded
-                if (!data || data.game?.connected === false || !data.job || Object.keys(data.job).length === 0 || data.job.cargo === "") {
-                    setOfflineState();
-                    return;
-                }
-                
-                // If we reach here, the game is running and a job exists. Extract variables safely:
-                let sourceCity = data.job.sourceCity || 'Unknown';
-                let sourceCompany = data.job.sourceCompany || 'Unknown';
-                let destCity = data.job.destinationCity || 'Unknown';
-                let destCompany = data.job.destinationCompany || 'Unknown';
-                let cargo = data.job.cargo || 'Unknown';
-                let dist = data.job.plannedDistanceKm ? data.job.plannedDistanceKm + ' km' : '0 km';
-                
-                // Update the top-right Badge to "LIVE"
-                if (dispatchBadge) {
-                    dispatchBadge.className = "text-[8px] bg-tntc-distance/10 text-tntc-distance border border-tntc-distance/30 px-2.5 py-1 rounded-full animate-pulse font-black tracking-widest shadow-[0_0_10px_rgba(74,222,128,0.2)]";
-                    dispatchBadge.innerText = "LIVE UPLINK";
-                }
-                
-                // Render Active Job UI
-                const activeHtml = `
-                    <div class="space-y-4 w-full">
-                        <!-- Source Block -->
-                        <div class="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5 relative overflow-hidden group hover:border-white/10 transition-colors">
-                            <div class="absolute left-0 top-0 w-1 h-full bg-tntc-accent/50"></div>
-                            <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:bg-white/10 transition-colors">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-tntc-textSecondary"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-[9px] text-tntc-textSecondary uppercase tracking-widest font-black mb-1">Departure</p>
-                                <h5 class="text-sm font-black text-white leading-tight truncate">${sourceCity}</h5>
-                                <p class="text-[10px] text-tntc-textSecondary font-bold truncate tracking-wider uppercase mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-1"></i> ${sourceCompany}</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Connecting Line -->
-                        <div class="flex justify-center -my-2 relative z-10">
-                            <div class="h-6 w-[2px] bg-gradient-to-b from-white/10 to-tntc-distance/30"></div>
-                        </div>
-                        
-                        <!-- Destination Block -->
-                        <div class="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-tntc-distance/10 relative overflow-hidden group hover:border-tntc-distance/30 transition-colors shadow-[0_0_15px_rgba(74,222,128,0.02)]">
-                            <div class="absolute left-0 top-0 w-1 h-full bg-tntc-distance/50"></div>
-                            <div class="w-10 h-10 rounded-full bg-tntc-distance/10 border border-tntc-distance/30 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(74,222,128,0.2)]">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-tntc-distance"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-[9px] text-tntc-distance uppercase tracking-widest font-black mb-1 drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Destination</p>
-                                <h5 class="text-sm font-black text-white leading-tight truncate">${destCity}</h5>
-                                <p class="text-[10px] text-tntc-textSecondary font-bold truncate tracking-wider uppercase mt-0.5"><i data-lucide="building-2" class="w-3 h-3 inline relative -top-[1px] mr-1"></i> ${destCompany}</p>
-                            </div>
-                        </div>
-
-                        <!-- Cargo & Target Metrics -->
-                        <div class="grid grid-cols-2 gap-3 mt-2">
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5 flex flex-col justify-center">
-                                <p class="text-[8px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="package" class="w-3 h-3"></i> Cargo</p>
-                                <p class="text-xs font-bold text-white truncate" title="${cargo}">${cargo}</p>
-                            </div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5 flex flex-col justify-center">
-                                <p class="text-[8px] text-tntc-textSecondary font-black uppercase tracking-widest mb-1 flex items-center gap-1"><i data-lucide="milestone" class="w-3 h-3"></i> Target</p>
-                                <p class="text-xs font-mono font-black text-tntc-accent drop-shadow-[0_0_5px_rgba(56,189,248,0.5)] truncate">${dist}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                // Update DOM only if data changed
-                if (lastRenderedDispatchHTML !== activeHtml) {
-                    dispatchContainer.innerHTML = activeHtml;
-                    lastRenderedDispatchHTML = activeHtml;
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-                
-            } catch (error) {
-                // Automatically caught if game closes, tracker shuts down, or fetch connection is refused
-                setOfflineState();
-            }
-        }
-
-        // Start polling every 3 seconds to ensure instant UI reset when the game closes
-        function startTelemetryPolling() {
-            if (telemetryPollInterval) clearInterval(telemetryPollInterval);
-            fetchActiveDispatch(); // Run immediately on load
-            telemetryPollInterval = setInterval(fetchActiveDispatch, 3000); 
-        }
-
-        setTimeout(() => window.switchTab('hub'), 100);
-    </script>
+    <script src="dashboard.js"></script>
 </body>
 </html>

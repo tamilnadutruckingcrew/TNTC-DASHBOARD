@@ -4,7 +4,7 @@
 
 // Add all your Job Log CSV URLs here inside the array for the Dashboard
 const DASHBOARD_JOB_URLS = [
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=524320100&single=true&output=csv", "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=811180534&single=true&output=csv"
 ];
 
 const EVENT_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSpKjd1H0M9L_J1CE7rWSgtWdlVjV13DS-GiZn2a_VIdoqULP9WH3djO-_BYUvQiaa0KNRXEoxyYN8/pub?gid=790817178&single=true&output=csv";

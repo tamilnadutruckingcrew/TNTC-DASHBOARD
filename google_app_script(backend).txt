@@ -1,230 +1,217 @@
-// ==========================================
-// TNTC Admin Backend - Strict Multi-DB Router (OPTIMIZED)
-// ==========================================
+// =============================================================================
+// TAMILNADU TRUCKING CREW (TNTC) - ENTERPRISE BACKEND GATEWAY
+// Engine: Google Apps Script (V8 Runtime)
+// Architectural Scope: Multi-Spreadsheet Orchestration & ETS2/TMP Telemetry Sync
+// Status: OPTIMIZED, CORS-STABLE & FAILSAFE ECONOMY
+// =============================================================================
 
-const DB_WEBSITE = "19ryICHTmtAp1dekGdF2wwq5b_oAKkgxxEEzLVApn4GQ"; // TNTC Website Database
-const DB_JOBS    = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y"; // Live Job Logs Sheet
-const DB_TOURS   = "1Z3Y6wf8YyS-15aIf-7PiGXqz5lEbfwHMYXNczWH8Mxg"; // TNTC Tour 1 Sheet
-const DB_EVENTS  = "1NhiUDmXIfy6BXnLcXhAv8Mmp6rmSKzvdI_eznlWbLsw"; // TNTC EVENT MONITOR Sheet
+// --- PRODUCTION DATABASE CLUSTERS ---
+const DB_WEBSITE           = "19ryICHTmtAp1dekGdF2wwq5b_oAKkgxxEEzLVApn4GQ"; // CMS, Users, News, Media, Approvals
+const DB_JOBS              = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y"; // High-throughput Telemetry Manifests
+const DB_TOURS             = "1Z3Y6wf8YyS-15aIf-7PiGXqz5lEbfwHMYXNczWH8Mxg"; // Dynamic Campaigns & Route Arrays
+const DB_EVENTS            = "1NhiUDmXIfy6BXnLcXhAv8Mmp6rmSKzvdI_eznlWbLsw"; // Convoys & Attendance Vectors
+const CARGO_SPREADSHEET_ID = "1Cjg1S_l9FVgtEKE4ddrx3UtAroj7tB4jarfx2Yledrs"; // Core Economy Matrix & Freight Tariffs
 
-// 🔴 YOUR NEW CARGO SPREADSHEET ID 🔴
-// (Use the exact ID of the spreadsheet that contains the "Cargo_Rates" tab)
-const CARGO_SPREADSHEET_ID = "1Cjg1S_l9FVgtEKE4ddrx3UtAroj7tB4jarfx2Yledrs"; 
+// =============================================================================
+// CORE HTTP HANDLERS (CORS SAFE)
+// =============================================================================
 
 function doOptions(e) {
-  const headers = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, GET, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "86400" };
-  return ContentService.createTextOutput("").setMimeType(ContentService.MimeType.JSON).setHeaders(headers);
+  // Native GAS CORS response. Do NOT use .setHeaders()
+  return ContentService.createTextOutput("")
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function createJsonResponse(responseObject) {
+  return ContentService.createTextOutput(JSON.stringify(responseObject))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
-  // If the request has an 'action' parameter, it's coming from the website (Login/Register)
-  if (e.parameter.action) {
-    try {
-      var result = handleWebsiteAction(e.parameter);
-      return ContentService.createTextOutput(JSON.stringify(result))
-                           .setMimeType(ContentService.MimeType.JSON);
-    } catch(err) {
-      return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
-                           .setMimeType(ContentService.MimeType.JSON);
-    }
-  }
+  const params = e.parameter || {};
   
-  // If it's a normal request, run the Admin Applications fetch
   try {
-    var action = e.parameter.action_admin; 
-    if(action === "GET_APPLICATIONS") {
-      var dbSheetObj = getTargetSheet("USERS_DB");
-      var dbSheet = dbSheetObj.sheet;
-      var data = dbSheet.getDataRange().getValues();
-      var pending = [];
-      if(data.length > 1) {
-        for(var i=1; i<data.length; i++) {
-          if(String(data[i][6]).toUpperCase() === 'PENDING') {
-            pending.push({
-               date: data[i][7], name: data[i][0], discord: data[i][2], 
-               tmpId: data[i][4], status: data[i][6], tracker: data[i][10]
-            });
-          }
-        }
-      }
-      return ContentService.createTextOutput(JSON.stringify({status: "success", data: pending})).setMimeType(ContentService.MimeType.JSON);
-    }
-    return ContentService.createTextOutput(JSON.stringify({status: "error", message: "Invalid action"})).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-// 🚀 HELPER FUNCTION FOR WEBSITE REQUESTS 🚀
-function handleWebsiteAction(params) {
-  var action = params.action;
-  
-  var dbSheetObj = getTargetSheet("USERS_DB");
-  var dbSheet = dbSheetObj.sheet;
-  
-  if (action === "LOGIN_USER") {
-    var user = params.username;
-    var pass = params.password;
+    const action = params.action || params.action_admin;
     
-    var data = dbSheet.getDataRange().getValues();
-    for (var i = 1; i < data.length; i++) {
-      if (String(data[i][0]).toUpperCase() === user.toUpperCase() && String(data[i][1]) === pass) {
-        if (String(data[i][6]).toUpperCase() !== 'ACTIVE') {
-          return { status: "error", message: "Account is pending approval or suspended." };
-        }
-        return { 
-          status: "success", 
-          user: { username: data[i][0], role: String(data[i][5]).toLowerCase(), trackerName: data[i][10] } 
-        };
-      }
-    }
-    return { status: "error", message: "Invalid username or password." };
-  }
-  
-  if (action === "REGISTER_USER") {
-    var user = params.username;
-    var data = dbSheet.getDataRange().getValues();
-    
-    // Check if username exists
-    if(data.length > 1) {
-      for(var i=1; i<data.length; i++) {
-        if(String(data[i][0]).toUpperCase() === user.toUpperCase()) {
-          return { status: "error", message: "Username already exists." };
-        }
-      }
+    if (!action) {
+      return createJsonResponse({ status: "error", message: "Missing directive action parameter." });
     }
     
-    // Add new user
-    var today = Utilities.formatDate(new Date(), "GMT+05:30", "MM/dd/yyyy");
-    dbSheet.appendRow([
-      user, params.password, params.discord, params.steamId, params.tmpId, 
-      "driver", "PENDING", today, "", params.reason, params.trackerName
-    ]);
+    // Website Authentication Handlers
+    if (action === "LOGIN_USER") {
+      return createJsonResponse(processWebsiteLogin(params));
+    }
+    if (action === "REGISTER_USER") {
+      return createJsonResponse(processWebsiteRegistration(params));
+    }
     
-    return { status: "success", message: "Application Submitted! Wait for Admin Approval." };
+    // Webapp Polling Queries
+    if (action === "GET_USERS") {
+      return handleGetUsers();
+    }
+    if (action === "GET_APPLICATIONS") {
+      return handleGetApplications();
+    }
+    
+    return createJsonResponse({ status: "error", message: "Unrecognized GET target." });
+  } catch (err) {
+    return createJsonResponse({ status: "error", message: err.toString() });
   }
-  
-  return { status: "error", message: "Unknown Action." };
 }
 
 function doPost(e) {
-  const headers = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, GET, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" };
-
   try {
+    if (!e.postData || !e.postData.contents) {
+      throw new Error("Null payload submitted.");
+    }
+    
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action;
-
-    // --- TRACKER WEBHOOK ACTION ---
-    if (action === "ADD_JOB") return handleAddJob(payload.data, headers);
-
-    // --- ECONOMY CONFIG ACTION ---
-    if (action === "UPDATE_CARGO_RATE") return handleUpdateCargoRate(payload.data, headers);
-
-    // --- USER MANAGEMENT ACTIONS ---
-    if (action === "REGISTER_USER") return handleRegisterUser(payload.data, headers);
-    if (action === "LOGIN_USER") return handleLoginUser(payload.data, headers);
-    if (action === "GET_USERS") return handleGetUsers(headers);
-    if (action === "APPROVE_USER") return handleApproveUser(payload.data, headers);
-    if (action === "MANAGE_USER") return handleManageUser(payload.data, headers);
-
-    // --- EXISTING ACTIONS ---
-    if (action === "ADD_EVENT") return handleAddEvent(payload.data, headers);
-    if (action === "UPDATE_EVENT") return handleUpdateEvent(payload.data, headers);
-    if (action === "DELETE_EVENT") return handleDeleteEvent(payload.data, headers);
+    const data = payload.data || {};
     
-    if (action === "CREATE_TOUR") return handleCreateTour(payload.data, headers);
-    if (action === "UPDATE_TOUR_STATUS") return handleUpdateTourStatus(payload.data, headers);
-    if (action === "UPDATE_TOUR_MASTER") return handleUpdateTourMaster(payload.data, headers);
-    if (action === "DELETE_TOUR") return handleDeleteTour(payload.data, headers);
-    
-    if (action === "UPDATE_ASSET") return handleUpdateAsset(payload.data, headers);
-    if (action === "ADD_NEWS") return handleAddNews(payload.data, headers);
-    if (action === "ADD_GALLERY") return handleAddGallery(payload.data, headers);
-    if (action === "SUBMIT_APPLICATION") return handleSubmitApplication(payload.data, headers);
-    
-    if (action === "DELETE_NEWS") return handleDeleteNews(payload.data, headers);
-    if (action === "DELETE_GALLERY") return handleDeleteGallery(payload.data, headers);
+    switch(action) {
+      // Telemetry & Economy
+      case "ADD_JOB":             return handleAddJob(data);
+      case "UPDATE_CARGO_RATE":   return handleUpdateCargoRate(data);
 
-    throw new Error("Invalid action provided.");
-  } catch (error) {
-    return createJsonResponse({ status: "error", message: error.message }, headers);
-  }
-}
+      // Identity & Permissions
+      case "LOGIN_USER":          return handleLoginUser(data);
+      case "REGISTER_USER":       return handleRegisterUser(data);
+      case "GET_USERS":           return handleGetUsers();
+      case "APPROVE_USER":        return handleApproveUser(data);
+      case "MANAGE_USER":         return handleManageUser(data);
 
-// ==========================================
-// CARGO-BASED ECONOMY CALCULATOR & TRACKER LOGIC
-// ==========================================
+      // Event Matrix
+      case "ADD_EVENT":           return handleAddEvent(data);
+      case "UPDATE_EVENT":        return handleUpdateEvent(data);
+      case "DELETE_EVENT":        return handleDeleteEvent(data);
 
-function handleUpdateCargoRate(data, headers) {
-  let { sheet } = getTargetSheet("Cargo_Rates"); 
-  
-  let headerRange = sheet.getRange(1, 1, 1, 5);
-  let headerRow = headerRange.getValues()[0];
-  
-  if (headerRow[0] !== "Cargo Name") { 
-    sheet.appendRow(["Cargo Name", "In-Game Category", "Weight", "Required DLC", "Base Price"]); 
-    sheet.setFrozenRows(1); 
-  }
+      // Tour Infrastructure
+      case "CREATE_TOUR":         return handleCreateTour(data);
+      case "UPDATE_TOUR_STATUS":  return handleUpdateTourStatus(data);
+      case "UPDATE_TOUR_MASTER":  return handleUpdateTourMaster(data);
+      case "DELETE_TOUR":         return handleDeleteTour(data);
 
-  const targetCargo = String(data.cargoName).trim().toUpperCase();
-  const newPrice = parseFloat(data.basePrice);
+      // Media & Intel Management
+      case "UPDATE_ASSET":        return handleUpdateAsset(data);
+      case "ADD_NEWS":            return handleAddNews(data);
+      case "DELETE_NEWS":         return handleDeleteNews(data);
+      case "ADD_GALLERY":         return handleAddGallery(data);
+      case "DELETE_GALLERY":      return handleDeleteGallery(data);
+      case "SUBMIT_APPLICATION":  return handleSubmitApplication(data);
 
-  const lastRow = sheet.getLastRow();
-  
-  if (lastRow > 1) {
-    const cargoNames = sheet.getRange(2, 1, lastRow - 1, 1).getValues(); 
-    for (let i = 0; i < cargoNames.length; i++) {
-      if (String(cargoNames[i][0]).trim().toUpperCase() === targetCargo) {
-        sheet.getRange(i + 2, 5).setValue(newPrice); 
-        return createJsonResponse({ status: "success" }, headers);
-      }
+      default:
+        throw new Error("Invalid command directive: " + action);
     }
+  } catch (error) {
+    return createJsonResponse({ status: "error", message: error.message });
   }
-  
-  // If not found, append a new row
-  sheet.appendRow([data.cargoName, "", "", "", newPrice]);
-  return createJsonResponse({ status: "success" }, headers);
 }
 
-function handleAddJob(data, headers) {
-  const ss = SpreadsheetApp.openById(CARGO_SPREADSHEET_ID);
-  const cargoRatesMap = getCargoRatesMap(ss);
+// =============================================================================
+// DATABASE ROUTING AND ISOLATION ENGINE
+// =============================================================================
+
+function getTargetSheet(sheetName) {
+  let targetId = "";
   
-  let { sheet: jobSheet } = getTargetSheet("Live_Job_Logs");
+  if (["Site_Assets", "Website_News", "Website_Gallery", "APPLICATIONS", "USERS_DB"].includes(sheetName)) {
+    targetId = DB_WEBSITE;
+  } else if (["Live_Job_Logs"].includes(sheetName)) {
+    targetId = DB_JOBS;
+  } else if (["Cargo_Rates"].includes(sheetName)) {
+    targetId = CARGO_SPREADSHEET_ID;
+  } else if (["ENTRY SHEET", "EVENT_RECORDS"].includes(sheetName)) {
+    targetId = DB_EVENTS;
+  } else {
+    // Falls back to Campaigns/Tours Spreadsheet for dynamic tables
+    targetId = DB_TOURS;
+  }
+  
+  try {
+    const ss = SpreadsheetApp.openById(targetId);
+    let sheet = ss.getSheetByName(sheetName);
+    if (!sheet) {
+      sheet = ss.insertSheet(sheetName);
+    }
+    return { sheet: sheet, ss: ss };
+  } catch (e) {
+    throw new Error(`DB_ROUTER_FAIL: Target ID [${targetId}] for Table [${sheetName}]: ${e.message}`);
+  }
+}
 
-  let cargoName = data.cargo || "Unknown";
-  let tonnage = data.mass ? (data.mass / 1000) : 0; 
-  let distance = data.driven_distance || 0;
-  let damage = data.cargo_damage || 0;
+// =============================================================================
+// ECONOMY CORE: METRICS PARSER & PAYOUT ENGINE
+// =============================================================================
 
-  let finalRevenue = calculateFinalRevenue(cargoName, tonnage, distance, damage, cargoRatesMap);
+function extractSafeNumber(val) {
+  if (val === null || val === undefined) return 0;
+  // Convert to string, strip everything except numbers and decimal point
+  const cleanStr = String(val).replace(/[^0-9.]/g, '');
+  const parsed = parseFloat(cleanStr);
+  return isNaN(parsed) ? 0 : parsed;
+}
 
-  let newRow = [];
-  newRow[0] = new Date().toLocaleString("en-US", {timeZone: "GMT+05:30"}); 
-  newRow[1] = data.job_id || Utilities.getUuid().split('-')[0];
-  newRow[2] = data.driver_name || "UNKNOWN";
-  newRow[3] = cargoName;
-  newRow[4] = tonnage.toFixed(1) + " t";
-  newRow[5] = data.source_city || "Unknown";
-  newRow[6] = data.source_company || "Unknown";
-  newRow[7] = data.dest_city || "Unknown";
-  newRow[8] = data.dest_company || "Unknown";
-  newRow[9] = data.truck || "Unknown";
-  newRow[10] = data.trailer || "Unknown";
-  newRow[11] = data.planned_distance || distance;
-  newRow[12] = distance;
-  newRow[13] = data.top_speed || 0;
-  newRow[14] = damage;
-  newRow[15] = finalRevenue; 
-  newRow[16] = data.auto_park ? "YES" : "NO";
-  newRow[17] = data.fuel_used || 0;
-  newRow[18] = data.duration || "0h 0m";
-  newRow[19] = data.avg_speed || 0;
-  newRow[20] = data.timeline || "Clean Drive";
+function handleAddJob(data) {
+  const cargoSs = SpreadsheetApp.openById(CARGO_SPREADSHEET_ID);
+  const cargoRatesMap = getCargoRatesMap(cargoSs);
+  const { sheet: jobSheet } = getTargetSheet("Live_Job_Logs");
+
+  const cargoName = data.cargo || "General Cargo";
+  const rawMass = extractSafeNumber(data.mass);
+  
+  // If the tracker emits in KG (e.g., 20000kg), adjust to Tonnes. If <= 100, assume Tonnes.
+  const tonnes = rawMass > 100 ? (rawMass / 1000) : rawMass; 
+  const distance = extractSafeNumber(data.driven_distance);
+  const damagePercentage = extractSafeNumber(data.cargo_damage);
+
+  // Dynamic Payout Fix
+  const finalCalculatedRevenue = calculateJobRevenue(cargoName, tonnes, distance, damagePercentage, cargoRatesMap);
+
+  // Initialize Sheet Layout if empty
+  if (jobSheet.getLastRow() === 0) {
+    jobSheet.appendRow([
+      "Timestamp", "Job ID", "Driver", "Cargo", "Weight", 
+      "Source City", "Source Co", "Dest City", "Dest Co", 
+      "Truck", "Trailer", "Planned Dist", "Driven Dist", 
+      "Top Speed", "Damage %", "Revenue (€)", "Auto Park", 
+      "Fuel Used", "Duration", "Avg Speed", "Timeline"
+    ]);
+    jobSheet.setFrozenRows(1);
+  }
+
+  const newRow = [
+    Utilities.formatDate(new Date(), "GMT+05:30", "dd-MMM-yyyy hh:mm a"),
+    data.job_id || Utilities.getUuid().split('-')[0].toUpperCase(),
+    data.driver_name || "UNKNOWN",
+    cargoName,
+    tonnes.toFixed(1) + " t",
+    data.source_city || "Unknown",
+    data.source_company || "Unknown",
+    data.dest_city || "Unknown",
+    data.dest_company || "Unknown",
+    data.truck || "Fleet Standard",
+    data.trailer || "Default Platform",
+    extractSafeNumber(data.planned_distance) || distance,
+    distance,
+    extractSafeNumber(data.top_speed),
+    damagePercentage,
+    finalCalculatedRevenue, // Overwritten dynamically with safe math
+    data.auto_park ? "YES" : "NO",
+    extractSafeNumber(data.fuel_used),
+    data.duration || "0h 0m",
+    extractSafeNumber(data.avg_speed),
+    data.timeline || "Clean Drive"
+  ];
 
   jobSheet.appendRow(newRow);
 
-  return createJsonResponse({ status: "success", calculated_revenue: finalRevenue }, headers);
+  return createJsonResponse({ 
+    status: "success", 
+    calculated_revenue: finalCalculatedRevenue,
+    distance_logged: distance,
+    tonnes_evaluated: tonnes
+  });
 }
 
 function getCargoRatesMap(ss) {
@@ -235,249 +222,326 @@ function getCargoRatesMap(ss) {
 
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    let rawCargoName = data[i][0];
-    let rawBasePrice = data[i][4]; // INDEX 4 is Column E!
+    const rawCargoName = data[i][0];
+    const rawBasePrice = data[i][4]; // Index 4 == Column E
     
     if (rawCargoName) {
-      let cargoName = String(rawCargoName).trim().toUpperCase();
-      let basePrice = parseFloat(rawBasePrice);
-      if (!isNaN(basePrice)) cargoMap.set(cargoName, basePrice);
+      const cargoKey = String(rawCargoName).trim().toUpperCase();
+      const basePrice = extractSafeNumber(rawBasePrice);
+      
+      // CRITICAL: Do not add to map if the price is 0, empty, or invalid
+      if (basePrice > 0) {
+        cargoMap.set(cargoKey, basePrice);
+      }
     }
   }
   return cargoMap;
 }
 
-function calculateFinalRevenue(cargoName, tonnage, distanceKm, damagePercent, cargoRatesMap) {
-  const DEFAULT_BASE_PRICE = 2.5; 
+function calculateJobRevenue(cargoName, tonnes, distance, damagePercentage, cargoRatesMap) {
+  const DEFAULT_BASE_RATE = 6.50; // Fallback unit tariff
+  const MAX_CAPPED_DISTANCE = 3000; // Prevent macro glitches
   
-  const safeCargoName = String(cargoName || "").trim().toUpperCase();
-  const safeTonnage = parseFloat(tonnage) || 0;
-  const safeDistance = parseFloat(distanceKm) || 0;
-  const safeDamage = parseFloat(damagePercent) || 0;
+  const safeCargoKey = String(cargoName || "").trim().toUpperCase();
+  const safeTonnes = Math.max(0.1, extractSafeNumber(tonnes)); // Ensure at least 0.1t to prevent *0 wiping out revenue
+  const rawDist = extractSafeNumber(distance);
+  const cappedDistance = Math.min(rawDist, MAX_CAPPED_DISTANCE);
+  const safeDamage = Math.min(100, Math.max(0, extractSafeNumber(damagePercentage)));
 
-  const basePrice = cargoRatesMap.has(safeCargoName) ? cargoRatesMap.get(safeCargoName) : DEFAULT_BASE_PRICE;
-  const grossRevenue = basePrice * safeTonnage * safeDistance;
-  const damageDeduction = grossRevenue * (safeDamage / 100);
+  let baseRate = cargoRatesMap.has(safeCargoKey) ? cargoRatesMap.get(safeCargoKey) : 0;
   
-  let finalRevenue = grossRevenue - damageDeduction;
+  // CRITICAL: Absolute fallback. Never allow baseRate to be 0 or undefined.
+  if (!baseRate || baseRate <= 0) {
+    baseRate = DEFAULT_BASE_RATE;
+  }
+
+  // Revenue Engine: Gross Value = Base Rate * Tonnes * Capped Distance
+  const grossValue = baseRate * safeTonnes * cappedDistance;
   
-  return Math.max(0, Math.round(finalRevenue)); 
+  // Damage Penalty: Deduct linearly proportional to the load's integrity loss
+  const penalty = grossValue * (safeDamage / 100);
+  const finalPayout = Math.max(0, Math.round(grossValue - penalty));
+
+  return finalPayout;
 }
 
-
-// ==========================================
-// --- STRICT MULTI-DB ROUTER ---
-// ==========================================
-function getTargetSheet(sheetName) {
-  let targetId = "";
-  if (["Site_Assets", "Website_News", "Website_Gallery", "APPLICATIONS", "USERS_DB"].includes(sheetName)) {
-    targetId = DB_WEBSITE;
-  } else if (["Live_Job_Logs"].includes(sheetName)) {
-    targetId = DB_JOBS;
-  } else if (["Cargo_Rates"].includes(sheetName)) { // EXACT MAP FOR CARGO RATES
-    targetId = CARGO_SPREADSHEET_ID; 
-  } else if (["ENTRY SHEET", "EVENT_RECORDS"].includes(sheetName)) {
-    targetId = DB_EVENTS;
-  } else {
-    targetId = DB_TOURS;
-  }
+function handleUpdateCargoRate(data) {
+  const { sheet } = getTargetSheet("Cargo_Rates");
   
-  try {
-    let ss = SpreadsheetApp.openById(targetId);
-    let sheet = ss.getSheetByName(sheetName);
-    if (sheet) return { sheet: sheet, ss: ss };
-    return { sheet: ss.insertSheet(sheetName), ss: ss };
-  } catch(e) {
-    throw new Error("Routing Error: Could not open Spreadsheet ID: " + targetId + " for sheet: " + sheetName + ".");
-  }
-}
-
-function getColLetter(colIdx) {
-  let letter = '';
-  while (colIdx > 0) {
-    let temp = (colIdx - 1) % 26;
-    letter = String.fromCharCode(temp + 65) + letter;
-    colIdx = (colIdx - temp - 1) / 26;
-  }
-  return letter;
-}
-
-// ==========================================
-// USER MANAGEMENT SYSTEM
-// ==========================================
-
-function handleRegisterUser(data, headers) {
-  let { sheet } = getTargetSheet("USERS_DB");
-  let headerRow = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
-  if(headerRow[0] !== "USERNAME") { 
-      sheet.appendRow(["USERNAME", "PASSWORD", "DISCORD", "STEAM", "TMP", "ROLE", "STATUS", "JOIN_DATE", "END_DATE", "REASON", "TRACKER_NAME"]); 
-      sheet.setFrozenRows(1); 
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Cargo Name", "In-Game Category", "Weight", "Required DLC", "Base Price"]);
+    sheet.setFrozenRows(1);
   }
 
-  let values = sheet.getDataRange().getValues();
-  for(let i = 1; i < values.length; i++) {
-      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
-          throw new Error("Username already taken! Please choose another.");
-      }
-      if(values[i][10] && String(values[i][10]).toUpperCase() === String(data.trackerName).toUpperCase()) {
-          throw new Error("This Tracker Name is already registered to another driver!");
-      }
+  const targetCargo = String(data.cargoName).trim().toUpperCase();
+  const newPrice = extractSafeNumber(data.basePrice);
+
+  if (newPrice <= 0) {
+    throw new Error("Invalid base price decimal provided. Must be greater than 0.");
   }
 
-  sheet.appendRow([data.username, data.password, data.discord, data.steamId, data.tmpId, "RIDER", "PENDING", "", "", data.reason, data.trackerName || data.username]);
-  return createJsonResponse({status:"success", message: "Application submitted for review!"}, headers);
-}
-
-function handleLoginUser(data, headers) {
-  let { sheet } = getTargetSheet("USERS_DB");
-  let values = sheet.getDataRange().getValues();
-  
-  if (data.username === "MASTER" && data.password === "TNTC@LEADER") {
-      return createJsonResponse({ status: "success", user: { username: "MASTER", trackerName: "MASTER", role: "leader", status: "ACTIVE" } }, headers);
-  }
-
-  for(let i = 1; i < values.length; i++) {
-      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
-          if (String(values[i][1]) === String(data.password)) {
-              let status = String(values[i][6]).toUpperCase();
-              if (status === "PENDING") throw new Error("Your account is still waiting for Admin approval.");
-              if (status === "SUSPENDED" || status === "LEFT") throw new Error("This account has been deactivated.");
-              
-              let roleStr = String(values[i][5]).toLowerCase();
-              let trackerName = values[i][10] || values[i][0];
-
-              return createJsonResponse({ 
-                  status: "success", 
-                  user: { username: values[i][0], trackerName: trackerName, role: roleStr, discord: values[i][2], joinDate: values[i][7] } 
-              }, headers);
-          } else {
-              throw new Error("Invalid password.");
-          }
-      }
-  }
-  throw new Error("User not found.");
-}
-
-function handleGetUsers(headers) {
-  let { sheet } = getTargetSheet("USERS_DB");
-  let values = sheet.getDataRange().getValues();
-  let users = [];
-  
-  for(let i=1; i<values.length; i++) {
-      users.push({
-          username: values[i][0], discord: values[i][2], steam: values[i][3], tmp: values[i][4],
-          role: values[i][5], status: values[i][6], joinDate: values[i][7], reason: values[i][9],
-          trackerName: values[i][10] || values[i][0]
-      });
-  }
-  return createJsonResponse({status:"success", data: users}, headers);
-}
-
-function handleApproveUser(data, headers) {
-  let { sheet } = getTargetSheet("USERS_DB");
-  let values = sheet.getDataRange().getValues();
-  
-  for(let i=1; i<values.length; i++) {
-      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
-          
-          let currentDate = new Date().toLocaleDateString();
-          sheet.getRange(i+1, 6).setValue("RIDER");
-          sheet.getRange(i+1, 7).setValue("ACTIVE");
-          sheet.getRange(i+1, 8).setValue(currentDate);
-          
-          let trackerName = values[i][10] || data.username;
-
-          try {
-              let { sheet: evSheet } = getTargetSheet("ENTRY SHEET");
-              let dataRange = evSheet.getRange(1, 1, 5, evSheet.getLastColumn()).getValues();
-              let headerRowIndex = 1; 
-              
-              for(let r=0; r<5; r++) {
-                 if(String(dataRange[r][1]).toUpperCase().includes('DATE') || String(dataRange[r][2]).toUpperCase().includes('EVENT')) {
-                     headerRowIndex = r + 1; 
-                     break;
-                 }
-              }
-              let nextCol = evSheet.getLastColumn() + 1;
-              evSheet.getRange(headerRowIndex, nextCol).setValue(trackerName);
-          } catch(err) {}
-          
-          return createJsonResponse({status:"success"}, headers);
-      }
-  }
-  throw new Error("User not found in database.");
-}
-
-function handleManageUser(data, headers) {
-  let { sheet } = getTargetSheet("USERS_DB");
-  let values = sheet.getDataRange().getValues();
-  
-  for(let i=1; i<values.length; i++) {
-      if(String(values[i][0]).toUpperCase() === String(data.username).toUpperCase()) {
-          
-          if (data.actionType === "CHANGE_ROLE") {
-              sheet.getRange(i+1, 6).setValue(data.newRole.toUpperCase());
-          } 
-          else if (data.actionType === "SUSPEND") {
-              sheet.getRange(i+1, 7).setValue("SUSPENDED");
-              sheet.getRange(i+1, 9).setValue(new Date().toLocaleString());
-          }
-          else if (data.actionType === "LEFT") {
-              sheet.getRange(i+1, 7).setValue("LEFT");
-              sheet.getRange(i+1, 9).setValue(new Date().toLocaleString());
-          }
-          return createJsonResponse({status:"success"}, headers);
-      }
-  }
-  throw new Error("User not found.");
-}
-
-
-// ==========================================
-// EXISTING ACTIONS
-// ==========================================
-
-function handleUpdateAsset(data, headers) {
-  let { sheet } = getTargetSheet("Site_Assets");
-  let headerRow = sheet.getRange(1, 1, 1, 2).getValues()[0];
-  if(headerRow[0] !== "Asset_Name") { sheet.appendRow(["Asset_Name", "Image_URL"]); sheet.setFrozenRows(1); }
-
-  const assetKey = String(data.assetKey).trim().toUpperCase();
-  const newUrl = String(data.newUrl).trim();
-  
   const lastRow = sheet.getLastRow();
   if (lastRow > 1) {
-    const values = sheet.getRange(2, 1, lastRow - 1, 2).getValues();
-    for (let i = 0; i < values.length; i++) {
-      if (String(values[i][0]).trim().toUpperCase() === assetKey) {
-        sheet.getRange(i + 2, 2).setValue(newUrl);
-        return createJsonResponse({ status: "success" }, headers);
+    const cargoRange = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (let i = 0; i < cargoRange.length; i++) {
+      if (String(cargoRange[i][0]).trim().toUpperCase() === targetCargo) {
+        sheet.getRange(i + 2, 5).setValue(newPrice);
+        return createJsonResponse({ status: "success", action: "UPDATED", cargo: targetCargo, price: newPrice });
       }
     }
   }
-  
-  sheet.appendRow([assetKey, newUrl]);
-  return createJsonResponse({ status: "success" }, headers);
+
+  sheet.appendRow([data.cargoName, "Custom Category", "Standard", "Base Game", newPrice]);
+  return createJsonResponse({ status: "success", action: "INSERTED", cargo: data.cargoName, price: newPrice });
 }
 
-function handleAddEvent(data, headers) {
-  let { sheet } = getTargetSheet("ENTRY SHEET"); 
-  
-  let dataRange = sheet.getRange(1, 1, 5, sheet.getLastColumn()).getValues();
-  let headerRow = [];
-  let headerRowIndex = 1; 
-  
-  for(let i=0; i<5; i++) {
-     if(String(dataRange[i][1]).toUpperCase().includes('DATE') || String(dataRange[i][2]).toUpperCase().includes('EVENT')) {
-         headerRow = dataRange[i];
-         headerRowIndex = i + 1; 
-         break;
-     }
-  }
-  if(headerRow.length === 0) headerRow = dataRange[0]; 
+// =============================================================================
+// IDENTITY, ROLES & CLEARANCE PIPELINE
+// =============================================================================
 
-  let newRow = new Array(headerRow.length).fill("");
-  newRow[0] = ""; 
+function handleRegisterUser(data) {
+  const { sheet } = getTargetSheet("USERS_DB");
+  
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["USERNAME", "PASSWORD", "DISCORD", "STEAM", "TMP", "ROLE", "STATUS", "JOIN_DATE", "END_DATE", "REASON", "TRACKER_NAME"]);
+    sheet.setFrozenRows(1);
+  }
+
+  const values = sheet.getDataRange().getValues();
+  const requestedUser = String(data.username).trim().toUpperCase();
+  const requestedTracker = String(data.trackerName || data.username).trim().toUpperCase();
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim().toUpperCase() === requestedUser) {
+      throw new Error("Username already allocated across network.");
+    }
+    if (values[i][10] && String(values[i][10]).trim().toUpperCase() === requestedTracker) {
+      throw new Error("Tracker ID collision: Telemetry callsign is already reserved.");
+    }
+  }
+
+  const timestamp = Utilities.formatDate(new Date(), "GMT+05:30", "yyyy-MM-dd");
+  sheet.appendRow([
+    data.username,
+    data.password,
+    data.discord || "",
+    data.steamId || "",
+    data.tmpId || "",
+    "RIDER",
+    "PENDING",
+    timestamp,
+    "",
+    data.reason || "",
+    data.trackerName || data.username
+  ]);
+
+  return createJsonResponse({ status: "success", message: "Application submitted for Command review." });
+}
+
+function handleLoginUser(data) {
+  const { sheet } = getTargetSheet("USERS_DB");
+  const values = sheet.getDataRange().getValues();
+  
+  if (data.username === "MASTER" && data.password === "TNTC@LEADER") {
+    return createJsonResponse({
+      status: "success",
+      user: { username: "MASTER", trackerName: "MASTER", role: "leader", status: "ACTIVE" }
+    });
+  }
+
+  const inputUser = String(data.username).trim().toUpperCase();
+  const inputPass = String(data.password);
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim().toUpperCase() === inputUser) {
+      if (String(values[i][1]) === inputPass) {
+        const userStatus = String(values[i][6]).toUpperCase();
+        if (userStatus === "PENDING") throw new Error("Clearance status: PENDING. Verification underway.");
+        if (userStatus === "SUSPENDED" || userStatus === "LEFT") throw new Error("Security clearance REVOKED. Access terminated.");
+        
+        return createJsonResponse({
+          status: "success",
+          user: {
+            username: values[i][0],
+            trackerName: values[i][10] || values[i][0],
+            role: String(values[i][5]).toLowerCase(),
+            discord: values[i][2],
+            joinDate: values[i][7]
+          }
+        });
+      } else {
+        throw new Error("Invalid password signature.");
+      }
+    }
+  }
+  throw new Error("Operative not found within network roster.");
+}
+
+function handleGetUsers() {
+  const { sheet } = getTargetSheet("USERS_DB");
+  const values = sheet.getDataRange().getValues();
+  const users = [];
+
+  for (let i = 1; i < values.length; i++) {
+    users.push({
+      username: values[i][0],
+      discord: values[i][2],
+      steam: values[i][3],
+      tmp: values[i][4],
+      role: values[i][5],
+      status: values[i][6],
+      joinDate: values[i][7],
+      reason: values[i][9],
+      trackerName: values[i][10] || values[i][0]
+    });
+  }
+  return createJsonResponse({ status: "success", data: users });
+}
+
+function handleApproveUser(data) {
+  const { sheet } = getTargetSheet("USERS_DB");
+  const values = sheet.getDataRange().getValues();
+  const targetUser = String(data.username).trim().toUpperCase();
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim().toUpperCase() === targetUser) {
+      const today = Utilities.formatDate(new Date(), "GMT+05:30", "yyyy-MM-dd");
+      sheet.getRange(i + 1, 6).setValue("RIDER");
+      sheet.getRange(i + 1, 7).setValue("ACTIVE");
+      sheet.getRange(i + 1, 8).setValue(today);
+
+      const trackerName = values[i][10] || values[i][0];
+
+      try {
+        const { sheet: evSheet } = getTargetSheet("ENTRY SHEET");
+        const headersRange = evSheet.getRange(1, 1, 5, evSheet.getLastColumn()).getValues();
+        let headerRowIndex = 1;
+
+        for (let r = 0; r < 5; r++) {
+          if (String(headersRange[r][1]).toUpperCase().includes('DATE') || String(headersRange[r][2]).toUpperCase().includes('EVENT')) {
+            headerRowIndex = r + 1;
+            break;
+          }
+        }
+        
+        const currentHeaders = evSheet.getRange(headerRowIndex, 1, 1, evSheet.getLastColumn()).getValues()[0];
+        let exists = false;
+        for (let c = 6; c < currentHeaders.length; c++) {
+          if (String(currentHeaders[c]).trim().toUpperCase() === trackerName.toUpperCase()) {
+            exists = true;
+            break;
+          }
+        }
+        if (!exists) {
+          const nextCol = evSheet.getLastColumn() + 1;
+          evSheet.getRange(headerRowIndex, nextCol).setValue(trackerName);
+        }
+      } catch (err) {}
+
+      return createJsonResponse({ status: "success", authorized_user: targetUser });
+    }
+  }
+  throw new Error("Target user non-existent in authorization database.");
+}
+
+function handleManageUser(data) {
+  const { sheet } = getTargetSheet("USERS_DB");
+  const values = sheet.getDataRange().getValues();
+  const targetUser = String(data.username).trim().toUpperCase();
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim().toUpperCase() === targetUser) {
+      if (data.actionType === "CHANGE_ROLE") {
+        sheet.getRange(i + 1, 6).setValue(data.newRole.toUpperCase());
+      } else if (data.actionType === "SUSPEND") {
+        sheet.getRange(i + 1, 7).setValue("SUSPENDED");
+        sheet.getRange(i + 1, 9).setValue(new Date().toISOString());
+      } else if (data.actionType === "LEFT") {
+        sheet.getRange(i + 1, 7).setValue("LEFT");
+        sheet.getRange(i + 1, 9).setValue(new Date().toISOString());
+      }
+      return createJsonResponse({ status: "success", managed: targetUser });
+    }
+  }
+  throw new Error("Target operative not found.");
+}
+
+// Direct GET Handlers (Web App / API Sync)
+function processWebsiteLogin(params) {
+  const { sheet } = getTargetSheet("USERS_DB");
+  const user = String(params.username).trim().toUpperCase();
+  const pass = String(params.password);
+  
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim().toUpperCase() === user && String(data[i][1]) === pass) {
+      if (String(data[i][6]).toUpperCase() !== 'ACTIVE') {
+        return { status: "error", message: "Account pending Command clearance or suspended." };
+      }
+      return { 
+        status: "success", 
+        user: { username: data[i][0], role: String(data[i][5]).toLowerCase(), trackerName: data[i][10] } 
+      };
+    }
+  }
+  return { status: "error", message: "Invalid operative credentials." };
+}
+
+function processWebsiteRegistration(params) {
+  return handleRegisterUser({
+    username: params.username,
+    password: params.password,
+    discord: params.discord,
+    steamId: params.steamId,
+    tmpId: params.tmpId,
+    reason: params.reason,
+    trackerName: params.trackerName
+  });
+}
+
+function handleGetApplications() {
+  const { sheet } = getTargetSheet("USERS_DB");
+  const data = sheet.getDataRange().getValues();
+  const pending = [];
+  
+  if (data.length > 1) {
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][6]).toUpperCase() === 'PENDING') {
+        pending.push({
+          date: data[i][7],
+          name: data[i][0],
+          discord: data[i][2],
+          tmpId: data[i][4],
+          status: data[i][6],
+          tracker: data[i][10]
+        });
+      }
+    }
+  }
+  return createJsonResponse({ status: "success", data: pending });
+}
+
+// =============================================================================
+// CONVOY & EVENT ATTENDANCE ENGINE
+// =============================================================================
+
+function handleAddEvent(data) {
+  const { sheet } = getTargetSheet("ENTRY SHEET");
+  const dataRange = sheet.getRange(1, 1, 5, sheet.getLastColumn()).getValues();
+  let headerRow = [];
+  let headerRowIndex = 1;
+
+  for (let i = 0; i < 5; i++) {
+    if (String(dataRange[i][1]).toUpperCase().includes('DATE') || String(dataRange[i][2]).toUpperCase().includes('EVENT')) {
+      headerRow = dataRange[i];
+      headerRowIndex = i + 1;
+      break;
+    }
+  }
+  if (headerRow.length === 0) headerRow = dataRange[0];
+
+  const newRow = new Array(headerRow.length).fill("");
+  newRow[0] = "";
   newRow[1] = data.date || "";
   newRow[2] = data.eventName || "";
   newRow[3] = data.link || "";
@@ -485,62 +549,62 @@ function handleAddEvent(data, headers) {
   newRow[5] = data.imageLink || "";
 
   if (data.attendedDrivers && Array.isArray(data.attendedDrivers)) {
-      for (let i = 6; i < headerRow.length; i++) {
-        let driverName = String(headerRow[i]).toUpperCase().trim();
-        if (driverName && driverName !== "UNKNOWN" && !driverName.includes('ATTENDANCE')) {
-            if (data.attendedDrivers.includes(driverName)) newRow[i] = true; 
-            else newRow[i] = false; 
-        }
+    const attendedSet = new Set(data.attendedDrivers.map(d => String(d).trim().toUpperCase()));
+    for (let i = 6; i < headerRow.length; i++) {
+      const driverName = String(headerRow[i]).toUpperCase().trim();
+      if (driverName && driverName !== "UNKNOWN" && !driverName.includes('ATTENDANCE')) {
+        newRow[i] = attendedSet.has(driverName);
       }
+    }
   }
-  
-  let lastDataRow = sheet.getLastRow();
-  let searchLimit = Math.max(lastDataRow, headerRowIndex + 1);
-  let colC = sheet.getRange(1, 3, searchLimit, 1).getValues(); 
-  let targetRow = lastDataRow + 1; 
-  
+
+  const lastDataRow = sheet.getLastRow();
+  const searchLimit = Math.max(lastDataRow, headerRowIndex + 1);
+  const colC = sheet.getRange(1, 3, searchLimit, 1).getValues();
+  let targetRow = lastDataRow + 1;
+
   for (let r = headerRowIndex; r < colC.length; r++) {
-      if (String(colC[r][0]).trim() === "") {
-          targetRow = r + 1; 
-          break;
-      }
+    if (String(colC[r][0]).trim() === "") {
+      targetRow = r + 1;
+      break;
+    }
   }
-  
+
   sheet.getRange(targetRow, 1, 1, newRow.length).setValues([newRow]);
-  return createJsonResponse({ status: "success" }, headers);
+  return createJsonResponse({ status: "success", row: targetRow });
 }
 
-function handleUpdateEvent(data, headers) {
-  let { sheet } = getTargetSheet("ENTRY SHEET");
-  let dataRange = sheet.getRange(1, 1, 5, sheet.getLastColumn()).getValues();
+function handleUpdateEvent(data) {
+  const { sheet } = getTargetSheet("ENTRY SHEET");
+  const dataRange = sheet.getRange(1, 1, 5, sheet.getLastColumn()).getValues();
   let headerRow = [];
-  let headerRowIndex = 1; 
-  
-  for(let i=0; i<5; i++) {
-     if(String(dataRange[i][1]).toUpperCase().includes('DATE') || String(dataRange[i][2]).toUpperCase().includes('EVENT')) {
-         headerRow = dataRange[i];
-         headerRowIndex = i + 1; 
-         break;
-     }
-  }
-  if(headerRow.length === 0) headerRow = dataRange[0];
+  let headerRowIndex = 1;
 
-  let lastDataRow = sheet.getLastRow();
-  let searchLimit = Math.max(lastDataRow, headerRowIndex + 1);
-  let colC = sheet.getRange(1, 3, searchLimit, 1).getValues(); 
+  for (let i = 0; i < 5; i++) {
+    if (String(dataRange[i][1]).toUpperCase().includes('DATE') || String(dataRange[i][2]).toUpperCase().includes('EVENT')) {
+      headerRow = dataRange[i];
+      headerRowIndex = i + 1;
+      break;
+    }
+  }
+  if (headerRow.length === 0) headerRow = dataRange[0];
+
+  const lastDataRow = sheet.getLastRow();
+  const searchLimit = Math.max(lastDataRow, headerRowIndex + 1);
+  const colC = sheet.getRange(1, 3, searchLimit, 1).getValues();
   let targetRow = -1;
 
   for (let r = headerRowIndex; r < colC.length; r++) {
-      if (String(colC[r][0]).trim() === String(data.originalName).trim()) {
-          targetRow = r + 1;
-          break;
-      }
+    if (String(colC[r][0]).trim() === String(data.originalName).trim()) {
+      targetRow = r + 1;
+      break;
+    }
   }
 
-  if (targetRow === -1) throw new Error("Original event not found to update.");
+  if (targetRow === -1) throw new Error("Target event record missing from database.");
 
-  let updateRow = new Array(headerRow.length).fill("");
-  updateRow[0] = ""; 
+  const updateRow = new Array(headerRow.length).fill("");
+  updateRow[0] = "";
   updateRow[1] = data.date || "";
   updateRow[2] = data.eventName || "";
   updateRow[3] = data.link || "";
@@ -548,190 +612,726 @@ function handleUpdateEvent(data, headers) {
   updateRow[5] = data.imageLink || "";
 
   if (data.attendedDrivers && Array.isArray(data.attendedDrivers)) {
-      for (let i = 6; i < headerRow.length; i++) {
-        let driverName = String(headerRow[i]).toUpperCase().trim();
-        if (driverName && driverName !== "UNKNOWN" && !driverName.includes('ATTENDANCE')) {
-            if (data.attendedDrivers.includes(driverName)) updateRow[i] = true; 
-            else updateRow[i] = false; 
-        }
+    const attendedSet = new Set(data.attendedDrivers.map(d => String(d).trim().toUpperCase()));
+    for (let i = 6; i < headerRow.length; i++) {
+      const driverName = String(headerRow[i]).toUpperCase().trim();
+      if (driverName && driverName !== "UNKNOWN" && !driverName.includes('ATTENDANCE')) {
+        updateRow[i] = attendedSet.has(driverName);
       }
+    }
   }
 
   sheet.getRange(targetRow, 1, 1, updateRow.length).setValues([updateRow]);
-  return createJsonResponse({ status: "success" }, headers);
+  return createJsonResponse({ status: "success", updatedRow: targetRow });
 }
 
-function handleDeleteEvent(data, headers) {
-  let { sheet } = getTargetSheet("ENTRY SHEET");
-  let lastDataRow = sheet.getLastRow();
-  let colC = sheet.getRange(1, 3, lastDataRow, 1).getValues(); 
-  
+function handleDeleteEvent(data) {
+  const { sheet } = getTargetSheet("ENTRY SHEET");
+  const lastDataRow = sheet.getLastRow();
+  const colC = sheet.getRange(1, 3, lastDataRow, 1).getValues();
+
   for (let r = colC.length - 1; r >= 0; r--) {
-      if (String(colC[r][0]).trim() === String(data.eventName).trim()) {
-          sheet.deleteRow(r + 1);
-          return createJsonResponse({ status: "success" }, headers);
-      }
+    if (String(colC[r][0]).trim() === String(data.eventName).trim()) {
+      sheet.deleteRow(r + 1);
+      return createJsonResponse({ status: "success", purged: data.eventName });
+    }
   }
-  throw new Error("Event not found to delete.");
+  throw new Error("Event targeted for deletion does not exist.");
 }
 
-function handleCreateTour(data, headers) {
-  let { sheet: masterSheet, ss } = getTargetSheet("TOUR_MASTER");
-  const tourName = data.tourName || `Tour_${new Date().getTime()}`;
-  if (ss.getSheetByName(tourName)) throw new Error(`Tour '${tourName}' already exists.`);
+// =============================================================================
+// CAMPAIGN INFRASTRUCTURE & DISPATCH SYSTEM
+// =============================================================================
+
+function handleCreateTour(data) {
+  const { sheet: masterSheet, ss } = getTargetSheet("TOUR_MASTER");
+  const tourName = data.tourName || `Tour_${Date.now()}`;
+  
+  if (ss.getSheetByName(tourName)) {
+    throw new Error(`Campaign ID Conflict: '${tourName}' table already active.`);
+  }
 
   let driverNames = [];
-  let { sheet: jobSheet } = getTargetSheet("Live_Job_Logs");
-  
-  if (jobSheet) {
-      let lastRow = jobSheet.getLastRow();
-      if (lastRow > 1) {
-          let jobData = jobSheet.getRange(2, 1, lastRow - 1, 3).getValues(); 
-          let driverMap = new Map();
-          
-          let thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          
-          jobData.forEach(row => {
-              let dateVal = new Date(row[0]);
-              let name = String(row[2]).trim();
-              if (name && name.toUpperCase() !== 'UNKNOWN' && !isNaN(dateVal.getTime())) {
-                  if (dateVal >= thirtyDaysAgo) { driverMap.set(name.toUpperCase(), name); }
-              }
-          });
-          driverNames = Array.from(driverMap.values()).sort();
+  const { sheet: jobSheet } = getTargetSheet("Live_Job_Logs");
+
+  if (jobSheet && jobSheet.getLastRow() > 1) {
+    const jobData = jobSheet.getRange(2, 1, jobSheet.getLastRow() - 1, 3).getValues();
+    const driverMap = new Map();
+    const thresholdDate = new Date();
+    thresholdDate.setDate(thresholdDate.getDate() - 30);
+
+    jobData.forEach(row => {
+      const dateVal = new Date(row[0]);
+      const name = String(row[2]).trim();
+      if (name && name.toUpperCase() !== 'UNKNOWN' && !isNaN(dateVal.getTime())) {
+        if (dateVal >= thresholdDate) {
+          driverMap.set(name.toUpperCase(), name);
+        }
       }
+    });
+    driverNames = Array.from(driverMap.values()).sort();
   }
-  
-  if (driverNames.length === 0) driverNames = ["MADHANRAJ", "ASHWANTH", "YUVANESH"];
+
+  if (driverNames.length === 0) {
+    driverNames = ["FLEET_COMMAND", "SQUAD_ALPHA", "SQUAD_BRAVO"];
+  }
 
   const newSheet = ss.insertSheet(tourName);
-  let tourHeaders = ["S NO", "SOURCE CITY", "SOURCE COMPANY", "DEST CITY", "DEST COMPANY", "DISTANCE (KM)", "IMAGE LINK"].concat(driverNames);
+  const tourHeaders = ["S NO", "SOURCE CITY", "SOURCE COMPANY", "DEST CITY", "DEST COMPANY", "DISTANCE (KM)", "IMAGE LINK"].concat(driverNames);
   newSheet.appendRow(tourHeaders);
   newSheet.setFrozenRows(1);
 
-  let routesData = [];
   if (data.routes && data.routes.length > 0) {
-      data.routes.forEach((route, idx) => {
-          let rowNum = idx + 2; 
-          let row = [idx + 1, route.source, route.sourceCo, route.dest, route.destCo, route.dist, route.img];
-          for (let d = 0; d < driverNames.length; d++) {
-              let colLetter = getColLetter(8 + d);
-              let formula = `=IF(COUNTIFS(Live_Job_Logs!$C:$C, ${colLetter}$1, Live_Job_Logs!$F:$F, $B${rowNum}, Live_Job_Logs!$G:$G, $C${rowNum}, Live_Job_Logs!$H:$H, $D${rowNum}, Live_Job_Logs!$I:$I, $E${rowNum}, Live_Job_Logs!$S:$S, ">="&IFERROR(REGEXEXTRACT(TO_TEXT($F${rowNum}), "\\d+")+0, 0)) > 0, TRUE, FALSE)`;
-              row.push(formula);
-          }
-          routesData.push(row);
-      });
-      newSheet.getRange(2, 1, routesData.length, routesData[0].length).setValues(routesData);
-      newSheet.getRange(2, 8, routesData.length, driverNames.length).insertCheckboxes();
+    const routesData = [];
+    data.routes.forEach((route, idx) => {
+      const rowNum = idx + 2;
+      const row = [idx + 1, route.source, route.sourceCo, route.dest, route.destCo, route.dist, route.img];
+      
+      for (let d = 0; d < driverNames.length; d++) {
+        const colLetter = getColumnLetter(8 + d);
+        const formula = `=IF(COUNTIFS(Live_Job_Logs!$C:$C, ${colLetter}$1, Live_Job_Logs!$F:$F, $B${rowNum}, Live_Job_Logs!$G:$G, $C${rowNum}, Live_Job_Logs!$H:$H, $D${rowNum}, Live_Job_Logs!$I:$I, $E${rowNum}, Live_Job_Logs!$M:$M, ">="&IFERROR(REGEXEXTRACT(TO_TEXT($F${rowNum}), "\\d+")+0, 0)) > 0, TRUE, FALSE)`;
+        row.push(formula);
+      }
+      routesData.push(row);
+    });
+
+    newSheet.getRange(2, 1, routesData.length, routesData[0].length).setValues(routesData);
+    newSheet.getRange(2, 8, routesData.length, driverNames.length).insertCheckboxes();
   }
 
-  if(masterSheet) {
-      masterSheet.appendRow([tourName, data.startDate, data.endDate, "LIVE", "", data.bannerUrl, newSheet.getSheetId()]);
+  if (masterSheet) {
+    masterSheet.appendRow([tourName, data.startDate, data.endDate, "LIVE", "", data.bannerUrl, newSheet.getSheetId()]);
   }
-  return createJsonResponse({ status: "success", sheetName: tourName }, headers);
+
+  return createJsonResponse({ status: "success", tourCreated: tourName, gid: newSheet.getSheetId() });
 }
 
-function handleUpdateTourStatus(data, headers) {
-  let { sheet } = getTargetSheet("TOUR_MASTER");
-  let values = sheet.getDataRange().getValues();
-  for(let i=1; i<values.length; i++) {
-     if(values[i][0] == data.tourName) {
-         sheet.getRange(i+1, 4).setValue(data.status);
-         sheet.getRange(i+1, 5).setValue(data.reason);
-         return createJsonResponse({status: "success"}, headers);
-     }
+function handleUpdateTourStatus(data) {
+  const { sheet } = getTargetSheet("TOUR_MASTER");
+  const values = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim() === String(data.tourName).trim()) {
+      const currentStatus = String(values[i][3]).trim().toUpperCase();
+      const newStatus = String(data.status).trim().toUpperCase();
+
+      sheet.getRange(i + 1, 4).setValue(newStatus);
+      sheet.getRange(i + 1, 5).setValue(data.reason || "");
+
+      // If transitioning to COMPLETED or ENDED, trigger Vanguard lock-in
+      if ((newStatus === "COMPLETED" || newStatus === "ENDED") && currentStatus !== newStatus) {
+        calculateTourVanguard(data.tourName);
+      }
+
+      return createJsonResponse({ status: "success", tourName: data.tourName, newStatus: newStatus });
+    }
   }
-  throw new Error("Tour not found in MASTER list");
+  throw new Error("Tour missing from TOUR_MASTER registry.");
 }
 
-function handleUpdateTourMaster(data, headers) {
-  let { sheet } = getTargetSheet("TOUR_MASTER");
-  let values = sheet.getDataRange().getValues();
+function autoCloseExpiredTours() {
+  const { sheet } = getTargetSheet("TOUR_MASTER");
+  const values = sheet.getDataRange().getValues();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let i = 1; i < values.length; i++) {
+    const tourName = String(values[i][0]).trim();
+    const endDateStr = String(values[i][2]).trim();
+    const currentStatus = String(values[i][3]).trim().toUpperCase();
+
+    if (!endDateStr || currentStatus !== "LIVE") continue;
+
+    const endDate = new Date(endDateStr);
+    if (!isNaN(endDate.getTime()) && endDate < today) {
+      // Auto-Close the tour
+      sheet.getRange(i + 1, 4).setValue("COMPLETED");
+      sheet.getRange(i + 1, 5).setValue("Auto-Concluded by System Cron");
+      
+      // Calculate and lock in the Vanguard
+      calculateTourVanguard(tourName);
+    }
+  }
+}
+
+function calculateTourVanguard(tourName) {
+  const DB_WEBSITE = "19ryICHTmtAp1dekGdF2wwq5b_oAKkgxxEEzLVApn4GQ";
   
-  for(let i=1; i<values.length; i++) {
-     if(String(values[i][0]).trim() === String(data.originalName).trim()) {
-         sheet.getRange(i+1, 1).setValue(data.tourName);
-         sheet.getRange(i+1, 2).setValue(data.startDate);
-         sheet.getRange(i+1, 3).setValue(data.endDate);
-         sheet.getRange(i+1, 6).setValue(data.bannerUrl);
-         
-         if (data.originalName !== data.tourName) {
-             try {
-                 let ss = sheet.getParent();
-                 let routeSheet = ss.getSheetByName(data.originalName);
-                 if(routeSheet) routeSheet.setName(data.tourName);
-             } catch(e) {}
-         }
-         return createJsonResponse({status: "success"}, headers);
-     }
+  try {
+    const { ss: tourSs } = getTargetSheet("TOUR_MASTER");
+    const routeSheet = tourSs.getSheetByName(tourName);
+    if (!routeSheet || routeSheet.getLastRow() < 2) return;
+
+    const data = routeSheet.getDataRange().getValues();
+    const headers = data[0];
+    
+    let maxCount = 0;
+    let vanguardDriver = "TBD";
+    
+    // Drivers start at column H (index 7)
+    for (let c = 7; c < headers.length; c++) {
+      const driver = String(headers[c]).trim().toUpperCase();
+      if (!driver || driver === "UNKNOWN" || driver.includes("ATTENDANCE")) continue;
+      
+      let count = 0;
+      for (let r = 1; r < data.length; r++) {
+        const val = String(data[r][c]).trim().toUpperCase();
+        if (val === 'TRUE' || val === '1' || val === 'YES' || val === '✓') {
+          count++;
+        }
+      }
+      
+      if (count > maxCount) {
+        maxCount = count;
+        vanguardDriver = driver;
+      }
+    }
+
+    if (vanguardDriver !== "TBD" && maxCount > 0) {
+      // Log to Website Achievers
+      const websiteSs = SpreadsheetApp.openById(DB_WEBSITE);
+      let achieverSheet = websiteSs.getSheetByName("Website_Achievers");
+      if (!achieverSheet) {
+        achieverSheet = websiteSs.insertSheet("Website_Achievers");
+        achieverSheet.appendRow(["TIMESTAMP", "MONTH_YEAR", "CATEGORY", "DRIVER_NAME", "VALUE"]);
+        achieverSheet.setFrozenRows(1);
+      }
+
+      const timestamp = new Date().toISOString();
+      const currentMonthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
+      
+      // Append All-Time & Current Month records (Value holds the Tour Name)
+      achieverSheet.appendRow([timestamp, "ALL-TIME", "TOUR_VANGUARD", vanguardDriver, tourName]);
+      achieverSheet.appendRow([timestamp, currentMonthLabel, "TOUR_VANGUARD", vanguardDriver, tourName]);
+    }
+  } catch (e) {
+    console.error("Vanguard Calculation Error: " + e.message);
   }
-  throw new Error("Tour not found in MASTER list");
 }
 
-function handleDeleteTour(data, headers) {
-  let { sheet, ss } = getTargetSheet("TOUR_MASTER");
-  let values = sheet.getDataRange().getValues();
+function setupDailyTourTrigger() {
+  const functionName = "autoCloseExpiredTours";
+  const triggers = ScriptApp.getProjectTriggers();
   
-  for(let i = values.length - 1; i >= 1; i--) {
-     if(String(values[i][0]).trim() === String(data.tourName).trim()) {
-         sheet.deleteRow(i+1); 
-         try {
-             let routeSheet = ss.getSheetByName(data.tourName);
-             if(routeSheet) ss.deleteSheet(routeSheet); 
-         } catch(e) {}
-         return createJsonResponse({status: "success"}, headers);
-     }
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === functionName) {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
   }
-  throw new Error("Tour not found to delete");
+  
+  // Runs daily between midnight and 1 AM
+  ScriptApp.newTrigger(functionName)
+    .timeBased()
+    .everyDays(1)
+    .atHour(0)
+    .create();
 }
 
-function handleAddNews(data, headers) {
-  let { sheet } = getTargetSheet("Website_News");
-  let headerRow = sheet.getRange(1, 1, 1, 1).getValues()[0];
-  if(headerRow[0] !== "TITLE") { sheet.appendRow(["TITLE", "DATE", "CATEGORY", "IMAGE_URL", "DESCRIPTION", "LINK"]); sheet.setFrozenRows(1); }
+function handleUpdateTourMaster(data) {
+  const { sheet } = getTargetSheet("TOUR_MASTER");
+  const values = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim() === String(data.originalName).trim()) {
+      sheet.getRange(i + 1, 1).setValue(data.tourName);
+      sheet.getRange(i + 1, 2).setValue(data.startDate);
+      sheet.getRange(i + 1, 3).setValue(data.endDate);
+      sheet.getRange(i + 1, 6).setValue(data.bannerUrl);
+
+      if (data.originalName !== data.tourName) {
+        try {
+          const ss = sheet.getParent();
+          const routeSheet = ss.getSheetByName(data.originalName);
+          if (routeSheet) routeSheet.setName(data.tourName);
+        } catch (e) {}
+      }
+      return createJsonResponse({ status: "success", updatedTour: data.tourName });
+    }
+  }
+  throw new Error("Target tour manifest not found.");
+}
+
+function handleDeleteTour(data) {
+  const { sheet, ss } = getTargetSheet("TOUR_MASTER");
+  const values = sheet.getDataRange().getValues();
+
+  for (let i = values.length - 1; i >= 1; i--) {
+    if (String(values[i][0]).trim() === String(data.tourName).trim()) {
+      sheet.deleteRow(i + 1);
+      try {
+        const routeSheet = ss.getSheetByName(data.tourName);
+        if (routeSheet) ss.deleteSheet(routeSheet);
+      } catch (e) {}
+      return createJsonResponse({ status: "success", deletedTour: data.tourName });
+    }
+  }
+  throw new Error("Target tour manifest not found for deletion.");
+}
+
+// =============================================================================
+// MEDIA, INTEL & CMS REPOSITORIES
+// =============================================================================
+
+function handleUpdateAsset(data) {
+  const { sheet } = getTargetSheet("Site_Assets");
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Asset_Name", "Image_URL"]);
+    sheet.setFrozenRows(1);
+  }
+
+  const assetKey = String(data.assetKey).trim().toUpperCase();
+  const newUrl = String(data.newUrl).trim();
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow > 1) {
+    const values = sheet.getRange(2, 1, lastRow - 1, 2).getValues();
+    for (let i = 0; i < values.length; i++) {
+      if (String(values[i][0]).trim().toUpperCase() === assetKey) {
+        sheet.getRange(i + 2, 2).setValue(newUrl);
+        return createJsonResponse({ status: "success", action: "UPDATED", asset: assetKey });
+      }
+    }
+  }
+
+  sheet.appendRow([assetKey, newUrl]);
+  return createJsonResponse({ status: "success", action: "APPENDED", asset: assetKey });
+}
+
+function handleAddNews(data) {
+  const { sheet } = getTargetSheet("Website_News");
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["TITLE", "DATE", "CATEGORY", "IMAGE_URL", "DESCRIPTION", "LINK"]);
+    sheet.setFrozenRows(1);
+  }
   sheet.appendRow([data.title, data.date, data.category, data.image, data.desc, data.link]);
-  return createJsonResponse({status:"success"}, headers);
+  return createJsonResponse({ status: "success", headline: data.title });
 }
 
-function handleAddGallery(data, headers) {
-  let { sheet } = getTargetSheet("Website_Gallery");
-  let headerRow = sheet.getRange(1, 1, 1, 1).getValues()[0];
-  if(headerRow[0] !== "IMAGE_URL") { sheet.appendRow(["IMAGE_URL"]); sheet.setFrozenRows(1); }
+function handleDeleteNews(data) {
+  const { sheet } = getTargetSheet("Website_News");
+  const values = sheet.getDataRange().getValues();
+  for (let i = values.length - 1; i >= 1; i--) {
+    if (String(values[i][0]).trim() === String(data.title).trim()) {
+      sheet.deleteRow(i + 1);
+      return createJsonResponse({ status: "success", purgedHeadline: data.title });
+    }
+  }
+  throw new Error("Target intel post missing from repository.");
+}
+
+function handleAddGallery(data) {
+  const { sheet } = getTargetSheet("Website_Gallery");
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["IMAGE_URL"]);
+    sheet.setFrozenRows(1);
+  }
   sheet.appendRow([data.image]);
-  return createJsonResponse({status:"success"}, headers);
+  return createJsonResponse({ status: "success", imageUploaded: data.image });
 }
 
-function handleSubmitApplication(data, headers) {
-  let { sheet } = getTargetSheet("APPLICATIONS");
-  sheet.appendRow([new Date().toLocaleString(), data.name, data.discord, data.steamId, data.tmpId, data.reason, "PENDING"]);
-  return createJsonResponse({status:"success"}, headers);
-}
-
-function handleDeleteNews(data, headers) {
-  let { sheet } = getTargetSheet("Website_News");
-  let values = sheet.getDataRange().getValues();
-  for (let i = values.length - 1; i >= 1; i--) { 
-      if (String(values[i][0]).trim() === String(data.title).trim()) {
-          sheet.deleteRow(i + 1);
-          return createJsonResponse({status: "success"}, headers);
-      }
+function handleDeleteGallery(data) {
+  const { sheet } = getTargetSheet("Website_Gallery");
+  const values = sheet.getDataRange().getValues();
+  for (let i = values.length - 1; i >= 1; i--) {
+    if (String(values[i][0]).trim() === String(data.image).trim()) {
+      sheet.deleteRow(i + 1);
+      return createJsonResponse({ status: "success", purgedMedia: data.image });
+    }
   }
-  throw new Error("News item not found.");
+  throw new Error("Target image missing from vault.");
 }
 
-function handleDeleteGallery(data, headers) {
-  let { sheet } = getTargetSheet("Website_Gallery");
-  let values = sheet.getDataRange().getValues();
-  for (let i = values.length - 1; i >= 1; i--) { 
-      if (String(values[i][0]).trim() === String(data.image).trim()) {
-          sheet.deleteRow(i + 1);
-          return createJsonResponse({status: "success"}, headers);
-      }
+function handleSubmitApplication(data) {
+  const { sheet } = getTargetSheet("APPLICATIONS");
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["TIMESTAMP", "NAME", "DISCORD", "STEAM_ID", "TMP_ID", "REASON", "STATUS"]);
+    sheet.setFrozenRows(1);
   }
-  throw new Error("Gallery item not found.");
+  sheet.appendRow([
+    new Date().toISOString(),
+    data.name,
+    data.discord,
+    data.steamId,
+    data.tmpId,
+    data.reason,
+    "PENDING"
+  ]);
+  return createJsonResponse({ status: "success", applicationLogged: data.name });
 }
 
-function createJsonResponse(responseObject, headers) {
-  return ContentService.createTextOutput(JSON.stringify(responseObject)).setMimeType(ContentService.MimeType.JSON).setHeaders(headers);
+// =============================================================================
+// UTILITY HELPERS
+// =============================================================================
+function getColumnLetter(colIndex) {
+  let letter = '';
+  while (colIndex > 0) {
+    let temp = (colIndex - 1) % 26;
+    letter = String.fromCharCode(temp + 65) + letter;
+    colIndex = Math.floor((colIndex - temp - 1) / 26);
+  }
+  return letter;
+}
+// =============================================================================
+// DYNAMIC ECONOMY ENGINE (CRON JOB)
+// =============================================================================
+
+function runDynamicEconomyCycle() {
+  const DB_JOBS = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y";
+  const CARGO_SPREADSHEET_ID = "1Cjg1S_l9FVgtEKE4ddrx3UtAroj7tB4jarfx2Yledrs";
+  
+  const MIN_PRICE = 1.50;
+  const MAX_PRICE = 15.00;
+
+  // 1. Calculate the 7-day cutoff date
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+
+  // 2. Open Live_Job_Logs and read data
+  const jobSs = SpreadsheetApp.openById(DB_JOBS);
+  const jobSheet = jobSs.getSheetByName("Live_Job_Logs");
+  if (!jobSheet) throw new Error("Could not find Live_Job_Logs sheet.");
+  
+  const jobData = jobSheet.getDataRange().getValues();
+  const cargoCounts = new Map();
+
+  // 3. Build the frequency map (skip header row)
+  for (let i = 1; i < jobData.length; i++) {
+    const timestampStr = jobData[i][0]; // Column A
+    const cargoName = String(jobData[i][3] || "").trim().toUpperCase(); // Column D
+    
+    if (!cargoName) continue;
+
+    const rowDate = new Date(timestampStr);
+    
+    // Only count if the date is valid and within the last 7 days
+    if (!isNaN(rowDate.getTime()) && rowDate >= sevenDaysAgo) {
+      cargoCounts.set(cargoName, (cargoCounts.get(cargoName) || 0) + 1);
+    }
+  }
+
+  // 4. Open Cargo_Rates sheet
+  const cargoSs = SpreadsheetApp.openById(CARGO_SPREADSHEET_ID);
+  const rateSheet = cargoSs.getSheetByName("Cargo_Rates");
+  if (!rateSheet) throw new Error("Could not find Cargo_Rates sheet.");
+
+  const rateData = rateSheet.getDataRange().getValues();
+  if (rateData.length <= 1) return; // Exit if only headers exist
+
+  const newPrices = [];
+
+  // 5. Process rate adjustments (skip header row)
+  for (let i = 1; i < rateData.length; i++) {
+    const cargoName = String(rateData[i][0]).trim().toUpperCase(); // Column A
+    let currentPrice = parseFloat(rateData[i][4]); // Column E
+    
+    // Fallback if price is missing or invalid
+    if (isNaN(currentPrice) || currentPrice <= 0) {
+      currentPrice = 6.50; 
+    }
+
+    const count = cargoCounts.get(cargoName) || 0;
+    let multiplier = 1.0;
+
+    // Apply supply/demand logic
+    if (count === 0) {
+      multiplier = 1.15; // +15%
+    } else if (count >= 1 && count <= 10) {
+      multiplier = 1.05; // +5%
+    } else if (count > 10 && count <= 25) {
+      multiplier = 0.95; // -5%
+    } else if (count > 25) {
+      multiplier = 0.85; // -15%
+    }
+
+    let newPrice = currentPrice * multiplier;
+
+    // Apply strict safety caps
+    if (newPrice < MIN_PRICE) newPrice = MIN_PRICE;
+    if (newPrice > MAX_PRICE) newPrice = MAX_PRICE;
+
+    // Push as a 2D array row for bulk write
+    newPrices.push([newPrice]);
+  }
+
+  // 6. Bulk overwrite Column E (Row 2 downwards)
+  rateSheet.getRange(2, 5, newPrices.length, 1).setValues(newPrices);
+}
+
+function setupEconomyTrigger() {
+  const functionName = "runDynamicEconomyCycle";
+  const triggers = ScriptApp.getProjectTriggers();
+  
+  // Clean up any existing triggers for this function to prevent duplicates
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === functionName) {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  
+  // Create a new weekly trigger: Every Sunday at Midnight (00:00 - 01:00)
+  ScriptApp.newTrigger(functionName)
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
+    .atHour(0)
+    .create();
+}
+// =============================================================================
+// ELITE ACHIEVERS AUTOMATION (CRON JOB)
+// =============================================================================
+
+function processMonthlyAchievers() {
+  const DB_WEBSITE = "19ryICHTmtAp1dekGdF2wwq5b_oAKkgxxEEzLVApn4GQ";
+  const DB_JOBS    = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y";
+  const DB_EVENTS  = "1NhiUDmXIfy6BXnLcXhAv8Mmp6rmSKzvdI_eznlWbLsw";
+
+  // 1. Determine Previous Month & Year
+  const now = new Date();
+  // Set to the 1st of the current month, then subtract 1 day to get into the previous month
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth(), 0); 
+  const targetMonth = prevMonthDate.getMonth(); // 0-11
+  const targetYear = prevMonthDate.getFullYear();
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const targetMonthLabel = `${monthNames[targetMonth]} ${targetYear}`.toUpperCase();
+
+  // 2. Scan Job Logs for Distance King
+  let topDistanceDriver = "TBD";
+  let maxDistance = 0;
+  
+  try {
+    const jobSs = SpreadsheetApp.openById(DB_JOBS);
+    const jobSheet = jobSs.getSheetByName("Live_Job_Logs");
+    if (jobSheet && jobSheet.getLastRow() > 1) {
+      const jobData = jobSheet.getDataRange().getValues();
+      const distanceMap = new Map();
+
+      for (let i = 1; i < jobData.length; i++) {
+        const rowDate = new Date(jobData[i][0]);
+        if (isNaN(rowDate.getTime())) continue;
+
+        if (rowDate.getMonth() === targetMonth && rowDate.getFullYear() === targetYear) {
+          const driver = String(jobData[i][2]).trim().toUpperCase();
+          const distStr = String(jobData[i][12]).replace(/[^0-9.]/g, '');
+          const distance = parseFloat(distStr) || 0;
+
+          if (driver && driver !== "UNKNOWN" && distance > 0) {
+            distanceMap.set(driver, (distanceMap.get(driver) || 0) + distance);
+          }
+        }
+      }
+
+      // Find Max
+      for (const [driver, distance] of distanceMap.entries()) {
+        if (distance > maxDistance) {
+          maxDistance = distance;
+          topDistanceDriver = driver;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse Job Logs for Achievers: " + e.message);
+  }
+
+  // 3. Scan Event Records for Event Champion
+  let topEventDriver = "TBD";
+  let maxEvents = 0;
+
+  try {
+    const eventSs = SpreadsheetApp.openById(DB_EVENTS);
+    const eventSheet = eventSs.getSheetByName("ENTRY SHEET");
+    if (eventSheet && eventSheet.getLastRow() > 1) {
+      const eventData = eventSheet.getDataRange().getValues();
+      
+      // Find Header Row
+      let headerRowIndex = 0;
+      for (let r = 0; r < Math.min(5, eventData.length); r++) {
+        if (String(eventData[r][1]).toUpperCase().includes('DATE')) {
+          headerRowIndex = r;
+          break;
+        }
+      }
+      
+      const headers = eventData[headerRowIndex];
+      const eventMap = new Map();
+
+      for (let i = headerRowIndex + 1; i < eventData.length; i++) {
+        const rowDate = new Date(eventData[i][1]);
+        if (isNaN(rowDate.getTime())) continue;
+
+        if (rowDate.getMonth() === targetMonth && rowDate.getFullYear() === targetYear) {
+          // Check attendance columns (Starts at index 6)
+          for (let c = 6; c < headers.length; c++) {
+            const driver = String(headers[c]).trim().toUpperCase();
+            if (!driver || driver === "UNKNOWN" || driver.includes("ATTENDANCE")) continue;
+
+            const attended = String(eventData[i][c]).trim().toUpperCase();
+            if (attended === "TRUE" || attended === "1" || attended === "YES") {
+              eventMap.set(driver, (eventMap.get(driver) || 0) + 1);
+            }
+          }
+        }
+      }
+
+      // Find Max
+      for (const [driver, events] of eventMap.entries()) {
+        if (events > maxEvents) {
+          maxEvents = events;
+          topEventDriver = driver;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse Events for Achievers: " + e.message);
+  }
+
+  // 4. Save to Website_Achievers
+  const websiteSs = SpreadsheetApp.openById(DB_WEBSITE);
+  let achieverSheet = websiteSs.getSheetByName("Website_Achievers");
+  if (!achieverSheet) {
+    achieverSheet = websiteSs.insertSheet("Website_Achievers");
+    achieverSheet.appendRow(["TIMESTAMP", "MONTH_YEAR", "CATEGORY", "DRIVER_NAME", "VALUE"]);
+    achieverSheet.setFrozenRows(1);
+  }
+
+  const timestamp = new Date().toISOString();
+  
+  // Append Distance King
+  if (topDistanceDriver !== "TBD") {
+    achieverSheet.appendRow([timestamp, targetMonthLabel, "DISTANCE_KING", topDistanceDriver, Math.floor(maxDistance)]);
+  }
+  
+  // Append Event Champion
+  if (topEventDriver !== "TBD") {
+    achieverSheet.appendRow([timestamp, targetMonthLabel, "EVENT_CHAMPION", topEventDriver, maxEvents]);
+  }
+}
+
+function setupAchieversTrigger() {
+  const functionName = "processMonthlyAchievers";
+  const triggers = ScriptApp.getProjectTriggers();
+  
+  // Clean up existing triggers to prevent duplicates
+  for (let i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === functionName) {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  
+  // Runs on the 1st of every month at 1 AM
+  ScriptApp.newTrigger(functionName)
+    .timeBased()
+    .onMonthDay(1)
+    .atHour(1)
+    .create();
+}
+// =============================================================================
+// FORCE POPULATE ALL-TIME ACHIEVERS (RUN MANUALLY ONCE)
+// =============================================================================
+
+function forceRunAllTimeAchievers() {
+  const DB_WEBSITE = "19ryICHTmtAp1dekGdF2wwq5b_oAKkgxxEEzLVApn4GQ";
+  const DB_JOBS    = "1e6Q0Bd6QPGHrAwbqqIuLgdVnIP8PomSFVSs_Kg4XK6Y";
+  const DB_EVENTS  = "1NhiUDmXIfy6BXnLcXhAv8Mmp6rmSKzvdI_eznlWbLsw";
+
+  // --- 1. Calculate All-Time Distance King ---
+  let topDistanceDriver = "TBD";
+  let maxDistance = 0;
+  
+  try {
+    const jobSs = SpreadsheetApp.openById(DB_JOBS);
+    const jobSheet = jobSs.getSheetByName("Live_Job_Logs");
+    if (jobSheet && jobSheet.getLastRow() > 1) {
+      const jobData = jobSheet.getDataRange().getValues();
+      const distanceMap = new Map();
+
+      // Skip Header (row 0)
+      for (let i = 1; i < jobData.length; i++) {
+        const driver = String(jobData[i][2]).trim().toUpperCase(); // Col C
+        const distStr = String(jobData[i][12]).replace(/[^0-9.]/g, ''); // Col M
+        const distance = parseFloat(distStr) || 0;
+
+        if (driver && driver !== "UNKNOWN" && distance > 0) {
+          distanceMap.set(driver, (distanceMap.get(driver) || 0) + distance);
+        }
+      }
+
+      for (const [driver, distance] of distanceMap.entries()) {
+        if (distance > maxDistance) {
+          maxDistance = distance;
+          topDistanceDriver = driver;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse Job Logs: " + e.message);
+  }
+
+  // --- 2. Calculate All-Time Event Champion ---
+  let topEventDriver = "TBD";
+  let maxEvents = 0;
+
+  try {
+    const eventSs = SpreadsheetApp.openById(DB_EVENTS);
+    const eventSheet = eventSs.getSheetByName("ENTRY SHEET");
+    if (eventSheet && eventSheet.getLastRow() > 1) {
+      const eventData = eventSheet.getDataRange().getValues();
+      
+      let headerRowIndex = 0;
+      for (let r = 0; r < Math.min(5, eventData.length); r++) {
+        if (String(eventData[r][1]).toUpperCase().includes('DATE') || String(eventData[r][2]).toUpperCase().includes('EVENT')) {
+          headerRowIndex = r;
+          break;
+        }
+      }
+      
+      const headers = eventData[headerRowIndex];
+      const eventMap = new Map();
+
+      // Skip Header
+      for (let i = headerRowIndex + 1; i < eventData.length; i++) {
+        // Driver cols start at index 6
+        for (let c = 6; c < headers.length; c++) {
+          const driver = String(headers[c]).trim().toUpperCase();
+          if (!driver || driver === "UNKNOWN" || driver.includes("ATTENDANCE")) continue;
+
+          const attended = String(eventData[i][c]).trim().toUpperCase();
+          if (attended === "TRUE" || attended === "1" || attended === "YES" || attended === "✓") {
+            eventMap.set(driver, (eventMap.get(driver) || 0) + 1);
+          }
+        }
+      }
+
+      for (const [driver, events] of eventMap.entries()) {
+        if (events > maxEvents) {
+          maxEvents = events;
+          topEventDriver = driver;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse Events: " + e.message);
+  }
+
+  // --- 3. Overwrite Website_Achievers Sheet ---
+  const websiteSs = SpreadsheetApp.openById(DB_WEBSITE);
+  let achieverSheet = websiteSs.getSheetByName("Website_Achievers");
+  if (!achieverSheet) {
+    achieverSheet = websiteSs.insertSheet("Website_Achievers");
+  }
+  
+  // Clear existing data and set headers
+  achieverSheet.clear();
+  achieverSheet.appendRow(["TIMESTAMP", "MONTH_YEAR", "CATEGORY", "DRIVER_NAME", "VALUE"]);
+  achieverSheet.setFrozenRows(1);
+
+  const timestamp = new Date().toISOString();
+  
+  // Append Winners
+  if (topDistanceDriver !== "TBD") {
+    achieverSheet.appendRow([timestamp, "ALL-TIME", "DISTANCE_KING", topDistanceDriver, Math.floor(maxDistance)]);
+  }
+  
+  if (topEventDriver !== "TBD") {
+    achieverSheet.appendRow([timestamp, "ALL-TIME", "EVENT_CHAMPION", topEventDriver, maxEvents]);
+  }
 }

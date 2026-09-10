@@ -1,5 +1,5 @@
 const JOB_LOGS_URLS = [
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=1370844484&single=true&output=csv", 
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0v7TKTub1VD6qG-d9vloA7IaKoO7eNSZIZaFK3yn-1RUbrff2EZ0mTcSb-MMj_PIZIk8RPF3UVCIp/pub?gid=524320100&single=true&output=csv", 
 ];
 const NEWS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=1131291013&single=true&output=csv"; 
 const GALLERY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=792315654&single=true&output=csv";
@@ -41,7 +41,17 @@ async function submitLogin() {
 
     try {
         const response = await fetch(url);
-        const result = await response.json();
+        const rawText = await response.text();
+        
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (parseError) {
+            console.error("Backend Error Response (Not JSON):", rawText);
+            errorMsg.innerText = "Connection Error: Backend returned invalid data. Check console.";
+            errorMsg.classList.remove('hidden');
+            return;
+        }
 
         if (result.status === "success") {
             sessionStorage.setItem('tntc_role', result.user.role);
@@ -53,6 +63,7 @@ async function submitLogin() {
             errorMsg.classList.remove('hidden');
         }
     } catch (err) {
+        console.error("Network Fetch Error:", err);
         errorMsg.innerText = "Network link severed.";
         errorMsg.classList.remove('hidden');
     } finally {
@@ -92,7 +103,17 @@ async function submitRegister() {
 
     try {
         const response = await fetch(url);
-        const result = await response.json();
+        const rawText = await response.text();
+
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (parseError) {
+            console.error("Backend Error Response (Not JSON):", rawText);
+            errorMsg.innerText = "Connection Error: Backend returned invalid data. Check console.";
+            errorMsg.classList.remove('hidden');
+            return;
+        }
 
         if (result.status === "success") {
             successMsg.innerText = result.message || "Data Transmitted! Awaiting Command Approval.";
@@ -104,6 +125,7 @@ async function submitRegister() {
             errorMsg.classList.remove('hidden');
         }
     } catch (err) {
+        console.error("Network Fetch Error:", err);
         errorMsg.innerText = "Network link severed.";
         errorMsg.classList.remove('hidden');
     } finally {
@@ -303,4 +325,65 @@ function initScrollReveal() {
         });
     }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
     reveals.forEach(reveal => observer.observe(reveal));
+}
+// Add this to your constants at the top of home.js
+// 🔴 IMPORTANT: Replace this URL with the "Publish to Web -> CSV" link of your "Website_Achievers" sheet
+const ACHIEVERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqXzcL2gWNqsxzrzesOvz2cdAKuj1kNGHk__4snl815GEU3GGJY8e6epOWOilpp_3a0NiZhasQISqn/pub?gid=834349123&single=true&output=csv"; 
+
+// Update your DOMContentLoaded listener to include loadAchievers()
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    loadStatsAndMarquee();
+    loadNews();
+    loadGallery();
+    loadAchievers(); // Added this
+    initScrollReveal();
+});
+
+// =============================================================================
+// ELITE ACHIEVERS ENGINE
+// =============================================================================
+function loadAchievers() {
+    const monthLabel = document.getElementById('achievers-month-label');
+    if (!monthLabel || !ACHIEVERS_CSV_URL.startsWith('http')) return;
+
+    Papa.parse(ACHIEVERS_CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: 'greedy',
+        complete: function(results) {
+            if (results.data && results.data.length > 0) {
+                // Find the latest MONTH_YEAR from the bottom of the sheet
+                const latestRecord = results.data[results.data.length - 1];
+                const latestMonth = latestRecord.MONTH_YEAR;
+                
+                if (!latestMonth) return;
+
+                monthLabel.innerText = `Honors for ${latestMonth}`;
+
+                // Filter data to only include records from the latest month
+                const currentMonthData = results.data.filter(row => row.MONTH_YEAR === latestMonth);
+
+                currentMonthData.forEach(row => {
+                    const category = String(row.CATEGORY).trim().toUpperCase();
+                    const driver = row.DRIVER_NAME || "TBD";
+                    const value = parseInt(row.VALUE) || 0;
+
+                    if (category === "DISTANCE_KING") {
+                        document.getElementById('achiever-km-name').innerText = driver;
+                        document.getElementById('achiever-km-val').innerText = value.toLocaleString();
+                    } else if (category === "EVENT_CHAMPION") {
+                        document.getElementById('achiever-ev-name').innerText = driver;
+                        document.getElementById('achiever-ev-val').innerText = value.toLocaleString();
+                    }
+                });
+            } else {
+                monthLabel.innerText = "Awaiting First End-of-Month Calculation";
+            }
+        },
+        error: function(error) {
+            console.error("Failed to load Achievers data:", error);
+            monthLabel.innerText = "Failed to synchronize data.";
+        }
+    });
 }
