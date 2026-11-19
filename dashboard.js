@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initIdentity();
     initFilterComponents();
     bindActionEvents();
+    initLatestTrackerDownload();
 
     if (typeof fetchSiteAssets === 'function') fetchSiteAssets();
     
@@ -645,4 +646,72 @@ function startTelemetryPolling() {
     fetchActiveDispatch();
     // 3 Second constant poll logic
     telemetryPollInterval = setInterval(fetchActiveDispatch, 3000); 
+}
+
+// =============================================================================
+// AUTO-DETECT LATEST TRACKER INSTALLER (GITHUB RELEASES)
+// =============================================================================
+
+async function initLatestTrackerDownload() {
+    const btn =
+        document.getElementById('trackerDownloadBtn') ||
+        document.querySelector('a[href*="TNTC-DASHBOARD/releases"]');
+    const label = document.getElementById('trackerDownloadLabel');
+    if (!btn) return;
+
+    const FALLBACK_URL = 'https://github.com/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest';
+    const CACHE_KEY = 'tntc_latest_release_cache';
+
+    // Ensure fallback never points to an outdated hardcoded .exe version
+    btn.href = FALLBACK_URL;
+
+    const applyRelease = (url, tag) => {
+        if (url) btn.href = url;
+        if (tag) {
+            if (label) {
+                label.innerText = `Download Tracker (${tag})`;
+            } else {
+                btn.innerHTML = `<i data-lucide="terminal-square" class="w-5 h-5"></i> Download Tracker (${tag})`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+    };
+
+    // Use sessionStorage cache to prevent hitting GitHub API rate limits on reload
+    try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.url) {
+                applyRelease(parsed.url, parsed.tag);
+                return;
+            }
+        }
+    } catch {}
+
+    try {
+        const res = await fetch(
+            'https://api.github.com/repos/tamilnadutruckingcrew/TNTC-DASHBOARD/releases/latest',
+            { headers: { Accept: 'application/vnd.github+json' } }
+        );
+        if (!res.ok) return;
+
+        const release = await res.json();
+        const exeAsset = (release.assets || []).find(
+            (a) => a.name && a.name.toLowerCase().endsWith('-setup.exe')
+        );
+
+        if (exeAsset && exeAsset.browser_download_url) {
+            const tag = release.tag_name || '';
+            applyRelease(exeAsset.browser_download_url, tag);
+            try {
+                sessionStorage.setItem(
+                    CACHE_KEY,
+                    JSON.stringify({ url: exeAsset.browser_download_url, tag })
+                );
+            } catch {}
+        }
+    } catch (err) {
+        console.warn('Latest tracker release fetch failed, using /releases/latest fallback:', err);
+    }
 }
